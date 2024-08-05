@@ -3,11 +3,12 @@ from src.container import Container
 from src.service1 import Service1
 
 class Service1Mixin:
+    _service1: Service1 = Provide[Container.service1_container.service]
+
     @property
-    @inject
-    def service1(self, _service1: Service1 = Provide[Container.service1_container.service]) -> Service1:
-        return _service1
+    def service1(self) -> Service1:
+        return self._service1
     
     @staticmethod
     def _wire(container):
-        return container.wire(modules=[__name__])
+        return container.wire(modules=[Service1Mixin])
