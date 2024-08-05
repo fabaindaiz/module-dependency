@@ -4,6 +4,6 @@ from src.service2.container import Service2Container
 
 # Declare all service providers
 class Container(containers.DeclarativeContainer):
-    config = providers.Configuration()
+    config = providers.Dependency()
     service1_container = providers.Container(Service1Container)
     service2_container = providers.Container(Service2Container)

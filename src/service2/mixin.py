@@ -8,5 +8,4 @@ class Service2Mixin(Mixin):
 
     @property
     def service2(self) -> Service2:
-        self._init(self.__service2)
         return self.__service2

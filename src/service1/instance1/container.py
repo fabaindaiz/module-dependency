@@ -4,4 +4,5 @@ from src.service1.instance1 import Service1Instance1
 
 @containers.override(Service1Container)
 class Service1Provider(containers.DeclarativeContainer):
-    service = providers.Singleton(Service1Instance1)
+    config = providers.Configuration()
+    service = providers.Singleton(Service1Instance1, config)
