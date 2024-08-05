@@ -1,10 +1,10 @@
-from dependency_injector import containers, providers
+from dependency_injector import providers
 from src.service2.container import Service2Container
 from src.service2.instance1 import Service2Instance1
 from src.service2.mixin import Service2Mixin
 
-@containers.override(Service2Container)
-class Service2Provider(containers.DeclarativeContainer):
+class Service2Provider(Service2Container):
     config = providers.Configuration()
-    service = providers.Singleton(Service2Instance1, config)
     inject = providers.Callable(Service2Mixin._wire)
+
+    service = providers.Singleton(Service2Instance1, config)
