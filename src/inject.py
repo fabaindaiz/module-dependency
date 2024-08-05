@@ -6,5 +6,5 @@ container = Container()
 container.init_resources()
 container.check_dependencies()
 
-Service1Mixin._wire(container)
-Service2Mixin._wire(container)
+Service1Mixin()._wire(container)
+Service2Mixin()._wire(container)
