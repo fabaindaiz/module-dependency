@@ -4,8 +4,9 @@ from src.container import Container
 from src.mixin import Mixin
 
 class Service2Mixin(Mixin):
-    _service2: Service2 = Provide[Container.service2_container.service]
+    __service2: Service2 = Provide[Container.service2_container.service]
 
     @property
     def service2(self) -> Service2:
-        return self._service2
+        self._init(self.__service2)
+        return self.__service2
