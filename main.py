@@ -1,5 +1,4 @@
 import src.environment.default
-
 from src.services.service1.mixin import Service1Mixin
 from src.services.service2.mixin import Service2Mixin
 

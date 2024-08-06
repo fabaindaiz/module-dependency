@@ -1,10 +1,9 @@
 from dependency_injector import containers, providers
 
 class ContainerLoader:
-    def __init__(self, container: containers.Container, config: dict):
+    def __init__(self, container: containers.Container, *args, **kwargs):
         container.init_resources()
         container.check_dependencies()
-        container.config.from_dict(config)
 
         for provider in container.traverse(types=[providers.Container]):
-            provider.inject(container)
+            provider.inject(container) # type: ignore

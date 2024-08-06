@@ -1,4 +1,4 @@
-from dependency_injector.wiring import Provide, inject
+from dependency_injector.wiring import Provide
 from src.services.service2 import Service2
 from src.services.mixin import Mixin
 from src.container import Container
