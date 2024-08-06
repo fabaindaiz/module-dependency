@@ -1,6 +1,6 @@
 from dependency_injector import providers
-from src.service2 import Service2
-from src.service import ServiceContainer
+from src.services.container import ServiceContainer
+from src.services.service2 import Service2
 
 class Service2Container(ServiceContainer):
     service = providers.Singleton(Service2)

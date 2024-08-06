@@ -1,6 +1,6 @@
 from dependency_injector import containers, providers
-from src.service1.container import Service1Container
-from src.service2.container import Service2Container
+from src.services.service1.container import Service1Container
+from src.services.service2.container import Service2Container
 
 class ContainerLoader:
     def __init__(self, container: containers.Container):

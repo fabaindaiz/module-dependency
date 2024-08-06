@@ -1,4 +1,4 @@
-from src.service2 import Service2
+from src.services.service2 import Service2
 
 class Service2Instance1(Service2):
     def __init__(self, cfg: dict):
