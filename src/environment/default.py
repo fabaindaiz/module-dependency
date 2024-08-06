@@ -15,10 +15,6 @@ config = {
     "service2": True,
 }
 
-container = Container()
-container.init_resources()
-container.check_dependencies()
-container.config.from_dict(config)
-
 # Step 2: Container initialization
-container.loader()
+container = Container()
+container.loader(config)

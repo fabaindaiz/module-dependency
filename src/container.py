@@ -1,11 +1,7 @@
 from dependency_injector import containers, providers
 from src.services.service1.container import Service1Container
 from src.services.service2.container import Service2Container
-
-class ContainerLoader:
-    def __init__(self, container: containers.Container):
-        for provider in container.traverse(types=[providers.Container]):
-            provider.inject(container)
+from src.loader import ContainerLoader
 
 # Declare all service providers
 class Container(containers.DeclarativeContainer):
