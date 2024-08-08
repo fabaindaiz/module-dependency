@@ -6,4 +6,5 @@ class ContainerLoader:
         container.check_dependencies()
 
         for provider in container.traverse(types=[providers.Container]):
-            provider.inject(container) # type: ignore
+            if provider.last_overriding:
+                provider.inject(container) # type: ignore

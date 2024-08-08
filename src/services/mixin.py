@@ -1,6 +1,6 @@
-from abc import ABC, abstractmethod
+from dependency_injector import containers
 
-class Mixin(ABC):
+class Mixin:
     @classmethod
-    def _wire(cls, container):
+    def _wire(cls, container: containers.Container):
         return container.wire(modules=[cls])
