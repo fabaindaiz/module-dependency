@@ -1,33 +1,15 @@
 from dependency_injector import containers, providers
+from src.dependencies.container import ServiceContainer
 from src.dependencies.resolver import resolve_dependency_layers
 
 class Container(containers.DynamicContainer):
-    config: providers.Configuration = providers.Dependency()
+    config: providers.Configuration = providers.Configuration()
 
-def resolve_dependency(unresolved: list, config: dict):
-    resolved_layers = resolve_dependency_layers(unresolved)
-    for resolved_layer in resolved_layers:
-        populate_layer(resolved_layer, config)
+def resolve_dependency(container: containers.Container, unresolved_layers: list):
+    for resolved_layer in resolve_dependency_layers(unresolved_layers):
+        populate_container(container, resolved_layer)
 
-def populate_layer(resolved: list, config: dict):
-        container = Container()
-        for provided_cls in resolved:
-            setattr(container, provided_cls.name(), providers.Container(provided_cls))
-
-        layer = containers.DynamicContainer()
-        layer.config = providers.Configuration()
-
-        for provided_cls in resolved:
-            print(f"Resolved class: {provided_cls}")
-            setattr(layer, provided_cls.name(), providers.Container(provided_cls, config=layer.config))
-
-        container.override(layer)
-        container.config.from_dict(config)
-        inject_layer(container)
-
-def inject_layer(container: containers.Container):
-    container.check_dependencies()
-
-    for provider in container.traverse(types=[providers.Container]):
-            if provider.last_overriding:
-                provider.inject(container) # type: ignore
+def populate_container(container: containers.Container, resolved_layer: list[ServiceContainer]):
+    for provided_cls in resolved_layer:
+        setattr(container, provided_cls.name(), providers.Container(provided_cls, config=container.config))
+        provided_cls.inject(container)
