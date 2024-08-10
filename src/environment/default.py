@@ -1,7 +1,7 @@
 from src.services.service1.instance1.container import Service1Provider
 from src.services.service2.instance1.container import Service2Provider
 from src.manager.manager1.instance1.container import Manager1Provider
-from src.dependencies.loader import load_dependencies
+from src.dependencies.loader import resolve_dependency, populate_layer
 
 class AppEnvironment:
     config = {
@@ -11,8 +11,9 @@ class AppEnvironment:
     
     dependencies = [
         Service1Provider,
-        Service2Provider,
         Manager1Provider,
+        Service2Provider,
     ]
 
-    load_dependencies(dependencies, config)
+    #populate_layer(dependencies, config)
+    resolve_dependency(dependencies, config)

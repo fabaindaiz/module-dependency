@@ -4,20 +4,21 @@ from src.dependencies.resolver import resolve_dependency_layers
 class Container(containers.DynamicContainer):
     config: providers.Configuration = providers.Dependency()
 
-def load_dependencies(unresolved: list, config: dict):
-    container = Container()
+def resolve_dependency(unresolved: list, config: dict):
+    resolved_layers = resolve_dependency_layers(unresolved)
+    for resolved_layer in resolved_layers:
+        populate_layer(resolved_layer, config)
 
-    for provider in unresolved:
-        setattr(container, provider.name(), providers.Container(provider))
+def populate_layer(resolved: list, config: dict):
+        container = Container()
+        for provided_cls in resolved:
+            setattr(container, provided_cls.name(), providers.Container(provided_cls))
 
-    for resolved_layer in resolve_dependency_layers(unresolved):
-        populate_layer(container, resolved_layer, config)
-
-def populate_layer(container: Container, resolved: list, config: dict):
         layer = containers.DynamicContainer()
         layer.config = providers.Configuration()
 
         for provided_cls in resolved:
+            print(f"Resolved class: {provided_cls}")
             setattr(layer, provided_cls.name(), providers.Container(provided_cls, config=layer.config))
 
         container.override(layer)

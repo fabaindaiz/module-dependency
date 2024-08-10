@@ -5,6 +5,7 @@ class AppLoader(AppEnvironment):
     pass
 
 class Worker(Manager1Mixin):
-    pass
+    def work(self):
+        self.manager1.do_work()
 
-Worker().manager1.do_work()
+Worker().work()

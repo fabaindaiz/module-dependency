@@ -1,7 +1,7 @@
 from dependency_injector import providers
 from src.services.container import ServiceContainer
-from src.services.service1 import Service1
+from src.services.service1.mixin import Service1Mixin
 
 class Service1Container(ServiceContainer):
     name = providers.Object("service1_container")
-    service = providers.Singleton(Service1)
+    inject = providers.Callable(Service1Mixin._wire)
