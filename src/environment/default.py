@@ -9,26 +9,25 @@ config = {
     "service2": True,
 }
 
-@containers.override(Container)
-class Layer1Container(containers.DeclarativeContainer):
-    __self__ = providers.Self()
-    config: providers.Configuration = providers.Configuration()
+from src.manager.manager1.container import Manager1Container
+issubclass(Manager1Provider, Manager1Container)
 
-    service2_container = providers.Container(Service2Provider, config=config)
+class AppEnvironment:
+    container = Container()
+    layer1 = containers.DynamicContainer()
+    layer1.config = providers.Configuration()
+    layer1.service1_container = providers.Container(Service1Provider, config=layer1.config)
+    layer1.service2_container = providers.Container(Service2Provider, config=layer1.config)
+    container.override(layer1)
 
-container = Container()
-container.config.from_dict(config)
-container.loader()
+    container.config.from_dict(config)
+    container.loader()
 
-@containers.override(Container)
-class Layer2Container(containers.DeclarativeContainer):
-    __self__ = providers.Self()
-    config: providers.Configuration = providers.Configuration()
+    container = Container()
+    layer2 = containers.DynamicContainer()
+    layer2.config = providers.Configuration()
+    layer2.manager1_container = providers.Container(Manager1Provider, config=layer2.config)
+    container.override(layer2)
 
-    service1_container = providers.Container(Service1Provider, config=config)
-
-    manager1_container = providers.Container(Manager1Provider, config=config)
-
-container = Container()
-container.config.from_dict(config)
-container.loader()
+    container.config.from_dict(config)
+    container.loader()
