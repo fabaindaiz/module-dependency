@@ -8,6 +8,7 @@ class Container(containers.DynamicContainer):
 def resolve_dependency(container: containers.Container, unresolved_layers: list):
     for resolved_layer in resolve_dependency_layers(unresolved_layers):
         populate_container(container, resolved_layer)
+    container.check_dependencies()
 
 def populate_container(container: containers.Container, resolved_layer: list[ServiceContainer]):
     for provided_cls in resolved_layer:
