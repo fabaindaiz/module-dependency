@@ -4,9 +4,12 @@ from src.services.service2.container import Service2Mixin
 
 class Manager1Instance1(Manager1, Service1Mixin, Service2Mixin):
     def __init__(self, cfg: dict):
-        print(f"Manager1 init: {cfg}")
-        self.service1.work()
         self.service2.work()
+        print(f"Manager1 init: {cfg}")
+    
+    def load(self):
+        # Here you can load the manager
+        print("Manager1 load")
     
     def work(self):
         print("Manager1 work")

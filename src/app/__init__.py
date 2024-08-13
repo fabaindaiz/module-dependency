@@ -3,7 +3,7 @@ from src.services.service2.instance1.container import Service2Provider
 from src.manager.manager1.instance1.container import Manager1Provider
 from src.dependencies.loader import Container, resolve_dependency
 
-class AppEnvironment:
+class MainEnvironment:
     config = {
         "service1": True,
         "service2": True,
