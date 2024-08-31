@@ -1,10 +1,9 @@
-from src.manager.manager1.container import Manager1Mixin
-from src.app import MainEnvironment
+from src.manager.container import ManagerMixin
+from src.app import AppEnvironment
 
-class MainApplication(MainEnvironment, Manager1Mixin):
-    def __init__(self):
-        # Here you can initialize the application
-        self.manager1.load()
+class MainApplication(AppEnvironment, ManagerMixin):
+    def load(self):
+        self.manager.load()
 
     def start(self):
-        self.manager1.work()
+        self.manager.work()

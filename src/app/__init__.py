@@ -1,18 +1,18 @@
-from src.services.service1.instance1.container import Service1Provider
-from src.services.service2.instance1.container import Service2Provider
-from src.manager.manager1.instance1.container import Manager1Provider
 from src.dependencies.loader import Container, resolve_dependency
+from src.manager.type1.container import Type1ManagerProvider
+from src.services.factory.type1.container import Type1FactoryServiceProvider
+from src.services.singleton.type1.container import Type1SingletonServiceProvider
 
-class MainEnvironment:
+class AppEnvironment:
     config = {
         "service1": True,
         "service2": True,
     }
     
     dependencies = [
-        Service1Provider,
-        Service2Provider,
-        Manager1Provider,
+        Type1ManagerProvider,
+        Type1FactoryServiceProvider,
+        Type1SingletonServiceProvider,
     ]
 
     container = Container()

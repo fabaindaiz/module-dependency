@@ -1,6 +1,10 @@
 from abc import ABC, abstractmethod
 
-class Service1(ABC):
+class Manager(ABC):
+    @abstractmethod
+    def load(self):
+        pass
+
     @abstractmethod
     def work(self):
         pass

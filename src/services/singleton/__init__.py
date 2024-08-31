@@ -1,10 +1,6 @@
 from abc import ABC, abstractmethod
 
-class Manager1(ABC):
-    @abstractmethod
-    def load(self):
-        pass
-
+class SingletonService(ABC):
     @abstractmethod
     def work(self):
         pass

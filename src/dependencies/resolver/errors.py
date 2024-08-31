@@ -1,6 +1,6 @@
+import logging
 from src.dependencies.resolver.utils import dep_in_layers, provider_unresolved
 
-import logging
 logger = logging.getLogger("DependencyLoader")
 
 def provider_detect_error(provider, unresolved_providers, resolved_layers):
