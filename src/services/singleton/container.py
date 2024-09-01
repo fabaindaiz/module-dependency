@@ -1,10 +1,12 @@
 from dependency_injector import providers
 from dependency_injector.wiring import Provide
-from src.dependencies.container import ServiceContainer, Mixin
+from src.dependencies.container import Injectable, ServiceContainer
 from src.services.singleton import SingletonService
 
-class SingletonServiceMixin(Mixin):
-    __service: SingletonService = Provide["singleton_service.service"]
+class SingletonServiceMixin(Injectable):
+    def __init__(self, singleton_service: SingletonService = Provide["singleton_service.service"], **kwargs):
+        self.__service = singleton_service
+        super().__init__(**kwargs)
 
     @property
     def singleton_service(self) -> SingletonService:

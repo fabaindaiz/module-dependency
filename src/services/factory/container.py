@@ -1,15 +1,14 @@
 from dependency_injector import providers
 from dependency_injector.wiring import Provide
-from src.dependencies.container import ServiceContainer, Mixin
-from src.dependencies.injection import Injectable, use_injection
+from src.dependencies.container import Injectable, ServiceContainer
 from src.services.factory import FactoryService
 
-class FactoryServiceMixin(Mixin, Injectable):
-    def _make_injection(self, factory_service: FactoryService = Provide["factory_service.service"]):
+class FactoryServiceMixin(Injectable):
+    def __init__(self, factory_service: FactoryService = Provide["factory_service.service"], **kwargs):
         self.__service = factory_service
+        super().__init__(**kwargs)
 
     @property
-    @use_injection
     def factory_service(self) -> FactoryService:
         return self.__service
 
