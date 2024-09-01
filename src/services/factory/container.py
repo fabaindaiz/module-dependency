@@ -4,7 +4,11 @@ from src.dependencies.container import Injectable, ServiceContainer
 from src.services.factory import FactoryService
 
 class FactoryServiceMixin(Injectable):
-    def __init__(self, factory_service: FactoryService = Provide["factory_service.service"], **kwargs):
+    name = "factory_service"
+    
+    def __init__(self,
+            factory_service: FactoryService = Provide[f"{name}.service"],
+            **kwargs):
         self.__service = factory_service
         super().__init__(**kwargs)
 
@@ -13,5 +17,5 @@ class FactoryServiceMixin(Injectable):
         return self.__service
 
 class FactoryServiceContainer(ServiceContainer):
-    name = providers.Object("factory_service")
+    name = providers.Object(FactoryServiceMixin.name)
     inject = providers.Callable(FactoryServiceMixin._wire)
