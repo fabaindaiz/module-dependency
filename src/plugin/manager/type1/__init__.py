@@ -1,4 +1,4 @@
-from src.manager import Manager
+from src.plugin.manager import Manager
 from src.services.factory.container import FactoryServiceMixin
 from src.services.singleton.container import SingletonServiceMixin
 
@@ -6,8 +6,7 @@ class Type1Manager(Manager, FactoryServiceMixin, SingletonServiceMixin):
     def __init__(self, cfg: dict, **kwargs):
         super().__init__(**kwargs)
         print(f"Manager init: {cfg}")
-    
-    def load(self):
+
         print("Manager load")
     
     def work(self):

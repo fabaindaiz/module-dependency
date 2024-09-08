@@ -1,6 +1,6 @@
 from dependency_injector import providers
 from dependency_injector.wiring import Provide
-from src.dependencies.container import Injectable, ServiceContainer
+from src.library.dependencies.container import Injectable, ServiceContainer
 from src.services.singleton import SingletonService
 
 class SingletonServiceMixin(Injectable):

@@ -1,8 +1,8 @@
 import logging
 from pprint import pformat
 from dependency_injector import containers, providers
-from src.dependencies.container import ServiceContainer
-from src.dependencies.resolver import resolve_dependency_layers
+from src.library.dependencies.container import ServiceContainer
+from src.library.dependencies.resolver import resolve_dependency_layers
 
 logger = logging.getLogger("DependencyLoader")
 
@@ -20,6 +20,7 @@ def resolve_dependency(container: containers.Container, unresolved_layers: list)
         populate_container(container, resolved_layer)
     
     container.check_dependencies()
+    container.init_resources()
     logger.info("Dependencies resolved and injected")
 
 def populate_container(container: containers.Container, resolved_layer: list[ServiceContainer]):

@@ -1,5 +1,5 @@
 import logging
-from src.dependencies.resolver.utils import dep_in_layers, provider_unresolved
+from src.library.dependencies.resolver.utils import dep_in_layers, provider_unresolved
 
 logger = logging.getLogger("DependencyLoader")
 

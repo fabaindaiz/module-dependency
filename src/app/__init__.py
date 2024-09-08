@@ -1,20 +1,26 @@
-from src.dependencies.loader import Container, resolve_dependency
-from src.manager.type1.container import Type1ManagerProvider
-from src.services.factory.type1.container import Type1FactoryServiceProvider
-from src.services.singleton.type1.container import Type1SingletonServiceProvider
+import time
+import logging
+from src.library.dependencies.loader import Container, resolve_dependency
+
+logger = logging.getLogger("AppEnvironment")
 
 class AppEnvironment:
+    init_time = time.time()
     config = {
         "service1": True,
         "service2": True,
     }
-    
+
+    import src.plugin.providers as plugin
+    import src.services.providers as services
+
     dependencies = [
-        Type1ManagerProvider,
-        Type1FactoryServiceProvider,
-        Type1SingletonServiceProvider,
+        *services.get(),
+        *plugin.get(),
     ]
 
     container = Container()
     container.config.from_dict(config)
     resolve_dependency(container, dependencies)
+
+    logger.info(f"Application started in {time.time() - init_time} seconds")
