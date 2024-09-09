@@ -13,13 +13,8 @@ class AppEnvironment:
         *plugin.get(),
     ]
 
-    config = {
-        "service1": True,
-        "service2": True,
-    }
-
     container = Container()
-    container.config.from_dict(config)
+    container.config.from_json("config/main.json")
     resolve_dependency(container, dependencies)
 
     print(f"Application started in {time.time() - init_time} seconds")
