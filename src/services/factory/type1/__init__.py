@@ -1,8 +1,7 @@
 from pydantic import BaseModel
-from typing_extensions import TypedDict
 from src.services.factory import FactoryService
 
-class FactoryConfig(TypedDict):
+class FactoryConfig(BaseModel):
     key1: str
     key2: str
 

@@ -1,8 +1,7 @@
 from pydantic import BaseModel
-from typing_extensions import TypedDict
 from src.services.singleton import SingletonService
 
-class SingletonConfig(TypedDict):
+class SingletonConfig(BaseModel):
     key1: str
     key2: str
 
