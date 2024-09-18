@@ -1,6 +1,10 @@
 from abc import ABC, abstractmethod
+from core import component
 
-class SingletonService(ABC):
+@component(
+    
+)
+class Singleton(ABC):
     @abstractmethod
     def work(self):
         pass

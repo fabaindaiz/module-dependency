@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
-from core import module
+from core import component
 
-@module(
+@component(
 )
 class Manager(ABC):
     @abstractmethod

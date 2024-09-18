@@ -1,8 +1,13 @@
-from src.plugin.client import Client
-from src.plugin.manager.container import ManagerMixin
+from core import provider
+from plugin.client import Client
+from plugin.manager import Manager
 
-class Type1Client(Client, ManagerMixin):
-    def __init__(self, cfg: dict, **kwargs):
-        super().__init__(**kwargs)
+@provider(
+    component=Client,
+    imports=[Manager]
+)
+class Type1Client:
+    def __init__(self, cfg: dict):
+        self.manager = Manager()
         self.manager.work()
         print("Client load")

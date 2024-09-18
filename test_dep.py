@@ -4,10 +4,10 @@ from typing import Generic, Type, TypeVar, cast
 
 def module():
     T = TypeVar('T')
-    def wrap(cls):
+    def wrap(cls: T) -> T:
         class Injectable():
             def __call__(self,
-                    service = Provide[f"{cls.__name__}._provider"]):
+                    service = Provide[f"{cls.__name__}._provider"]) -> T:
                 return service
             
             @property
@@ -18,10 +18,7 @@ def module():
             def wire(cls, container: containers.Container):
                 return container.wire(modules=[cls])
         
-        cls.I = Injectable()
-        return cls
-        
-        return cls
+        return Injectable()
     return wrap
 
 def provider(
@@ -31,8 +28,8 @@ def provider(
     ):
     def wrap(cls):
         class Container(containers.DeclarativeContainer):
-            _name = providers.Object(implements.I.name)
-            _wire = providers.Callable(implements.I.wire)
+            _name = providers.Object(implements.name)
+            _wire = providers.Callable(implements.wire)
             _imports = providers.List(*imports)
             _config = providers.Configuration()
             _provider = provider(cls, _config)

@@ -1,12 +1,12 @@
 import time
-from src.library.dependencies.loader import Container, resolve_dependency
+from core.loader import Container, resolve_dependency
 
 class AppEnvironment:
     init_time = time.time()
     print("Application starting")
 
-    import src.plugin.providers as plugin
-    import src.services.providers as services
+    import plugin.providers as plugin
+    import services.providers as services
 
     dependencies = [
         *services.get(),

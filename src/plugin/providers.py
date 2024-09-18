@@ -1,7 +1,7 @@
 def get():
-    from src.plugin.client.type1.container import Type1ClientProvider
-    from src.plugin.manager.type1.container import Type1ManagerProvider
+    from plugin.client.type1 import Type1Client
+    from plugin.manager.type1 import Type1Manager
     return [
-        Type1ClientProvider,
-        Type1ManagerProvider,
+        Type1Client,
+        Type1Manager,
     ]

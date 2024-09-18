@@ -1,22 +1,25 @@
+from core import provider
 from pydantic import BaseModel
-from src.services.singleton import SingletonService
+from services.singleton import Singleton
 
 class SingletonConfig(BaseModel):
     key1: str
     key2: str
 
-class Type1SingletonServiceConfig(BaseModel):
+class Type1SingletonConfig(BaseModel):
     singleton: SingletonConfig
 
-class Type1SingletonService(SingletonService):
-    def __init__(self, cfg: dict, **kwargs):
-        super().__init__(**kwargs)
+@provider(
+    component=Singleton
+)
+class Type1Singleton:
+    def __init__(self, cfg: dict):
         self.__cfg = self.get_config(cfg)
-        print(f"Singleton Service init: {self.__cfg.model_dump()}")
+        print(f"Singleton init: {self.__cfg.model_dump()}")
     
     @staticmethod
-    def get_config(cfg: dict) -> Type1SingletonServiceConfig:
-        return Type1SingletonServiceConfig(**cfg)
+    def get_config(cfg: dict) -> Type1SingletonConfig:
+        return Type1SingletonConfig(**cfg)
 
     def work(self):
-        print("Singleton Service work")
+        print("Singleton work")

@@ -1,7 +1,6 @@
 from pprint import pformat
+from core.resolver import resolve_dependency_layers
 from dependency_injector import containers, providers
-from src.library.dependencies.container import ServiceContainer
-from src.library.dependencies.resolver import resolve_dependency_layers
 
 class Container(containers.DynamicContainer):
     config: providers.Configuration = providers.Configuration()
@@ -10,7 +9,7 @@ def resolve_dependency(container: containers.Container, unresolved_layers: list)
     print("Resolving dependencies")
     resolved_layers = resolve_dependency_layers(unresolved_layers)
 
-    named_layers = pformat([[provider.__name__ for provider in layer] for layer in resolved_layers])
+    named_layers = pformat([[provider._name for provider in layer] for layer in resolved_layers])
     print(f"Layers:\n{named_layers}")
 
     for resolved_layer in resolved_layers:
@@ -20,7 +19,7 @@ def resolve_dependency(container: containers.Container, unresolved_layers: list)
     container.init_resources()
     print("Dependencies resolved and injected")
 
-def populate_container(container: containers.Container, resolved_layer: list[ServiceContainer]):
+def populate_container(container: containers.Container, resolved_layer: list):
     for provided_cls in resolved_layer:
-        setattr(container, provided_cls.name(), providers.Container(provided_cls, config=container.config)) # type: ignore
-        provided_cls.inject(container)
+        setattr(container, provided_cls._component._name, providers.Container(provided_cls._container, _config=container.config)) # type: ignore
+        provided_cls._component.wire(container)

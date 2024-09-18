@@ -1,8 +1,11 @@
 import time
-from src.plugin.manager.container import ManagerMixin
-from src.app import AppEnvironment
+from app import AppEnvironment
+from plugin.manager import Manager
 
-class MainApplication(AppEnvironment, ManagerMixin):
+class MainApplication(AppEnvironment):
+    manager = Manager()
+    manager.work()
+    
     def loop(self):
         while True:
             time.sleep(1)
