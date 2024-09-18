@@ -1,7 +1,7 @@
 from dependency_injector import providers
 from dependency_injector.wiring import Provide
-from src.dependencies.container import Injectable, ServiceContainer
-from src.manager import Manager
+from src.library.dependencies.container import Injectable, ServiceContainer
+from src.plugin.manager import Manager
 
 class ManagerMixin(Injectable):
     name = "manager"

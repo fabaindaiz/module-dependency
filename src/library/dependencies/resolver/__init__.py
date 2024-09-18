@@ -1,5 +1,5 @@
-from src.dependencies.resolver.errors import raise_dependency_error
-from src.dependencies.resolver.utils import provider_is_resolved
+from src.library.dependencies.resolver.errors import raise_dependency_error
+from src.library.dependencies.resolver.utils import provider_is_resolved
 
 def resolve_dependency_layers(unresolved_providers):
     resolved_layers = []
