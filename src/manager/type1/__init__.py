@@ -16,4 +16,22 @@ class Type1Manager(Manager, FactoryServiceMixin, SingletonServiceMixin):
         self.factory_service.work()
         self.singleton_service.work()
 
-    
+from core import provider
+
+@provider(
+    implements = Manager,
+    imports = [
+        FactoryService,
+        SingletonService,
+    ],
+)
+class Type1Manager(Manager):
+    def __init__(self, cfg: dict, **kwargs):
+        super().__init__(**kwargs)
+        print(f"Manager init: {cfg}")
+
+    def constructor(self,
+        factory_service: FactoryService,
+        singleton_service: SingletonService,
+        ):
+        pass
