@@ -1,47 +1,66 @@
+from abc import ABC, abstractmethod
 from dependency_injector import containers, providers
+from dependency_injector.wiring import Provide
 
-class Component:
-    value = 6
-
-def module(
-        declaration: list[Component] = None,
-        imports: list[Component] = None
-    ):
+def module():
     def wrap(cls):
-        class Module:
-            def __init__(self) -> None:
-                self.imports = imports
-                
+        class Mixin():
+            def __call__(self,
+                    service = Provide[f"{cls.__name__}._provider"]) -> cls:
+                return service
+            
+            @property
+            def name(self) -> str:
+                return cls.__name__
+            
+            @classmethod
             def wire(cls, container: containers.Container):
                 return container.wire(modules=[cls])
-        
-        cls._injection = Module
-        return cls
+        return Mixin()
     return wrap
 
-@module()
-class Module:
-    value: int = 5
-
 def provider(
-        provider: providers.Singleton,
-        implements: Module,
-        imports: list[Component]
+        implements,
+        imports: list = [],
+        provider = providers.Singleton
     ):
     def wrap(cls):
         class Container(containers.DeclarativeContainer):
-            _config = providers.Configuration()
+            _name = providers.Object(implements.name)
+            _wire = providers.Callable(implements.wire)
             _imports = providers.List(*imports)
+            _config = providers.Configuration()
             _provider = provider(cls, _config)
-
-
-        class Provider:
-            def __init__(self) -> None:
-                pass
-        
-        cls._injection = Module
-        return cls
+        return Container
     return wrap
 
+class Container(containers.DynamicContainer):
+    config: providers.Configuration = providers.Configuration()
 
-print(Module.value)
+def populate_container(container: containers.Container, resolved_layer: list):
+    for provided_cls in resolved_layer:
+        setattr(container, provided_cls._name(), providers.Container(provided_cls, _config=container.config)) # type: ignore
+        provided_cls._wire(container)
+
+@module()
+class Module(ABC):
+    @abstractmethod
+    def work(self):
+        pass
+
+@provider(
+    implements = Module
+)
+class EModule:
+    def __init__(self, cfg: dict):
+        pass
+    def work(self):
+        print("working")
+
+dependencies = [EModule]
+
+container = Container()
+container.config.from_json("config/main.json")
+populate_container(container, dependencies)
+
+Module().work()
