@@ -1,12 +1,15 @@
 from pprint import pformat
+from core import Module
 from core.resolver import resolve_dependency_layers
 from dependency_injector import containers, providers
 
 class Container(containers.DynamicContainer):
     config: providers.Configuration = providers.Configuration()
 
-def resolve_dependency(container: containers.Container, unresolved_layers: list):
+def resolve_dependency(container: containers.Container, module: Module):
     print("Resolving dependencies")
+
+    unresolved_layers = module.dependencies()
     resolved_layers = resolve_dependency_layers(unresolved_layers)
 
     named_layers = pformat([[provider._name for provider in layer] for layer in resolved_layers])

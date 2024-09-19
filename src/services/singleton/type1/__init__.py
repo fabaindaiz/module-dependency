@@ -1,6 +1,5 @@
 from core import provider
 from pydantic import BaseModel
-from services.singleton import Singleton
 
 class SingletonConfig(BaseModel):
     key1: str
@@ -10,7 +9,6 @@ class Type1SingletonConfig(BaseModel):
     singleton: SingletonConfig
 
 @provider(
-    component=Singleton
 )
 class Type1Singleton:
     def __init__(self, cfg: dict):

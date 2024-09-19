@@ -1,8 +1,8 @@
 from core.resolver.utils import dep_in_layers, provider_unresolved
 
 def provider_detect_error(provider, unresolved_providers, resolved_layers):
-    deps_circular = []
-    deps_missing = []
+    deps_circular: list = []
+    deps_missing: list = []
 
     for dep in provider_unresolved(provider, resolved_layers):
         # TODO: Check for circular dependencies

@@ -1,6 +1,5 @@
 from core import provider
 from pydantic import BaseModel
-from services.factory import Factory
 
 class FactoryConfig(BaseModel):
     key1: str
@@ -10,7 +9,6 @@ class Type1FactoryConfig(BaseModel):
     factory: FactoryConfig
 
 @provider(
-    component=Factory
 )
 class Type1Factory:
     def __init__(self, cfg: dict):
