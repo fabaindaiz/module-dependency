@@ -19,7 +19,7 @@ class AppEnvironment:
     print("Application starting")
 
     container = Container()
-    container.config.from_json("main.json", required=True)
+    container.config.from_json("example/main.json", required=True)
 
     resolve_dependency(
         container,

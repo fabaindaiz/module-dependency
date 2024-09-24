@@ -7,7 +7,7 @@ from example.services.singleton import Singleton
     component=Manager,
     imports=[Factory, Singleton]
 )
-class Type1Manager:
+class Type1Manager(Manager):
     def __init__(self, cfg: dict):
         self.factory = Factory.provided()
         self.singleton = Singleton.provided()
@@ -16,6 +16,4 @@ class Type1Manager:
     def work(self):
         print("Manager work")
         self.factory.work()
-        self.factory.work()
-        self.singleton.work()
         self.singleton.work()

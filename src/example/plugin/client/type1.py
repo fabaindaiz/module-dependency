@@ -6,8 +6,8 @@ from example.plugin.manager import Manager
     component=Client,
     imports=[Manager]
 )
-class Type1Client:
+class Type1Client(Client):
     def __init__(self, cfg: dict):
-        self.manager = Manager.provided()
+        self.manager = Manager._meta.provided()
         self.manager.work()
         print("Client load")

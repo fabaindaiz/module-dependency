@@ -1,4 +1,4 @@
-# mixin-injection
+# module-injection
 
 This repository contains experiments and examples for managing dependencies using dependency injection with mixins in Python projects. The structures and patterns demonstrated here are flexible and can be adapted to suit various project needs.
 
