@@ -2,13 +2,11 @@ import time
 from dependency.core import module
 from dependency.core.container import Container
 from dependency.core.loader import resolve_dependency
-from example.plugin import Plugin
-from example.services import Services
+from example.module import Plugin
 
 @module(
     imports=[
-        Plugin,
-        Services,
+        Plugin
     ]
 )
 class Application:

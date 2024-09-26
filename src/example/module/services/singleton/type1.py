@@ -1,6 +1,6 @@
 from dependency.core import provider
-from example.services.settings import Config
-from example.services.singleton import Singleton, SingletonMixin
+from example.module.services.settings import Config
+from example.module.services.singleton import Singleton, SingletonMixin
 
 @provider(
     component=SingletonMixin

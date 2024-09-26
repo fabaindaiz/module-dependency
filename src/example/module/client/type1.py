@@ -1,6 +1,6 @@
 from dependency.core import provider
-from example.plugin.client import Client, ClientMixin
-from example.plugin.manager import Manager, ManagerMixin
+from example.module.client import Client, ClientMixin
+from example.module.manager import Manager, ManagerMixin
 
 @provider(
     component=ClientMixin,

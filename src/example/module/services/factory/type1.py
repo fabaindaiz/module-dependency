@@ -1,7 +1,7 @@
 from dependency.core import provider
 from dependency_injector import providers
-from example.services.settings import Config
-from example.services.factory import Factory, FactoryMixin
+from example.module.services.settings import Config
+from example.module.services.factory import Factory, FactoryMixin
 
 @provider(
     provider=providers.Factory,

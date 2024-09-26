@@ -1,7 +1,7 @@
 from dependency.core import provider
-from example.plugin.manager import Manager, ManagerMixin
-from example.services.factory import Factory, FactoryMixin
-from example.services.singleton import Singleton, SingletonMixin
+from example.module.manager import Manager, ManagerMixin
+from example.module.services.factory import Factory, FactoryMixin
+from example.module.services.singleton import Singleton, SingletonMixin
 
 @provider(
     component=ManagerMixin,
