@@ -12,6 +12,9 @@ from example.module.services.singleton.type1 import Type1Singleton
     providers=[
         Type1Factory,
         Type1Singleton
+    ],
+    bootstrap=[
+        SingletonMixin
     ]
 )
 class Services:
