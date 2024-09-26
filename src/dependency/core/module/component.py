@@ -1,11 +1,17 @@
+from abc import ABC, abstractmethod
 from dependency_injector.wiring import Provide
 
-class Component:
+class Component(ABC):
     def __init__(self,
             base_cls,
         ):
         self.base_cls = base_cls
     
+    @staticmethod
+    @abstractmethod
+    def provide():
+        pass
+
     @classmethod
     def inject_cls(cls):
         return cls
@@ -15,16 +21,16 @@ class Component:
 
 def component(
         interface
-    ) -> Component:
-    def wrap(cls):
+    ):
+    def wrap(cls) -> Component:
         class WrapComponent(Component):
             def __init__(self):
                 super().__init__(
-                    base_cls=interface.__class__)
+                    base_cls=interface)
             
-            def __call__(self,
-                    service = Provide[f"{interface.__class__.__name__}.service"]
-                ) -> interface:
+            def provide(self,
+                    service = Provide[f"{interface.__name__}.service"]
+                ):
                 return service
         return WrapComponent()
     return wrap

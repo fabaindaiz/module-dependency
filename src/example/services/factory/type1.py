@@ -1,11 +1,11 @@
 from dependency.core import provider
 from dependency_injector import providers
 from example.services.settings import Config
-from example.services.factory import Factory
+from example.services.factory import Factory, FactoryMixin
 
 @provider(
-    component=Factory,
-    provider=providers.Factory
+    provider=providers.Factory,
+    component=FactoryMixin
 )
 class Type1Factory(Factory):
     def __init__(self, cfg: dict):

@@ -8,9 +8,9 @@ class Providable:
     def __init__(self,
             component: Component,
             provided_cls: type,
-            provider_cls: providers.Provider = providers.Singleton
+            provider_cls = providers.Singleton
         ):
-        class Container(containers.DeclarativeContainer):
+        class Container(containers.DynamicContainer):
             config = providers.Configuration()
             service = provider_cls(provided_cls, config)
         self.component = component

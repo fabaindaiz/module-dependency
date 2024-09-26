@@ -1,7 +1,11 @@
 from abc import ABC, abstractmethod
-from dependency.core import component
+from dependency.core import Component, component
+
+class Client(ABC):
+    pass
 
 @component(
+    interface=Client
 )
-class Client(ABC):
+class ClientMixin(Component):
     pass

@@ -5,9 +5,9 @@ from dependency_injector import providers
 
 class Provider:
     def __init__(self,
+            provider: Providable,
             provided_cls: type,
-            imports: list[Component],
-            provider: Providable
+            imports: list[Component]
         ):
         self.provided_cls = provided_cls
         self.imports = imports
@@ -17,11 +17,11 @@ class Provider:
         return self.provided_cls.__name__
 
 def provider(
-        component: type[Component],
-        imports: list[type[Component]] = [],
-        provider: providers.Provider = providers.Singleton
+        component,
+        imports = [],
+        provider = providers.Singleton
     ):
-    def wrap(cls):
+    def wrap(cls) -> Provider:
         class WrapProvider(Provider):
             def __init__(self):
                 super().__init__(

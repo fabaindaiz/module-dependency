@@ -1,9 +1,9 @@
 from dependency.core import provider
 from example.services.settings import Config
-from example.services.singleton import Singleton
+from example.services.singleton import Singleton, SingletonMixin
 
 @provider(
-    component=Singleton
+    component=SingletonMixin
 )
 class Type1Singleton(Singleton):
     def __init__(self, cfg: dict):

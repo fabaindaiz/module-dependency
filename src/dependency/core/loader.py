@@ -6,7 +6,7 @@ from dependency.core.resolver import resolve_dependency_layers
 def resolve_dependency(container: Container, module: Module):
     print("Resolving dependencies")
 
-    unresolved_layers = module.providers()
+    unresolved_layers = module.get_providers()
     resolved_layers = resolve_dependency_layers(unresolved_layers)
 
     named_layers = pformat(resolved_layers)
@@ -14,7 +14,10 @@ def resolve_dependency(container: Container, module: Module):
 
     for resolved_layer in resolved_layers:
         for provider in resolved_layer:
-            provider._provider.populate_container(container)
+            provider.provider.populate_container(container)
+    
+    module.do_bootstrap()
     
     container.check_dependencies()
+    container.init_resources()
     print("Dependencies resolved and injected")

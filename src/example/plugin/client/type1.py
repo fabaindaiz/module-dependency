@@ -1,13 +1,13 @@
 from dependency.core import provider
-from example.plugin.client import Client
-from example.plugin.manager import Manager
+from example.plugin.client import Client, ClientMixin
+from example.plugin.manager import Manager, ManagerMixin
 
 @provider(
-    component=Client,
-    imports=[Manager]
+    component=ClientMixin,
+    imports=[ManagerMixin]
 )
 class Type1Client(Client):
     def __init__(self, cfg: dict):
-        self.manager = Manager._meta.provided()
-        self.manager.work()
         print("Client load")
+        self.manager: Manager = ManagerMixin.provide()
+        self.manager.work()

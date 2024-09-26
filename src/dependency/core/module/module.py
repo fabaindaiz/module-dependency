@@ -20,20 +20,26 @@ class Module:
     def get_providers(self):
         providers = self.providers.copy()
         for module in self.imports:
-            providers.extend(module.providers())
+            providers.extend(module.get_providers())
         return providers
+    
+    def do_bootstrap(self):
+        for component in self.bootstrap:
+            component.provide()
+        for module in self.imports:
+            module.do_bootstrap()
     
     def __repr__(self) -> str:
         return self.module_cls.__name__
 
 def module(
-        declaration: list[Component] = [],
-        imports: list[Module] = [],
-        bootstrap: list[Component] = [],
+        declaration = [],
+        imports = [],
+        bootstrap = [],
 
-        providers: list[Provider] = [],
+        providers = [],
     ):
-    def wrap(cls):
+    def wrap(cls) -> Module:
         class WrapModule(Module):
             def __init__(self):
                 super().__init__(
