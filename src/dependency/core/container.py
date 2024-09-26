@@ -4,6 +4,21 @@ from dependency_injector import containers, providers
 class Container(containers.DynamicContainer):
     config: providers.Configuration = providers.Configuration()
 
+    @staticmethod
+    def from_dict(config: dict,
+            required: bool = False):
+        container = Container()
+        container.config.from_dict(config, required)
+        return container
+    
+    @staticmethod
+    def from_json(file: str,
+            required: bool = False,
+            envs_required: bool = False):
+        container = Container()
+        container.config.from_json(file, required, envs_required)
+        return container
+
 class Providable:
     def __init__(self,
             component: Component,

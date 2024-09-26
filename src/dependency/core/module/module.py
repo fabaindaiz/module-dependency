@@ -17,10 +17,10 @@ class Module:
 
         self.providers = providers
 
-    def get_providers(self):
+    def init_providers(self):
         providers = self.providers.copy()
         for module in self.imports:
-            providers.extend(module.get_providers())
+            providers.extend(module.init_providers())
         return providers
     
     def init_bootstrap(self):

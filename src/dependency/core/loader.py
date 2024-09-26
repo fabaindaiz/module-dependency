@@ -6,7 +6,7 @@ from dependency.core.resolver import resolve_dependency_layers
 def resolve_dependency(container: Container, appmodule: Module):
     print("Resolving dependencies")
 
-    unresolved_layers = appmodule.get_providers()
+    unresolved_layers = appmodule.init_providers()
     resolved_layers = resolve_dependency_layers(unresolved_layers)
 
     named_layers = pformat(resolved_layers)

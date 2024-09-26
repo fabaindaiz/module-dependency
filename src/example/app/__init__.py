@@ -18,12 +18,7 @@ class AppEnvironment:
     init_time = time.time()
     print("Application starting")
 
-    container = Container()
-    container.config.from_json("src/example/main.json", required=True)
-
-    resolve_dependency(
-        container=container,
-        appmodule=Application # type: ignore
-    )
+    container = Container.from_json("src/example/main.json", required=True)
+    resolve_dependency(container, appmodule=Application) # type: ignore
 
     print(f"Application started in {time.time() - init_time} seconds")

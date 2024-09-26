@@ -12,12 +12,12 @@ with _open("requirements.txt") as requirements_file:
     requirements = requirements_file.readlines()
 
 
-setup(name='dependency-module',
+setup(name='module-injection',
       version='0.1',
-      description='Python Dependency Module',
+      description='Python Module Injection',
       author='Fabian Diaz',
       author_email='github.clapping767@passmail.net',
-      url='https://github.com/fabaindaiz/python-dependency-module/',
+      url='https://github.com/fabaindaiz/module-injection',
       packages=[
           'dependency'
       ],
