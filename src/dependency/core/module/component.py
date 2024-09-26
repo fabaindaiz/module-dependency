@@ -3,7 +3,7 @@ from dependency_injector.wiring import Provide
 
 class Component(ABC):
     def __init__(self,
-            base_cls,
+            base_cls: type,
         ):
         self.base_cls = base_cls
     
@@ -20,7 +20,7 @@ class Component(ABC):
         return self.base_cls.__name__
 
 def component(
-        interface
+        interface: type
     ):
     def wrap(cls) -> Component:
         class WrapComponent(Component):

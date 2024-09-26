@@ -1,5 +1,5 @@
 import time
-from dependency.core import Module, module
+from dependency.core import module
 from dependency.core.container import Container
 from dependency.core.loader import resolve_dependency
 from example.plugin import Plugin
@@ -11,7 +11,7 @@ from example.services import Services
         Services,
     ]
 )
-class Application(Module):
+class Application:
     pass
 
 class AppEnvironment:
@@ -22,8 +22,8 @@ class AppEnvironment:
     container.config.from_json("src/example/main.json", required=True)
 
     resolve_dependency(
-        container,
-        module=Application # type: ignore
+        container=container,
+        appmodule=Application # type: ignore
     )
 
     print(f"Application started in {time.time() - init_time} seconds")

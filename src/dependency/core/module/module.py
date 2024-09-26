@@ -3,7 +3,7 @@ from dependency.core.module.provider import Provider
 
 class Module:
     def __init__(self,
-            module_cls,
+            module_cls: type,
             declaration: list[Component],
             imports: list["Module"],
             bootstrap: list[Component],
@@ -23,11 +23,11 @@ class Module:
             providers.extend(module.get_providers())
         return providers
     
-    def do_bootstrap(self):
+    def init_bootstrap(self):
         for component in self.bootstrap:
             component.provide()
         for module in self.imports:
-            module.do_bootstrap()
+            module.init_bootstrap()
     
     def __repr__(self) -> str:
         return self.module_cls.__name__
@@ -40,15 +40,12 @@ def module(
         providers = [],
     ):
     def wrap(cls) -> Module:
-        class WrapModule(Module):
-            def __init__(self):
-                super().__init__(
-                    module_cls=cls,
-                    declaration=declaration,
-                    imports=imports,
-                    bootstrap=bootstrap,
+        return Module(
+            module_cls=cls,
+            declaration=declaration,
+            imports=imports,
+            bootstrap=bootstrap,
 
-                    providers=providers,
-                )
-        return WrapModule()
+            providers=providers,
+        )
     return wrap
