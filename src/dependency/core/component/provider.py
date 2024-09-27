@@ -1,7 +1,7 @@
-
-from dependency.core.module.component import Component
-from dependency.core.container import Providable
 from dependency_injector import providers
+from typing import Any, Callable, cast
+from dependency.core.component import Component
+from dependency.core.container import Providable
 
 class Provider:
     def __init__(self,
@@ -17,16 +17,18 @@ class Provider:
         return self.provided_cls.__name__
 
 def provider(
-        component,
-        imports = [],
-        provider = providers.Singleton
-    ):
-    def wrap(cls) -> Provider:
+        component: type[Component],
+        imports: list[type[Component]] = [],
+        provider: type[providers.Provider[Any]] = providers.Singleton
+    ) -> Callable[[type], Provider]:
+    def wrap(cls: type) -> Provider:
+        _component = cast(Component, component)
+        _imports = cast(list[Component], imports)
         return Provider(
             provided_cls=cls,
-            imports=imports,
+            imports=_imports,
             provider=Providable(
-                component=component,
+                component=_component,
                 provided_cls=cls,
                 provider_cls=provider
             )

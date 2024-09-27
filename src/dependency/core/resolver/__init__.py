@@ -2,7 +2,7 @@ from dependency.core import Provider
 from dependency.core.resolver.errors import raise_dependency_error
 from dependency.core.resolver.utils import provider_is_resolved
 
-def resolve_dependency_layers(unresolved_providers: list[Provider]):
+def resolve_dependency_layers(unresolved_providers: list[Provider]) -> list[list[Provider]]:
     resolved_layers: list[list[Provider]] = []
 
     while unresolved_providers:

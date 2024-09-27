@@ -1,4 +1,4 @@
-from dependency.core import module
+from dependency.core import Module, module
 from example.module.client import ClientMixin
 from example.module.manager import ManagerMixin
 from example.module.client.type1 import Type1Client
@@ -21,5 +21,5 @@ from example.module.services import Services
         ClientMixin
     ]
 )
-class Plugin:
+class Plugin(Module):
     pass

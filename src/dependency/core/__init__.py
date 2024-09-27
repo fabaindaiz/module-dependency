@@ -1,3 +1,12 @@
-from dependency.core.module.component import Component, component
-from dependency.core.module.module import Module, module
-from dependency.core.module.provider import Provider, provider
+from dependency.core.module import Module, module
+from dependency.core.component import Component, component
+from dependency.core.component.provider import Provider, provider
+
+__all__ = [
+    "Module",
+    "module",
+    "Component",
+    "component",
+    "Provider",
+    "provider",
+]

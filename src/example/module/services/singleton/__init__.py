@@ -3,7 +3,7 @@ from dependency.core import Component, component
 
 class Singleton(ABC):
     @abstractmethod
-    def work(self):
+    def work(self) -> None:
         pass
 
 @component(

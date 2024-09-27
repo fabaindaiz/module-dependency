@@ -1,4 +1,4 @@
-from dependency.core import module
+from dependency.core import Module, module
 from example.module.services.factory import FactoryMixin
 from example.module.services.singleton import SingletonMixin
 from example.module.services.factory.type1 import Type1Factory
@@ -17,5 +17,5 @@ from example.module.services.singleton.type1 import Type1Singleton
         SingletonMixin
     ]
 )
-class Services:
+class Services(Module):
     pass

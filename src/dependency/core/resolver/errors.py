@@ -1,11 +1,12 @@
-from dependency.core import Component, Provider
+from dependency.core.component import Component
+from dependency.core.component.provider import Provider
 from dependency.core.resolver.utils import dep_in_layers, provider_unresolved
 
 def provider_detect_error(
         provider: Provider,
         unresolved_providers: list[Provider],
         resolved_layers: list[list[Provider]]
-    ):
+    ) -> tuple[list[Component], list[Component]]:
     deps_circular: list[Component] = []
     deps_missing: list[Component] = []
 
@@ -16,10 +17,7 @@ def provider_detect_error(
     print(f"{provider} has unresolved dependencies: {deps_missing}")
     return deps_circular, deps_missing
 
-def raise_dependency_error(
-        providers: list[Provider],
-        resolved_layers: list[list[Provider]]
-    ):
+def raise_dependency_error(providers: list[Provider], resolved_layers: list[list[Provider]]) -> None:
     for provider in providers:
         provider_detect_error(provider, providers, resolved_layers)
     
