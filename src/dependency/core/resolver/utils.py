@@ -1,5 +1,4 @@
-from dependency.core.component import Component
-from dependency.core.component.provider import Provider
+from dependency.core.declaration import Component, Provider
 
 def dep_in_layers(dep: Component, layers: list[list[Provider]]) -> bool:
     return any(

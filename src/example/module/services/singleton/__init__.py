@@ -9,5 +9,5 @@ class Singleton(ABC):
 @component(
     interface=Singleton
 )
-class SingletonMixin(Component):
+class SingletonComponent(Component):
     pass

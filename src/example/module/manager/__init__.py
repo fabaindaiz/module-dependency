@@ -9,5 +9,5 @@ class Manager(ABC):
 @component(
     interface=Manager
 )
-class ManagerMixin(Component):
+class ManagerComponent(Component):
     pass

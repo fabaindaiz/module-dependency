@@ -9,5 +9,5 @@ class Factory(ABC):
 @component(
     interface=Factory
 )
-class FactoryMixin(Component):
+class FactoryComponent(Component):
     pass

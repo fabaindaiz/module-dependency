@@ -1,17 +1,17 @@
-from dependency_injector import providers
 from typing import Any, Callable, cast
-from dependency.core.component import Component
-from dependency.core.container import Providable
+from dependency_injector import providers
+from dependency.core.container.injectable import Injectable
+from dependency.core.declaration.component import Component
 
 class Provider:
     def __init__(self,
             provided_cls: type,
             imports: list[Component],
-            provider: Providable
+            inject: Injectable
         ):
         self.provided_cls = provided_cls
         self.imports = imports
-        self.provider = provider
+        self.provider = inject
 
     def __repr__(self) -> str:
         return self.provided_cls.__name__
@@ -27,8 +27,9 @@ def provider(
         return Provider(
             provided_cls=cls,
             imports=_imports,
-            provider=Providable(
-                component=_component,
+            inject=Injectable(
+                inject_name=_component.base_cls.__name__,
+                inject_cls=_component.__class__,
                 provided_cls=cls,
                 provider_cls=provider
             )

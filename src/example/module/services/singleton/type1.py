@@ -1,12 +1,12 @@
 from typing import Any
 from dependency.core import Provider, provider
 from example.module.services.settings import Config
-from example.module.services.singleton import Singleton, SingletonMixin
+from example.module.services.singleton import Singleton, SingletonComponent
 
 @provider(
-    component=SingletonMixin
+    component=SingletonComponent
 )
-class Type1Singleton(Provider, Singleton):
+class Type1Singleton(Singleton, Provider):
     def __init__(self, cfg: dict[str, Any]):
         self.__cfg = Config(**cfg)
         print(f"Singleton init")

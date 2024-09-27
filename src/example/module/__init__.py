@@ -1,25 +1,25 @@
-from dependency.core import Module, module
-from example.module.client import ClientMixin
-from example.module.manager import ManagerMixin
+from dependency.core.module.provider import ProviderModule, module
+from example.module.client import ClientComponent
+from example.module.manager import ManagerComponent
 from example.module.client.type1 import Type1Client
 from example.module.manager.type1 import Type1Manager
 from example.module.services import Services
 
 @module(
     declaration=[
-        ClientMixin,
-        ManagerMixin
+        ClientComponent,
+        ManagerComponent
     ],
     imports=[
         Services
     ],
-    providers=[
-        Type1Client,
-        Type1Manager
-    ],
     bootstrap=[
-        ClientMixin
+        ClientComponent
     ]
 )
-class Plugin(Module):
-    pass
+class Plugin(ProviderModule):
+    def declare_providers(self): # type: ignore
+        return [
+            Type1Client,
+            Type1Manager
+        ]

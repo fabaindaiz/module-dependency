@@ -1,24 +1,21 @@
+from abc import ABC
 from typing import Callable, cast
-from dependency.core.component import Component
-from dependency.core.component.provider import Provider
+from dependency.core.declaration import Component, Provider
 
-class Module:
+class Module(ABC):
     def __init__(self,
             module_cls: type,
             declaration: list[Component],
             imports: list["Module"],
-            bootstrap: list[Component],
-            providers: list[Provider]   # TODO: create ProviderModule
+            bootstrap: list[Component]
         ):
         self.module_cls = module_cls
         self.declaration = declaration
         self.imports = imports
         self.bootstrap = bootstrap
 
-        self.providers = providers
-
     def init_providers(self) -> list[Provider]:
-        providers = self.providers.copy()
+        providers: list[Provider] = []
         for module in self.imports:
             providers.extend(module.init_providers())
         return providers
@@ -37,18 +34,18 @@ def module(
         declaration: list[type[Component]] = [],
         imports: list[type[Module]] = [],
         bootstrap: list[type[Component]] = [],
-        providers: list[type[Provider]] = [],
-    ) -> Callable[[type], Module]:
-    def wrap(cls: type) -> Module:
+    ) -> Callable[[type[Module]], Module]:
+    def wrap(cls: type[Module]) -> Module:
         _declaration = cast(list[Component], declaration)
         _imports = cast(list[Module], imports)
         _bootstrap = cast(list[Component], bootstrap)
-        _providers = cast(list[Provider], providers)
-        return Module(
-            module_cls=cls,
-            declaration=_declaration,
-            imports=_imports,
-            bootstrap=_bootstrap,
-            providers=_providers
-        )
+        class WrapModule(cls): # type: ignore
+            def __init__(self) -> None:
+                super().__init__(
+                    module_cls=cls,
+                    declaration=_declaration,
+                    imports=_imports,
+                    bootstrap=_bootstrap,
+                )
+        return WrapModule()
     return wrap

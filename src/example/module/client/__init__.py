@@ -7,5 +7,5 @@ class Client(ABC):
 @component(
     interface=Client
 )
-class ClientMixin(Component):
+class ClientComponent(Component):
     pass
