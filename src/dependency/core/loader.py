@@ -1,15 +1,16 @@
 import logging
-logger = logging.getLogger("DependencyLoader")
-
 from pprint import pformat
+from typing import cast
 from dependency.core.module import Module
 from dependency.core.container import Container
 from dependency.core.resolver import resolve_dependency_layers
+logger = logging.getLogger("DependencyLoader")
 
-def resolve_dependency(container: Container, appmodule: Module) -> None:
+def resolve_dependency(container: Container, appmodule: type[Module]) -> None:
+    _appmodule = cast(Module, appmodule)
     logger.info("Resolving dependencies")
 
-    unresolved_layers = appmodule.init_providers()
+    unresolved_layers = _appmodule.init_providers()
     resolved_layers = resolve_dependency_layers(unresolved_layers)
 
     named_layers = pformat(resolved_layers)
@@ -21,5 +22,5 @@ def resolve_dependency(container: Container, appmodule: Module) -> None:
     
     container.check_dependencies()
     container.init_resources()
-    appmodule.init_bootstrap()
+    _appmodule.init_bootstrap()
     logger.info("Dependencies resolved and injected")

@@ -17,7 +17,7 @@ from example.module.services import Services
         ClientComponent
     ]
 )
-class Plugin(ProviderModule):
+class MainModule(ProviderModule):
     def declare_providers(self): # type: ignore
         return [
             Type1Client,

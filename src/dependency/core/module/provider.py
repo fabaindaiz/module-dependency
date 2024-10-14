@@ -3,7 +3,8 @@ from dependency.core.module import Module, module
 from dependency.core.declaration import Provider
 
 __all__ = [
-    module
+    "ProviderModule",
+    "module"
 ]
 
 class ProviderModule(Module):

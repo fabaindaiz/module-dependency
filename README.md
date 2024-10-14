@@ -34,7 +34,7 @@ This project is a work in progress, and there are several improvements and enhan
 - Improve component registration and resolution mechanisms
 - Improve ways to handle module definitions and configurations
 - Explore more advanced dependency injection patterns and use cases
-- Enhance type checking and validation mechanisms (including mypy checks)
+- Enhance validation and error handling mechanisms of the framework
 
 ## Aknowledgements
 

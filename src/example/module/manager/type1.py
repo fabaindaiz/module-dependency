@@ -1,5 +1,5 @@
 from typing import Any
-from dependency.core import Provider, provider
+from dependency.core import provider
 from example.module.manager import Manager, ManagerComponent
 from example.module.services.factory import Factory, FactoryComponent
 from example.module.services.singleton import Singleton, SingletonComponent
@@ -8,7 +8,7 @@ from example.module.services.singleton import Singleton, SingletonComponent
     component=ManagerComponent,
     imports=[FactoryComponent, SingletonComponent]
 )
-class Type1Manager(Manager, Provider):
+class Type1Manager(Manager):
     def __init__(self, cfg: dict[str, Any]):
         print("Manager load")
         self.factory: Factory = FactoryComponent.provide()

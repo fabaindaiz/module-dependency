@@ -1,26 +1,22 @@
 import time
-from dependency.core import Module, module
+import logging
 from dependency.core.container import Container
 from dependency.core.loader import resolve_dependency
-from example.module import Plugin
-
-@module(
-    imports=[
-        Plugin
-    ]
-)
-class Application(Module):
-    pass
+from example.module import MainModule
+logger = logging.getLogger("root")
 
 class MainApplication:
     def __init__(self) -> None:
+        logger.setLevel(logging.INFO)
+        logger.addHandler(logging.StreamHandler())
+
         init_time = time.time()
-        print("Application starting")
+        logger.info("Application starting")
 
         container = Container.from_json("src/example/main.json", required=True)
-        resolve_dependency(container, appmodule=Application)
+        resolve_dependency(container, appmodule=MainModule)
 
-        print(f"Application started in {time.time() - init_time} seconds")
+        logger.info(f"Application started in {time.time() - init_time} seconds")
 
     def loop(self) -> None:
         while True:

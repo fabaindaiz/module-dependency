@@ -1,6 +1,6 @@
 from typing import Any
 from dependency_injector import providers
-from dependency.core import Provider, provider
+from dependency.core import provider
 from example.module.services.settings import Config
 from example.module.services.factory import Factory, FactoryComponent
 
@@ -8,7 +8,7 @@ from example.module.services.factory import Factory, FactoryComponent
     provider=providers.Factory,
     component=FactoryComponent
 )
-class Type1Factory(Factory, Provider):
+class Type1Factory(Factory):
     def __init__(self, cfg: dict[str, Any]):
         self.__cfg = Config(**cfg)
         print(f"Factory init")
