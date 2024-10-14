@@ -1,5 +1,5 @@
 from abc import ABC
-from typing import Callable, cast
+from typing import Callable
 from dependency.core.declaration import Component, Provider
 
 class Module(ABC):
@@ -31,21 +31,18 @@ class Module(ABC):
         return self.module_cls.__name__
 
 def module(
-        declaration: list[type[Component]] = [],
-        imports: list[type[Module]] = [],
-        bootstrap: list[type[Component]] = [],
+        declaration: list[Component] = [],
+        imports: list[Module] = [],
+        bootstrap: list[Component] = [],
     ) -> Callable[[type[Module]], Module]:
     def wrap(cls: type[Module]) -> Module:
-        _declaration = cast(list[Component], declaration)
-        _imports = cast(list[Module], imports)
-        _bootstrap = cast(list[Component], bootstrap)
         class WrapModule(cls): # type: ignore
             def __init__(self) -> None:
                 super().__init__(
                     module_cls=cls,
-                    declaration=_declaration,
-                    imports=_imports,
-                    bootstrap=_bootstrap,
+                    declaration=declaration,
+                    imports=imports,
+                    bootstrap=bootstrap,
                 )
         return WrapModule()
     return wrap

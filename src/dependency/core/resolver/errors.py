@@ -1,3 +1,6 @@
+import logging
+logger = logging.getLogger("DependencyLoader")
+
 from dependency.core.declaration import Component
 from dependency.core.declaration.provider import Provider
 from dependency.core.resolver.utils import dep_in_layers, provider_unresolved
@@ -14,7 +17,7 @@ def provider_detect_error(
         # TODO: Check for circular dependencies
         deps_missing.append(dep)
 
-    print(f"{provider} has unresolved dependencies: {deps_missing}")
+    logger.exception(f"{provider} has unresolved dependencies: {deps_missing}")
     return deps_circular, deps_missing
 
 def raise_dependency_error(providers: list[Provider], resolved_layers: list[list[Provider]]) -> None:
