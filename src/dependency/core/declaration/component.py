@@ -1,6 +1,6 @@
-from dependency.core.declaration.base import ABCComponent, ABCProvider
 from typing import Any, Callable, Optional
 from dependency_injector.wiring import Provide
+from dependency.core.declaration.base import ABCComponent, ABCProvider
 
 class Component(ABCComponent):
     def __init__(self, base_cls: type):

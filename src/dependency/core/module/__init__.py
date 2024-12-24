@@ -25,7 +25,11 @@ class Module(ABC):
         for module in self.imports:
             module.init_bootstrap()
         for component in self.bootstrap:
-            component.provide()
+            try:
+                if component.provider is not None:
+                    component.provide()
+            except Exception as e:
+                raise Exception(f"Failed to bootstrap {component}: {e}") from e
     
     def __repr__(self) -> str:
         return self.module_cls.__name__

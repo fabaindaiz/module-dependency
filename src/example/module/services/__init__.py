@@ -7,13 +7,13 @@ from example.module.services.singleton.type1 import Type1Singleton
 @module(
     declaration=[
         FactoryComponent,
-        SingletonComponent,
+        SingletonComponent
     ],
     bootstrap=[
         SingletonComponent
     ]
 )
-class Services(ProviderModule):
+class ServicesModule(ProviderModule):
     def declare_providers(self): # type: ignore
         return [
             Type1Factory,

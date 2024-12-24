@@ -3,7 +3,7 @@ from example.module.client import ClientComponent
 from example.module.manager import ManagerComponent
 from example.module.client.type1 import Type1Client
 from example.module.manager.type1 import Type1Manager
-from example.module.services import Services
+from example.module.services import ServicesModule
 
 @module(
     declaration=[
@@ -11,7 +11,7 @@ from example.module.services import Services
         ManagerComponent
     ],
     imports=[
-        Services
+        ServicesModule
     ],
     bootstrap=[
         ClientComponent
