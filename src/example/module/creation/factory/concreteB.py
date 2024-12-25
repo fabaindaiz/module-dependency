@@ -1,14 +1,14 @@
 from dependency.core import provider, providers
-from example.module.creation.factory import Factory, FactoryComponent, FactoryInterface
+from example.module.creation.factory import Creator, CreatorComponent, Product
 
-class ConcreteInterfaceB(FactoryInterface):
-    def work(self) -> None:
-        print("ConcreteProductB works")
+class ConcreteProductB(Product):
+    def doStuff(self) -> None:
+        print("ConcreteProductA works")
 
 @provider(
     provider=providers.Factory,
-    component=FactoryComponent
+    component=CreatorComponent
 )
-class ConcreteFactoryB(Factory):
-    def create(self) -> ConcreteInterfaceB:
-        return ConcreteInterfaceB()
+class ConcreteCreatorB(Creator):
+    def createProduct(self) -> ConcreteProductB:
+        return ConcreteProductB()

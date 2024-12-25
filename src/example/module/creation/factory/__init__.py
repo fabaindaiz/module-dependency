@@ -1,22 +1,22 @@
 from abc import ABC, abstractmethod
 from dependency.core import Component, component
 
-class FactoryInterface(ABC):
+class Product(ABC):
     @abstractmethod
-    def work(self) -> None:
+    def doStuff(self) -> None:
         pass
 
-class Factory(ABC):
-    def work(self) -> None:
-        instance = self.create()
-        instance.work()
+class Creator(ABC):
+    def someOperation(self) -> None:
+        instance = self.createProduct()
+        instance.doStuff()
 
     @abstractmethod
-    def create(self) -> FactoryInterface:
+    def createProduct(self) -> Product:
         pass
 
 @component(
-    interface=Factory
+    interface=Creator
 )
-class FactoryComponent(Component):
+class CreatorComponent(Component):
     pass

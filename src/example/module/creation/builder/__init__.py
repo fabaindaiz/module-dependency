@@ -1,20 +1,13 @@
 from abc import ABC, abstractmethod
 from dependency.core import Component, component
 
-class BuilderInterface(ABC):
+class Product(ABC):
     @abstractmethod
-    def stepA(self) -> None:
-        pass
-
-    @abstractmethod
-    def stepB(self) -> None:
-        pass
-
-    @abstractmethod
-    def work(self) -> None:
+    def doStuff(self) -> None:
         pass
 
 class Builder(ABC):
+    @abstractmethod
     def reset(self) -> None:
         pass
 
@@ -27,7 +20,11 @@ class Builder(ABC):
         pass
 
     @abstractmethod
-    def result(self) -> BuilderInterface:
+    def buildStepZ(self) -> None:
+        pass
+
+    @abstractmethod
+    def result(self) -> Product:
         pass
 
 @component(

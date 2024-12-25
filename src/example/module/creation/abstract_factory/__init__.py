@@ -1,29 +1,29 @@
 from abc import ABC, abstractmethod
 from dependency.core import Component, component
 
-class AbtractFactoryInterface1(ABC):
+class AbtractProductA(ABC):
     @abstractmethod
-    def work1(self) -> None:
+    def doStuff(self) -> None:
         pass
 
-class AbtractFactoryInterface2(ABC):
+class AbtractProductB(ABC):
     @abstractmethod
-    def work2(self) -> None:
+    def doStuff(self) -> None:
         pass
 
 class AbtractFactory(ABC):
     def work(self) -> None:
-        instance1 = self.createType1()
-        instance2 = self.createType2()
-        instance1.work1()
-        instance2.work2()
+        instance1 = self.createProductA()
+        instance2 = self.createProductB()
+        instance1.doStuff()
+        instance2.doStuff()
 
     @abstractmethod
-    def createType1(self) -> AbtractFactoryInterface1:
+    def createProductA(self) -> AbtractProductA:
         pass
 
     @abstractmethod
-    def createType2(self) -> AbtractFactoryInterface2:
+    def createProductB(self) -> AbtractProductB:
         pass
 
 @component(

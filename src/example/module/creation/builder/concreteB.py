@@ -1,37 +1,36 @@
 from dependency.core import provider, providers
-from example.module.creation.builder import Builder, BuilderComponent, BuilderInterface
+from example.module.creation.builder import Builder, BuilderComponent, Product
 
-class ConcreteInterfaceB(BuilderInterface):
+class Product2(Product):
     def __init__(self):
-        self.__steps = {}
-
-    def stepA(self) -> None:
-        self.__steps.update({'A': True})
-
-    def stepB(self) -> None:
-        self.__steps.update({'B': True})
+        self.__steps = set()
     
-    def work(self) -> None:
+    def setStep(self, step: str) -> None:
+        self.__steps.add(step)
+    
+    def doStuff(self) -> None:
         print(self.__steps)
 
 @provider(
-    provider=providers.Singleton,
     component=BuilderComponent
 )
-class ConcreteFactoryB(Builder):
+class ConcreteBuilder1(Builder):
     def __init__(self):
         self.reset()
 
     def reset(self) -> None:
-        self.__instance = ConcreteInterfaceB()
+        self.__product = Product2()
 
     def buildStepA(self) -> None:
-        self.__instance.stepA()
+        self.__product.setStep('A2')
     
     def buildStepB(self) -> None:
-        self.__instance.stepB()
+        self.__product.setStep('B2')
 
-    def result(self) -> BuilderInterface:
-        instance = self.__instance
+    def buildStepZ(self) -> None:
+        self.__product.setStep('Z2')
+
+    def result(self) -> Product:
+        product = self.__product
         self.reset()
-        return instance
+        return product
