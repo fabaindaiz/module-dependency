@@ -1,3 +1,4 @@
+from dependency_injector import providers
 from dependency.core.module import Module, module
 from dependency.core.module.provider import ProviderModule
 from dependency.core.declaration.component import Component, component
@@ -10,5 +11,6 @@ __all__ = [
     "Component",
     "component",
     "Provider",
-    "provider"
+    "provider",
+    "providers"
 ]
