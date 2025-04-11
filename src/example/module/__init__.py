@@ -1,25 +1,19 @@
 from dependency.core.module.provider import ProviderModule, module
-from example.module.client import ClientComponent
-from example.module.manager import ManagerComponent
-from example.module.client.type1 import Type1Client
-from example.module.manager.type1 import Type1Manager
-from example.module.services import ServicesModule
+from example.module.creation.afactory import CreatorComponent
 
 @module(
     declaration=[
-        ClientComponent,
-        ManagerComponent
+        CreatorComponent
     ],
     imports=[
-        ServicesModule
     ],
     bootstrap=[
-        ClientComponent
+        CreatorComponent
     ]
 )
 class MainModule(ProviderModule):
     def declare_providers(self): # type: ignore
+        from example.module.creation.afactory.concrete import ConcreteCreator
         return [
-            Type1Client,
-            Type1Manager
+            ConcreteCreator
         ]

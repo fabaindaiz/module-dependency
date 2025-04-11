@@ -1,18 +1,41 @@
 from typing import Any, Callable, cast
 from dependency_injector import providers
-from dependency.core.container.injectable import Injectable
-from dependency.core.declaration.base import ABCComponent, ABCProvider
+from dependency.core.container.injectable import Container, Injectable
+from dependency.core.declaration.base import ABCComponent, ABCProvider, ABCDependent
 from dependency.core.declaration.component import Component
 
 class Provider(ABCProvider):
     def __init__(self,
             provided_cls: type,
             imports: list[Component],
-            inject: Injectable
+            inject: Injectable,
+            dependents: list[ABCDependent],
         ):
         super().__init__(provided_cls=provided_cls)
         self.imports = imports
         self.provider = inject
+        self.dependents = dependents
+
+        self.components: list[ABCComponent] = []
+    
+    def declare_dependents(self, dependents: list[ABCDependent]) -> None:
+        self.unresolved_dependents: dict[str, list[ABCComponent]] = {}
+        for dependent in dependents:
+            unresolved = [
+                component for component in dependent.imports
+                if component not in self.components
+            ]
+            if len(unresolved) > 0:
+                self.unresolved_dependents[dependent.__name__] = unresolved
+        if len(self.unresolved_dependents) > 0:
+            raise TypeError(f"Dependent {dependent} has unresolved dependencies: {self.unresolved_dependents}")
+    
+    def resolve(self, container: Container, components: list[Component]) -> None:
+        self.components = components
+
+        self.declare_dependents(self.dependents)
+
+        self.provider.populate_container(container)
 
     def __repr__(self) -> str:
         return self.provided_cls.__name__
@@ -20,14 +43,17 @@ class Provider(ABCProvider):
 def provider(
         component: type[Component],
         imports: list[type[Component]] = [],
+        dependents: list[type[ABCDependent]] = [],
         provider: type[providers.Provider[Any]] = providers.Singleton
     ) -> Callable[[type], Provider]:
     def wrap(cls: type) -> Provider:
         _component = cast(Component, component)
         _imports = cast(list[Component], imports)
+        _dependents = cast(list[ABCDependent], dependents)
         provider_wrap = Provider(
             provided_cls=cls,
             imports=_imports,
+            dependents=_dependents,
             inject=Injectable(
                 inject_name=_component.base_cls.__name__,
                 inject_cls=_component.__class__,

@@ -13,3 +13,6 @@ class ABCProvider(ABC):
 
     def __repr__(self) -> str:
         return self.provided_cls.__name__
+
+class ABCDependent(ABC):
+    pass

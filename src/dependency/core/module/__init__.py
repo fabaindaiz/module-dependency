@@ -14,22 +14,29 @@ class Module(ABC):
         self.imports = imports
         self.bootstrap = bootstrap
 
+        self.layers: list[Provider] = []
+
     def init_providers(self) -> list[Provider]:
-        providers: list[Provider] = []
-        for module in self.imports:
-            providers.extend(module.init_providers())
-        return providers
+        def _init_providers(component: Component) -> list[Provider]:
+            providers: list[Provider] = []
+            for module in self.imports:
+                providers.extend(module.init_providers())
+            return providers
+        
+        if len(self.layers) == 0:
+            self.layers = _init_providers(self)
+        return self.layers
     
     def init_bootstrap(self) -> None:
         # start from inside to outside
         for module in self.imports:
             module.init_bootstrap()
         for component in self.bootstrap:
-            try:
+            #try:
                 if component.provider is not None:
                     component.provide()
-            except Exception as e:
-                raise Exception(f"Failed to bootstrap {component}: {e}") from e
+            #except Exception as e:
+            #    raise Exception(f"Failed to bootstrap {component}: {e}") from e
     
     def __repr__(self) -> str:
         return self.module_cls.__name__
