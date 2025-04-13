@@ -3,6 +3,7 @@ from dependency_injector import providers
 from dependency.core.container.injectable import Container, Injectable
 from dependency.core.declaration.base import ABCComponent, ABCProvider, ABCDependent
 from dependency.core.declaration.component import Component
+from dependency.core.declaration.dependent import Dependent
 
 class Provider(ABCProvider):
     def __init__(self,
@@ -18,7 +19,7 @@ class Provider(ABCProvider):
 
         self.components: list[ABCComponent] = []
     
-    def declare_dependents(self, dependents: list[ABCDependent]) -> None:
+    def declare_dependents(self, dependents: list[Dependent]) -> None:
         self.unresolved_dependents: dict[str, list[ABCComponent]] = {}
         for dependent in dependents:
             unresolved = [
@@ -43,7 +44,7 @@ class Provider(ABCProvider):
 def provider(
         component: type[Component],
         imports: list[type[Component]] = [],
-        dependents: list[type[ABCDependent]] = [],
+        dependents: list[type[Dependent]] = [],
         provider: type[providers.Provider[Any]] = providers.Singleton
     ) -> Callable[[type], Provider]:
     def wrap(cls: type) -> Provider:

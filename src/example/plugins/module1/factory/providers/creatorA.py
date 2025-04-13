@@ -25,12 +25,12 @@ class FactoryCreatorA(Factory):
     def createProduct(self, product: str) -> Product:
         match product:
             case "A":
-                instance = ProductA()
+                instance: Product = ProductA()
                 self.__observer.update(
                     context=EventProductCreated(product="A"))
                 return instance
             case "B":
-                instance = ProductB()
+                instance: Product = ProductB()
                 self.__observer.update(
                     context=EventProductCreated(product="B"))
                 return instance

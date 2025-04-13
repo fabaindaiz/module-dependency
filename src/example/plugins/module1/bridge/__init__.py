@@ -1,6 +1,5 @@
 from abc import ABC, abstractmethod
 from dependency.core import Component, component
-from example.plugins.module1.factory.interfaces import Product
 
 class Abstraction(ABC):
     @abstractmethod

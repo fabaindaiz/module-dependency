@@ -9,7 +9,7 @@ class Dependent(ABCDependent):
 def dependent(
         imports: list[type[Component]] = [],
     ) -> Callable[[type], Dependent]:
-    def wrap(cls: type) -> Dependent:
+    def wrap(cls: type) -> type[Dependent]:
         _imports = cast(list[Component], imports)
         class WrapComponent(cls, Dependent): # type: ignore
             imports = _imports

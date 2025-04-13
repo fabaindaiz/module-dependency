@@ -15,4 +15,4 @@ class ABCProvider(ABC):
         return self.provided_cls.__name__
 
 class ABCDependent(ABC):
-    pass
+    imports: list[ABCComponent]

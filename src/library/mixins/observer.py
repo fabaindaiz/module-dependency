@@ -13,7 +13,7 @@ class EventSubscriber(ABC, Generic[T]):
 
     @property
     def context(self) -> type:
-        return self.callback.__annotations__.get('context', None)
+        return self.callback.__annotations__.get('context', None) # type: ignore
 
     def update(self, context: T) -> None:
         self.callback(context)
@@ -24,7 +24,7 @@ class EventThreadingSubscriber(EventSubscriber[T], Generic[T]):
         Thread(target=self.callback, args=(context,), daemon=True).start()
 
 class EventPublisher():
-    def __init__(self):
+    def __init__(self) -> None:
         self.__targets: dict[type[EventContext], list[EventSubscriber]] = {}
         pass
 
@@ -43,14 +43,14 @@ class EventPublisher():
 
 if __name__ == '__main__':
     class EventA(EventContext):
-        def __init__(self, parameter: str):
+        def __init__(self, parameter: str) -> None:
             self.parameter = parameter
     
     class EventSubscriberA(EventSubscriber[EventA]):
         pass
 
     class EventB(EventContext):
-        def __init__(self, parameter: str):
+        def __init__(self, parameter: str) -> None:
             self.parameter = parameter
     
     class EventSubscriberB(EventThreadingSubscriber[EventB]):
