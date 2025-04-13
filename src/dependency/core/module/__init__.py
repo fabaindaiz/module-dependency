@@ -17,7 +17,7 @@ class Module(ABC):
         self.layers: list[Provider] = []
 
     def init_providers(self) -> list[Provider]:
-        def _init_providers(component: Component) -> list[Provider]:
+        def _init_providers(component: Module) -> list[Provider]:
             providers: list[Provider] = []
             for module in self.imports:
                 providers.extend(module.init_providers())

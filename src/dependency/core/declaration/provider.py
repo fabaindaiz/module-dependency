@@ -10,32 +10,30 @@ class Provider(ABCProvider):
             provided_cls: type,
             imports: list[Component],
             inject: Injectable,
-            dependents: list[ABCDependent],
+            dependents: list[Dependent],
         ):
         super().__init__(provided_cls=provided_cls)
         self.imports = imports
         self.provider = inject
         self.dependents = dependents
 
-        self.components: list[ABCComponent] = []
+        self.providers: list['Provider'] = []
     
     def declare_dependents(self, dependents: list[Dependent]) -> None:
-        self.unresolved_dependents: dict[str, list[ABCComponent]] = {}
+        self.unresolved_dependents: dict[str, list[Component]] = {}
         for dependent in dependents:
             unresolved = [
                 component for component in dependent.imports
-                if component not in self.components
+                if component not in self.providers
             ]
             if len(unresolved) > 0:
-                self.unresolved_dependents[dependent.__name__] = unresolved
+                self.unresolved_dependents[dependent.__class__.__name__] = unresolved # TODO: names
         if len(self.unresolved_dependents) > 0:
             raise TypeError(f"Dependent {dependent} has unresolved dependencies: {self.unresolved_dependents}")
     
-    def resolve(self, container: Container, components: list[Component]) -> None:
-        self.components = components
-
+    def resolve(self, container: Container, providers: list['Provider']) -> None:
+        self.providers = providers
         self.declare_dependents(self.dependents)
-
         self.provider.populate_container(container)
 
     def __repr__(self) -> str:
@@ -50,7 +48,7 @@ def provider(
     def wrap(cls: type) -> Provider:
         _component = cast(Component, component)
         _imports = cast(list[Component], imports)
-        _dependents = cast(list[ABCDependent], dependents)
+        _dependents = cast(list[Dependent], dependents)
         provider_wrap = Provider(
             provided_cls=cls,
             imports=_imports,
