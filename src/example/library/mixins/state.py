@@ -1,6 +1,9 @@
 from abc import ABC, abstractmethod
+from typing import Generic, TypeVar
 
-class StateMixin[T]():
+T = TypeVar('T')
+
+class StateMixin(Generic[T]):
     def __init__(self, initial_state: T, **kwargs):
         super().__init__(**kwargs)
         self.__state: T = initial_state
