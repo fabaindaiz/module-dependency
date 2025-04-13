@@ -2,17 +2,16 @@ from abc import ABC, abstractmethod
 from dependency.core import Component, component
 from example.plugins.module1.factory.interfaces import Product
 
-class Creator(ABC):
+class Factory(ABC):
     @abstractmethod
     def createProduct(self, product: str) -> Product:
         pass
 
-    def someOperation(self, product: str) -> None:
-        instance = self.createProduct(product=product)
-        instance.doStuff()
+    def createProducts(self, products: list[str]) -> list[Product]:
+        return [self.createProduct(product) for product in products]
 
 @component(
-    interface=Creator
+    interface=Factory
 )
-class CreatorComponent(Component):
+class FactoryComponent(Component):
     pass

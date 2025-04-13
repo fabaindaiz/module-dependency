@@ -1,16 +1,19 @@
-from abc import ABC, abstractmethod
-from typing import Generic, TypeVar
+from library.mixins.observer import EventContext, EventSubscriber
 
-T = TypeVar('T', bound='EventContext')
-
-class EventContext(ABC):
+class ObserverEventContext(EventContext):
     pass
 
-class EventListener(ABC, Generic[T]):
-    @property
-    def context(self) -> type:
-        return T
+class EventProductCreated(ObserverEventContext):
+    def __init__(self, product: str):
+        self.product = product
 
-    @abstractmethod
-    def update(self, context: EventContext) -> None:
-        pass
+class EventProductOperation(ObserverEventContext):
+    def __init__(self, product: str, operation: str):
+        self.product = product
+        self.operation = operation
+
+class EventProductCreatedSubscriber(EventSubscriber[EventProductCreated]):
+    pass
+
+class EventProductOperationSubscriber(EventSubscriber[EventProductOperation]):
+    pass

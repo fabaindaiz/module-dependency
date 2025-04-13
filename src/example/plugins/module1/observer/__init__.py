@@ -1,18 +1,15 @@
 from abc import ABC, abstractmethod
 from dependency.core import Component, component
-from example.plugins.module1.observer.interfaces import Event, EventListener, EventContext
+from typing import Callable
+from example.plugins.module1.observer.interfaces import ObserverEventContext, EventSubscriber
 
 class Observer(ABC):
     @abstractmethod
-    def subscribe(self, listener: EventListener) -> None:
+    def subscribe(self, listener: type[EventSubscriber]) -> Callable:
         pass
 
     @abstractmethod
-    def unsubscribe(self, listener: EventListener) -> None:
-        pass
-
-    @abstractmethod
-    def notify(self, context: EventContext) -> None:
+    def update(self, context: ObserverEventContext) -> None:
         pass
 
 @component(

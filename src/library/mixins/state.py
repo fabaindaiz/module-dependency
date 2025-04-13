@@ -16,6 +16,7 @@ class StateMixin(Generic[T]):
     def state(self, state: T) -> None:
         self.__state = state
 
+
 if __name__ == '__main__':
     class PlayerState(ABC):
         @abstractmethod
@@ -32,7 +33,6 @@ if __name__ == '__main__':
     class PlayerState2(PlayerState):
         def action(self) -> None:
             print("PlayerState2 action")
-    
 
     class Player(HasPlayerState):
         def __init__(self):
