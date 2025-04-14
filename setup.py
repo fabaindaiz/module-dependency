@@ -6,7 +6,7 @@ with open("requirements.txt") as requirements_file:
 
 setup(
     name='module-injection',
-    version='0.1',
+    version='0.3',
     description='Python Module Injection',
     author='Fabian Diaz',
     author_email='github.clapping767@passmail.net',

@@ -2,7 +2,7 @@ import logging
 import time
 from dependency.core.container import Container
 from dependency.core.loader import resolve_dependency
-from example.app.module import MainModule
+from example.app.main.module import MainModule
 
 class MainApplication:
     init_time = time.time()

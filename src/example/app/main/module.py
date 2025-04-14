@@ -1,4 +1,4 @@
-from dependency.core.module.provider import ProviderModule, module
+from dependency.core import ProviderModule, module
 from example.plugins.module1 import Module1
 
 @module(
