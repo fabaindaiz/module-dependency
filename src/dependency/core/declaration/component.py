@@ -1,8 +1,11 @@
 from typing import Any, Callable, Optional
 from dependency_injector.wiring import Provide
+from dependency.core.common.exceptions import DependencyError
 from dependency.core.declaration.base import ABCComponent, ABCProvider
 
 class Component(ABCComponent):
+    """Component Base Class
+    """
     def __init__(self, base_cls: type) -> None:
         super().__init__(base_cls=base_cls)
         self.__provider: Optional[ABCProvider] = None
@@ -14,7 +17,7 @@ class Component(ABCComponent):
     @provider.setter
     def provider(self, provider: ABCProvider) -> None:
         if self.__provider:
-            raise Exception(f"Component {self} is already provided by {self.__provider}. Attempted to set new provider: {provider}")
+            raise DependencyError(f"Component {self} is already provided by {self.__provider}. Attempted to set new provider: {provider}")
         self.__provider = provider
     
     @staticmethod
@@ -22,7 +25,21 @@ class Component(ABCComponent):
         pass
 
 def component(interface: type) -> Callable[[type[Component]], Component]:
+    """Decorator for Component class
+
+    Args:
+        interface (type): Interface class to be used as a base class for the component.
+    
+    Raises:
+        TypeError: If the wrapped class is not a subclass of Component.
+
+    Returns:
+        Callable[[type[Component]], Component]: Decorator function that wraps the component class.
+    """
     def wrap(cls: type[Component]) -> Component:
+        if not issubclass(cls, Component):
+            raise TypeError(f"Class {cls} is not a subclass of Component")
+
         class WrapComponent(cls): # type: ignore
             def __init__(self) -> None:
                 super().__init__(base_cls=interface)
@@ -31,7 +48,7 @@ def component(interface: type) -> Callable[[type[Component]], Component]:
                     service: Any = Provide[f"{interface.__name__}.service"]
                 ) -> Any:
                 if issubclass(service.__class__, Provide):
-                    raise Exception(f"Component {self} was not provided")
+                    raise DependencyError(f"Component {self} was not provided")
                 return service
         return WrapComponent()
     return wrap

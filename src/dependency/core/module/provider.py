@@ -1,13 +1,10 @@
 from abc import abstractmethod
-from dependency.core.module import Module, module
+from dependency.core.module.base import Module
 from dependency.core.declaration import Provider
 
-__all__ = [
-    "ProviderModule",
-    "module"
-]
-
 class ProviderModule(Module):
+    """Provider Module Base Class
+    """
     @abstractmethod
     def declare_providers(self) -> list[Provider]:
         pass
