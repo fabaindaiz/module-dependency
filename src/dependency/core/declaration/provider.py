@@ -21,13 +21,20 @@ class Provider(ABCProvider):
         self.dependents = dependents
 
         self.providers: list['Provider'] = []
+
+    def dep_in_layer(self, dep: Component, layer: list['Provider']) -> bool:
+        return any(
+            issubclass(res.provided_cls, dep.base_cls)
+            for res in layer
+        )
     
     def declare_dependents(self, dependents: list[type[Dependent]]) -> None:
         self.unresolved_dependents: dict[str, list[str]] = {}
         for dependent in dependents:
             unresolved = [
-                component.__repr__() for component in dependent._imports
-                if component not in self.providers
+                component.__repr__()
+                for component in dependent._imports
+                if not self.dep_in_layer(component, self.providers)
             ]
             if len(unresolved) > 0:
                 self.unresolved_dependents[dependent.__name__] = unresolved

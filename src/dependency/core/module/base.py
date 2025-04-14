@@ -8,16 +8,14 @@ class Module(ABC):
     """
     def __init__(self,
             module_cls: type,
-            declaration: list[Component],
             imports: list["Module"],
+            declaration: list[Component],
             bootstrap: list[Component]
         ):
         self.module_cls = module_cls
-        self.declaration = declaration
         self.imports = imports
+        self.declaration = declaration
         self.bootstrap = bootstrap
-
-        self.layers: list[Provider] = []
 
     def init_providers(self) -> list[Provider]:
         providers: list[Provider] = []
