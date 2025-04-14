@@ -11,7 +11,7 @@ class MainApplication:
     logger.addHandler(logging.StreamHandler())
 
     def __init__(self) -> None:
-        container = Container.from_json("src/example/main.json", required=True)
+        container = Container.from_dict(config={"config": True}, required=True)
         resolve_dependency(container, appmodule=MainModule) # type: ignore
         self.logger.info(f"Application started in {time.time() - self.init_time} seconds")
 

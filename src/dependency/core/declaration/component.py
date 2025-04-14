@@ -18,11 +18,8 @@ class Component(ABCComponent):
         self.__provider = provider
     
     @staticmethod
-    def provide(service: Any = None) -> Any:
+    def provide(service: Any = None) -> Any: # TODO: provide signature
         pass
-    
-    def __repr__(self) -> str:
-        return self.base_cls.__name__
 
 def component(interface: type) -> Callable[[type[Component]], Component]:
     def wrap(cls: type[Component]) -> Component:

@@ -1,12 +1,9 @@
-from typing import Any, Callable, cast
+from typing import Callable, cast
 from dependency.core.declaration.base import ABCDependent
 from dependency.core.declaration.component import Component
 
 class Dependent(ABCDependent):
     imports: list[Component]
-
-    def __repr__(self) -> str:
-        return self.__class__.__name__
 
 def dependent(
         imports: list[type[Component]] = [],

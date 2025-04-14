@@ -1,8 +1,8 @@
-from typing import TypeVar
+from typing import Generic, TypeVar
 
 T = TypeVar('T')
 
-class Composite(T):
+class Composite(Generic[T]):
     def __init__(self) -> None:
         self.children: list[T] = []
 

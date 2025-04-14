@@ -15,4 +15,5 @@ class ABCProvider(ABC):
         return self.provided_cls.__name__
 
 class ABCDependent(ABC):
-    pass
+    def __repr__(self) -> str:
+        return self.__class__.__name__

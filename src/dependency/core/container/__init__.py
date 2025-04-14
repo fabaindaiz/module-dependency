@@ -5,7 +5,8 @@ class Container(containers.DynamicContainer):
     config: providers.Configuration = providers.Configuration()
 
     @staticmethod
-    def from_dict(config: dict[str, Any],
+    def from_dict(
+            config: dict[str, Any],
             required: bool = False
         ) -> 'Container':
         container = Container()
@@ -13,7 +14,8 @@ class Container(containers.DynamicContainer):
         return container
     
     @staticmethod
-    def from_json(file: str,
+    def from_json(
+            file: str,
             required: bool = False,
             envs_required: bool = False
         ) -> 'Container':
