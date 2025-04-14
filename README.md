@@ -28,6 +28,14 @@ These components work together to create a powerful and flexible dependency inje
 
 This repository includes a practical example demonstrating how to use the framework. You can find this example in the `example` directory. It showcases the implementation of the core components and how they interact to manage dependencies effectively in a sample application.
 
+## Future Work
+
+This project is a work in progress, and there are several improvements and enhancements planned for the future. Some of the areas that will be explored include:
+- Improve component registration and resolution mechanisms
+- Improve ways to handle module definitions and configurations
+- Explore more advanced dependency injection patterns and use cases
+- Enhance validation and error handling mechanisms of the framework
+
 ## Aknowledgements
 
 This project depends on [dependency-injector](https://python-dependency-injector.ets-labs.org/introduction/di_in_python.html). This library provides a robust and flexible framework for managing dependencies in Python projects.
