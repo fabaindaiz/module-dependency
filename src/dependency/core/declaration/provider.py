@@ -12,7 +12,7 @@ class Provider(ABCProvider):
             dependents: list[type[Dependent]],
             provided_cls: type,
             inject: Injectable,
-        ):
+        ) -> None:
         super().__init__(provided_cls=provided_cls)
         self.provider = inject
         self.imports = imports
@@ -28,9 +28,10 @@ class Provider(ABCProvider):
                 if component not in self.providers
             ]
             if len(unresolved) > 0:
-                self.unresolved_dependents[dependent.__name__] = unresolved # TODO: names
+                self.unresolved_dependents[dependent.__name__] = unresolved
         if len(self.unresolved_dependents) > 0:
-            raise TypeError(f"Dependent {self} has unresolved dependencies:\n{pformat(self.unresolved_dependents)}")
+            named_dependents = pformat(self.unresolved_dependents)
+            raise TypeError(f"Provider {self} has unresolved dependents:\n{named_dependents}")
     
     def resolve(self, container: Container, providers: list['Provider']) -> None:
         self.providers = providers

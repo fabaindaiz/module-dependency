@@ -16,7 +16,7 @@ from example.plugins.module1.facade import FacadeComponent
     ]
 )
 class Module1(ProviderModule):
-    def declare_providers(self): # type: ignore
+    def declare_providers(self):
         # Common providers
         from example.plugins.module1.bridge.providers.bridgeA import AbstractionBridgeA
         from example.plugins.module1.factory.providers.creatorA import FactoryCreatorA

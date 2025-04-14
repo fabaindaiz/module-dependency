@@ -12,7 +12,7 @@ class MainApplication:
 
     def __init__(self) -> None:
         container = Container.from_dict(config={"config": True}, required=True)
-        resolve_dependency(container, appmodule=MainModule) # type: ignore
+        resolve_dependency(container, appmodule=MainModule)
         self.logger.info(f"Application started in {time.time() - self.init_time} seconds")
 
     def loop(self) -> None:

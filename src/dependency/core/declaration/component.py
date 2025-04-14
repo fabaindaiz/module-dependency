@@ -3,7 +3,7 @@ from dependency_injector.wiring import Provide
 from dependency.core.declaration.base import ABCComponent, ABCProvider
 
 class Component(ABCComponent):
-    def __init__(self, base_cls: type):
+    def __init__(self, base_cls: type) -> None:
         super().__init__(base_cls=base_cls)
         self.__provider: Optional[ABCProvider] = None
     
@@ -26,9 +26,8 @@ def component(interface: type) -> Callable[[type[Component]], Component]:
         class WrapComponent(cls): # type: ignore
             def __init__(self) -> None:
                 super().__init__(base_cls=interface)
-            
-            @staticmethod
-            def provide(self, # type: ignore
+
+            def provide(self,
                     service: Any = Provide[f"{interface.__name__}.service"]
                 ) -> Any:
                 if issubclass(service.__class__, Provide):

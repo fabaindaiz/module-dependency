@@ -16,7 +16,7 @@ def provider_detect_error(
         # TODO: Check for circular dependencies
         deps_missing.append(dep)
 
-    logger.error(f"{provider} has unresolved dependencies: {deps_missing}")
+    logger.error(f"Provider {provider} has unresolved dependencies: {deps_missing}")
     return deps_circular, deps_missing
 
 def raise_dependency_error(providers: list[Provider], resolved_layers: list[list[Provider]]) -> None:

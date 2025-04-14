@@ -8,13 +8,13 @@ logger = logging.getLogger("DependencyLoader")
 
 def resolve_dependency(container: Container, appmodule: type[Module]) -> None:
     _appmodule = cast(Module, appmodule)
-    logger.info("Resolving dependencies")
+    logger.info(f"Resolving dependencies in {_appmodule}")
 
     unresolved_layers = _appmodule.init_providers()
     resolved_layers = resolve_dependency_layers(unresolved_layers)
 
     named_layers = pformat(resolved_layers)
-    logger.info(f"Layers:\n{named_layers}")
+    logger.info(f"Resolved layers:\n{named_layers}")
 
     for resolved_layer in resolved_layers:
         for provider in resolved_layer:

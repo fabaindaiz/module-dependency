@@ -7,5 +7,5 @@ from example.plugins.module1 import Module1
     ],
 )
 class MainModule(ProviderModule):
-    def declare_providers(self): # type: ignore
+    def declare_providers(self):
         return []

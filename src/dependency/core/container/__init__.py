@@ -9,7 +9,7 @@ class Container(containers.DynamicContainer):
             config: dict[str, Any],
             required: bool = False
         ) -> 'Container':
-        container = Container()
+        container: Container = Container()
         container.config.from_dict(config, required)
         return container
     
@@ -19,6 +19,6 @@ class Container(containers.DynamicContainer):
             required: bool = False,
             envs_required: bool = False
         ) -> 'Container':
-        container = Container()
+        container: Container = Container()
         container.config.from_json(file, required, envs_required)
         return container
