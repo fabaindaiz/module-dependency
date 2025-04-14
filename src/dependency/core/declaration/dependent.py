@@ -6,7 +6,7 @@ class Dependent(ABCDependent):
     imports: list[Component]
 
     def __repr__(self) -> str:
-        return self.__name__
+        return self.__class__.__name__
 
 def dependent(
         imports: list[type[Component]] = [],
