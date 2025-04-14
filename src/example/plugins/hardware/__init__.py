@@ -16,8 +16,3 @@ class HardwareModule(ProviderModule):
         from example.plugins.hardware.bridge.providers.bridgeA import HardwareAbstractionBridgeA
         from example.plugins.hardware.factory.providers.creatorA import HardwareFactoryCreatorA
         from example.plugins.hardware.observer.providers.publisherA import HardwareObserverA
-        return [
-            HardwareAbstractionBridgeA,
-            HardwareFactoryCreatorA,
-            HardwareObserverA,
-        ]

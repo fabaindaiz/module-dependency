@@ -20,10 +20,10 @@ class Provider(ABCProvider):
         self.imports = imports
         self.dependents = dependents
     
-    def declare_providers(self, providers: list['Provider']) -> None:
+    def resolve_dependents(self, providers: list['Provider']) -> None:
         self.unresolved_dependents: dict[str, list[str]] = {}
         for dependent in self.dependents:
-            unresolved = dependent.declare_providers(providers)
+            unresolved = dependent.resolve(providers)
             if len(unresolved) > 0:
                 self.unresolved_dependents[dependent.__name__] = unresolved
         if len(self.unresolved_dependents) > 0:
@@ -31,7 +31,7 @@ class Provider(ABCProvider):
             raise TypeError(f"Provider {self} has unresolved dependents:\n{named_dependents}")
     
     def resolve(self, container: Container, providers: list['Provider']) -> None:
-        self.declare_providers(providers)
+        self.resolve_dependents(providers)
         self.provider.populate_container(container)
 
 def provider(

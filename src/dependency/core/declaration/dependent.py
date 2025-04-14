@@ -7,7 +7,7 @@ class Dependent(ABCDependent):
     _imports: Sequence[ABCComponent]
 
     @classmethod
-    def declare_providers(cls, providers: Sequence[ABCProvider]) -> list[str]:
+    def resolve(cls, providers: Sequence[ABCProvider]) -> list[str]:
         return [
             component.__repr__()
             for component in cls._imports

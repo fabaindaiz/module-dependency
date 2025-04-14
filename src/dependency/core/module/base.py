@@ -16,21 +16,31 @@ class Module(ABC):
         self.imports = imports
         self.declaration = declaration
         self.bootstrap = bootstrap
+    
+    def declare_providers(self) -> None:
+        pass
 
-    def init_providers(self) -> list[Provider]:
-        providers: list[Provider] = []
+    @property
+    def modules(self) -> list["Module"]:
+        modules = self.imports
         for module in self.imports:
+            modules.extend(module.modules)
+        return modules
+    
+    def init_providers(self) -> list[Provider]:
+        self.declare_providers()
+        providers: list[Provider] = [component.provider for component in self.declaration if not component.provider is None]
+        for module in self.modules:
             providers.extend(module.init_providers())
         return providers
     
     def init_bootstrap(self) -> None:
-        # start from inside to outside
-        for module in self.imports:
-            module.init_bootstrap()
-        for component in self.bootstrap:
+        bootstraps: list[Component] = [component for component in self.bootstrap if not component.provider is None]
+        for module in self.modules:
+            bootstraps.extend(module.bootstrap)
+        for component in bootstraps:
             try:
-                if component.provider is not None:
-                    component.provide()
+                component.provide()
             except Exception as e:
                 raise DependencyError(f"Failed to bootstrap {component}: {e}") from e
     

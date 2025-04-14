@@ -16,7 +16,3 @@ class ReporterModule(ProviderModule):
         # Common providers
         from example.plugins.reporter.factory.providers.creatorA import ReporterFactoryCreatorA
         from example.plugins.reporter.facade.providers.facadeA import ReporterFacadeA
-        return [
-            ReporterFactoryCreatorA,
-            ReporterFacadeA
-        ]
