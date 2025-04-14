@@ -1,3 +1,4 @@
+from pprint import pformat
 from typing import Any, Callable, cast
 from dependency_injector import providers
 from dependency.core.container.injectable import Container, Injectable
@@ -20,16 +21,16 @@ class Provider(ABCProvider):
         self.providers: list['Provider'] = []
     
     def declare_dependents(self, dependents: list[Dependent]) -> None:
-        self.unresolved_dependents: dict[str, list[Component]] = {}
+        self.unresolved_dependents: dict[str, list[str]] = {}
         for dependent in dependents:
             unresolved = [
-                component for component in dependent.imports
+                component.__name__ for component in dependent.imports
                 if component not in self.providers
             ]
             if len(unresolved) > 0:
-                self.unresolved_dependents[dependent.__class__.__name__] = unresolved # TODO: names
+                self.unresolved_dependents[dependent.__name__] = unresolved # TODO: names
         if len(self.unresolved_dependents) > 0:
-            raise TypeError(f"Dependent {dependent} has unresolved dependencies: {self.unresolved_dependents}")
+            raise TypeError(f"Dependent {self} has unresolved dependencies:\n{pformat(self.unresolved_dependents)}")
     
     def resolve(self, container: Container, providers: list['Provider']) -> None:
         self.providers = providers

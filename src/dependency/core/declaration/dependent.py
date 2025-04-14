@@ -5,12 +5,14 @@ from dependency.core.declaration.component import Component
 class Dependent(ABCDependent):
     imports: list[Component]
 
+    def __repr__(self) -> str:
+        return self.__name__
+
 def dependent(
         imports: list[type[Component]] = [],
-    ) -> Callable[[type], type[Dependent]]:
-    def wrap(cls: type) -> type[Dependent]:
+    ) -> Callable[[type[Dependent]], type[Dependent]]:
+    def wrap(cls: type[Dependent]) -> type[Dependent]:
         _imports = cast(list[Component], imports)
-        class WrapComponent(cls): # type: ignore
-            imports = _imports
-        return WrapComponent
+        cls.imports = _imports
+        return cls
     return wrap

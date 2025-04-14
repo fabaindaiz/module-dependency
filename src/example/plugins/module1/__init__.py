@@ -23,7 +23,7 @@ class Module1(ProviderModule):
         from example.plugins.module1.observer.providers.publisherA import PublisherObserverA
         from example.plugins.module1.facade.providers.facadeA import FacadeA
         return [
-            AbstractionBridgeA,
+            #AbstractionBridgeA,
             FactoryCreatorA,
             PublisherObserverA,
             FacadeA
