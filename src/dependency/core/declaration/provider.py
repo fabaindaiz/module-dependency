@@ -19,23 +19,11 @@ class Provider(ABCProvider):
         self.provider = inject
         self.imports = imports
         self.dependents = dependents
-
-        self.providers: list['Provider'] = []
-
-    def dep_in_layer(self, dep: Component, layer: list['Provider']) -> bool:
-        return any(
-            issubclass(res.provided_cls, dep.base_cls)
-            for res in layer
-        )
     
-    def declare_dependents(self, dependents: list[type[Dependent]]) -> None:
+    def declare_providers(self, providers: list['Provider']) -> None:
         self.unresolved_dependents: dict[str, list[str]] = {}
-        for dependent in dependents:
-            unresolved = [
-                component.__repr__()
-                for component in dependent._imports
-                if not self.dep_in_layer(component, self.providers)
-            ]
+        for dependent in self.dependents:
+            unresolved = dependent.declare_providers(providers)
             if len(unresolved) > 0:
                 self.unresolved_dependents[dependent.__name__] = unresolved
         if len(self.unresolved_dependents) > 0:
@@ -43,8 +31,7 @@ class Provider(ABCProvider):
             raise TypeError(f"Provider {self} has unresolved dependents:\n{named_dependents}")
     
     def resolve(self, container: Container, providers: list['Provider']) -> None:
-        self.providers = providers
-        self.declare_dependents(self.dependents)
+        self.declare_providers(providers)
         self.provider.populate_container(container)
 
 def provider(
