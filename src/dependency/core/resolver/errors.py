@@ -1,7 +1,8 @@
 import logging
+from dependency.core.exceptions import DependencyError
 from dependency.core.declaration import Component
 from dependency.core.declaration.provider import Provider
-from dependency.core.resolver.utils import dep_in_layers, provider_unresolved
+from dependency.core.resolver.utils import provider_unresolved
 logger = logging.getLogger("DependencyLoader")
 
 def provider_detect_error(
@@ -23,4 +24,4 @@ def raise_dependency_error(providers: list[Provider], resolved_layers: list[list
     for provider in providers:
         provider_detect_error(provider, providers, resolved_layers)
     
-    raise ValueError("Dependencies cannot be resolved")
+    raise DependencyError("Dependencies cannot be resolved")

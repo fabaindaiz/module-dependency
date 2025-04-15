@@ -1,6 +1,7 @@
 from dependency.core.declaration import Component, Provider
+from dependency.core.declaration.component import ABCComponent
 
-def dep_in_layers(dep: Component, layers: list[list[Provider]]) -> bool:
+def dep_in_layers(dep: ABCComponent, layers: list[list[Provider]]) -> bool:
     return any(
         issubclass(res.provided_cls, dep.base_cls)
         for layer in layers

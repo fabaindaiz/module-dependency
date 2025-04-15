@@ -1,11 +1,14 @@
-from dependency.core import ProviderModule, module
-from example.plugins.module1 import Module1
+from dependency.core import Module, module
+from example.plugins.base import BaseModule
+from example.plugins.hardware import HardwareModule
+from example.plugins.reporter import ReporterModule
 
 @module(
     imports=[
-        Module1
+        BaseModule,
+        HardwareModule,
+        ReporterModule,
     ],
 )
-class MainModule(ProviderModule):
-    def declare_providers(self):
-        return []
+class MainModule(Module):
+    pass

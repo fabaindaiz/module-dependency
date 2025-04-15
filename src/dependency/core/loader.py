@@ -1,12 +1,13 @@
 import logging
 from pprint import pformat
 from typing import cast
-from dependency.core.module import Module
+from dependency.core.module.base import Module
 from dependency.core.container import Container
 from dependency.core.resolver import resolve_dependency_layers
 logger = logging.getLogger("DependencyLoader")
 
 def resolve_dependency(container: Container, appmodule: type[Module]) -> None:
+    # Cast due to mypy not supporting class decorators
     _appmodule = cast(Module, appmodule)
     logger.info(f"Resolving dependencies in {_appmodule}")
 
