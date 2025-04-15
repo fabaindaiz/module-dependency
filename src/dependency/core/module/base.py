@@ -1,6 +1,6 @@
 from abc import ABC
 from typing import Callable, cast
-from dependency.core.common.exceptions import DependencyError
+from dependency.core.exceptions import DependencyError
 from dependency.core.declaration import Component, Provider
 
 class Module(ABC):
@@ -27,18 +27,33 @@ class Module(ABC):
             modules.extend(module.modules)
         return modules
     
+    @property
+    def providers(self) -> list[Provider]:
+        return [
+            cast(Provider, component.provider)
+            for component in self.declaration
+            if not component.provider is None
+        ]
+    
+    @property
+    def bootstraps(self) -> list[Component]:
+        return [
+            component
+            for component in self.bootstrap
+            if not component.provider is None
+        ]
+    
     def init_providers(self) -> list[Provider]:
         self.declare_providers()
-        providers: list[Provider] = [component.provider for component in self.declaration if not component.provider is None]
-        for module in self.modules:
+        providers: list[Provider] = self.providers
+        for module in self.imports:
             providers.extend(module.init_providers())
         return providers
     
     def init_bootstrap(self) -> None:
-        bootstraps: list[Component] = [component for component in self.bootstrap if not component.provider is None]
-        for module in self.modules:
-            bootstraps.extend(module.bootstrap)
-        for component in bootstraps:
+        for module in self.imports:
+            module.init_bootstrap()
+        for component in self.bootstraps:
             try:
                 component.provide()
             except Exception as e:

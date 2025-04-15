@@ -1,4 +1,4 @@
-from dependency.core import ProviderModule, module
+from dependency.core import Module, module
 from example.plugins.hardware.bridge import HardwareAbstractionComponent
 from example.plugins.hardware.factory import HardwareFactoryComponent
 from example.plugins.hardware.observer import HardwareObserverComponent
@@ -10,7 +10,7 @@ from example.plugins.hardware.observer import HardwareObserverComponent
         HardwareObserverComponent,
     ]
 )
-class HardwareModule(ProviderModule):
+class HardwareModule(Module):
     def declare_providers(self):
         # Common providers
         from example.plugins.hardware.bridge.providers.bridgeA import HardwareAbstractionBridgeA

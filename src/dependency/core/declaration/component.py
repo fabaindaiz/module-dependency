@@ -1,6 +1,6 @@
 from typing import Any, Callable, Optional
 from dependency_injector.wiring import Provide
-from dependency.core.common.exceptions import DependencyError
+from dependency.core.exceptions import DependencyError
 from dependency.core.declaration.base import ABCComponent, ABCProvider
 
 class Component(ABCComponent):

@@ -15,7 +15,7 @@ The project is built around four components that implement different aspects of 
 - Facilitates modular design and hierarchical structuring of application components
 
 ```python
-from dependency.core import ProviderModule, module
+from dependency.core import Module, module
 from plugin........component import SomeService, SomeServiceComponent
 
 @module(
@@ -27,11 +27,11 @@ from plugin........component import SomeService, SomeServiceComponent
         SomeServiceComponent
     ]
 )
-class SomeModule(ProviderModule):
+class SomeModule(Module):
     """This is a module class.
        Here the providers are declared and provided
     """
-    def declare_providers(self): # type: ignore
+    def declare_providers(self):
         from plugin........provider import ImplementedSomeService
         return [    # Here you declare the providers for the components
             ImplementedSomeService,

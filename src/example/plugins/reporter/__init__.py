@@ -1,4 +1,4 @@
-from dependency.core import ProviderModule, module
+from dependency.core import Module, module
 from example.plugins.reporter.factory import ReporterFactoryComponent
 from example.plugins.reporter.facade import ReportFacadeComponent
 
@@ -11,7 +11,7 @@ from example.plugins.reporter.facade import ReportFacadeComponent
         ReportFacadeComponent
     ]
 )
-class ReporterModule(ProviderModule):
+class ReporterModule(Module):
     def declare_providers(self):
         # Common providers
         from example.plugins.reporter.factory.providers.creatorA import ReporterFactoryCreatorA

@@ -1,4 +1,4 @@
-from dependency.core import ProviderModule, module
+from dependency.core import Module, module
 from example.plugins.base.number import NumberServiceComponent
 from example.plugins.base.string import StringServiceComponent
 
@@ -8,7 +8,7 @@ from example.plugins.base.string import StringServiceComponent
         StringServiceComponent,
     ],
 )
-class BaseModule(ProviderModule):
+class BaseModule(Module):
     def declare_providers(self):
         # Common providers
         from example.plugins.base.number.providers.fake import FakeNumberService
