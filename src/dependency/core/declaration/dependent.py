@@ -5,9 +5,14 @@ class Dependent(ABCDependent):
     """Dependent Base Class
     """
     _dependency_imports: Sequence[ABCComponent]
+    _dependency_resolved: bool = False
 
     @classmethod
     def resolve_dependent(cls, providers: Sequence[ABCProvider]) -> list[str]:
+        if cls._dependency_resolved:
+            return []
+        cls._dependency_resolved = True
+        
         return [
             component.__repr__()
             for component in cls._dependency_imports
