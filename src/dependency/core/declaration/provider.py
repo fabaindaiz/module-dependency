@@ -1,5 +1,5 @@
 from pprint import pformat
-from typing import Callable, cast
+from typing import Callable, Optional, cast
 from dependency_injector import providers
 from dependency.core.container.injectable import Container, Injectable
 from dependency.core.declaration.base import ABCProvider
@@ -19,11 +19,13 @@ class Provider(ABCProvider):
         self.provider = inject
         self.imports = imports
         self.dependents = dependents
+
+        self.__providers: list['Provider'] = []
     
-    def resolve_dependents(self, providers: list['Provider']) -> None:
+    def resolve_dependents(self, dependents: list[type[Dependent]]) -> None:
         self.unresolved_dependents: dict[str, list[str]] = {}
-        for dependent in self.dependents:
-            unresolved = dependent.resolve(providers)
+        for dependent in dependents:
+            unresolved = dependent.resolve_dependent(self.__providers)
             if len(unresolved) > 0:
                 self.unresolved_dependents[dependent.__name__] = unresolved
         if len(self.unresolved_dependents) > 0:
@@ -31,8 +33,17 @@ class Provider(ABCProvider):
             raise TypeError(f"Provider {self} has unresolved dependents:\n{named_dependents}")
     
     def resolve(self, container: Container, providers: list['Provider']) -> None:
-        self.resolve_dependents(providers)
+        self.__providers = providers
+        self.resolve_dependents(self.dependents)
         self.provider.populate_container(container)
+
+class HasDependent():
+    _dependency_provider: Optional[Provider] = None
+
+    def declare_dependents(self, dependents: list[type[Dependent]]) -> None:
+        if self._dependency_provider is None:
+            raise TypeError(f"Class {self} provider is not declared yet")
+        self._dependency_provider.resolve_dependents(dependents)
 
 def provider(
         component: type[Component],
@@ -73,5 +84,7 @@ def provider(
             )
         )
         _component.provider = provider_wrap
+        if issubclass(cls, HasDependent):
+            cls._dependency_provider = provider_wrap
         return provider_wrap
     return wrap

@@ -4,13 +4,13 @@ from dependency.core.declaration.base import ABCComponent, ABCProvider, ABCDepen
 class Dependent(ABCDependent):
     """Dependent Base Class
     """
-    _imports: Sequence[ABCComponent]
+    _dependency_imports: Sequence[ABCComponent]
 
     @classmethod
-    def resolve(cls, providers: Sequence[ABCProvider]) -> list[str]:
+    def resolve_dependent(cls, providers: Sequence[ABCProvider]) -> list[str]:
         return [
             component.__repr__()
-            for component in cls._imports
+            for component in cls._dependency_imports
             if not any(
                 issubclass(provider.provided_cls, component.base_cls)
                 for provider in providers
@@ -37,6 +37,6 @@ def dependent(
         if not issubclass(cls, Dependent):
             raise TypeError(f"Class {cls} is not a subclass of Dependent")
 
-        cls._imports = _imports
+        cls._dependency_imports = _imports
         return cls
     return wrap

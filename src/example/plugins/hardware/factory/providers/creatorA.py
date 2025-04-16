@@ -1,4 +1,4 @@
-from dependency.core import provider, providers
+from dependency.core import HasDependent,  provider, providers
 from example.plugins.hardware.factory import HardwareFactory, HardwareFactoryComponent
 from example.plugins.hardware.factory.interfaces import Hardware
 from example.plugins.hardware.factory.products.productA import HardwareA
@@ -17,7 +17,7 @@ from example.plugins.hardware.observer.interfaces import EventHardwareCreated
     ],
     provider = providers.Singleton
 )
-class HardwareFactoryCreatorA(HardwareFactory):
+class HardwareFactoryCreatorA(HardwareFactory, HasDependent):
     def __init__(self, config: dict):
         self.__observer: HardwareObserver = HardwareObserverComponent.provide()
         print("FactoryCreatorA initialized")
@@ -26,11 +26,13 @@ class HardwareFactoryCreatorA(HardwareFactory):
         instance: Hardware
         match product:
             case "A":
+                self.declare_dependents([HardwareA])
                 instance = HardwareA()
                 self.__observer.update(
                     context=EventHardwareCreated(product="A"))
                 return instance
             case "B":
+                self.declare_dependents([HardwareB])
                 instance = HardwareB()
                 self.__observer.update(
                     context=EventHardwareCreated(product="B"))
