@@ -1,37 +1,30 @@
 from abc import ABC, abstractmethod
 from threading import Thread
-from typing import Callable, Generic, TypeVar
-
-T = TypeVar('T', bound='EventContext')
+from typing import Callable
 
 class EventContext(ABC):
     pass
 
-class EventSubscriber(ABC, Generic[T]):
-    def __init__(self, callback: Callable[[T], None]) -> None:
-        self.callback: Callable[[T], None] = callback
+class EventSubscriber(ABC):
+    def __init__(self, callback: Callable[[EventContext], None]) -> None:
+        self.callback: Callable[[EventContext], None] = callback
 
-    @property
-    def context(self) -> type:
-        return self.callback.__annotations__.get('context', None) # type: ignore
-
-    def update(self, context: T) -> None:
-        self.callback(context)
-
-
-class EventThreadingSubscriber(EventSubscriber[T], Generic[T]):
-    def update(self, context: T) -> None:
+    def update(self, context: EventContext) -> None:
         Thread(target=self.callback, args=(context,), daemon=True).start()
 
 class EventPublisher():
     def __init__(self) -> None:
         self.__targets: dict[type[EventContext], list[EventSubscriber]] = {}
-        pass
 
     def subscribe(self, listener: type[EventSubscriber]) -> Callable:
         def wrapper(func: Callable[[EventContext], None]) -> Callable[[EventContext], None]:
-            instance = listener(func)
-            self.__targets.setdefault(instance.context, []).append(instance)
+            for name, value in func.__annotations__.items():
+                if name == "return":
+                    raise TypeError(f"Subscribe must wrap a function with an argument subtype EventContext, but '{func.__name__}' has a return type annotation.")
+                if not issubclass(value, EventContext):
+                    raise TypeError(f"Subscribe must wrap a function with an argument subtype EventContext, but '{func.__name__}' parameter '{name}' is of type '{value.__name__}'.")
+                break
+            self.__targets.setdefault(value, []).append(listener(func))
             return func
         return wrapper
     
@@ -44,30 +37,24 @@ class EventPublisher():
 if __name__ == '__main__':
     class EventA(EventContext):
         def __init__(self, parameter: str) -> None:
-            self.parameter = parameter
-    
-    class EventSubscriberA(EventSubscriber[EventA]):
-        pass
+            self.parameterA = parameter
 
     class EventB(EventContext):
         def __init__(self, parameter: str) -> None:
-            self.parameter = parameter
-    
-    class EventSubscriberB(EventThreadingSubscriber[EventB]):
-        pass
+            self.parameterB = parameter
 
-    class Example():
+    class Observer():
         def __init__(self) -> None:
             self.publisher = EventPublisher()
 
-            @self.publisher.subscribe(EventSubscriberA)
-            def listen_event_a(context: EventA) -> None:
-                print(f"Event A triggered with parameter: {context.parameter}")
+            @self.publisher.subscribe(EventSubscriber)
+            def listen_event_a(context1: EventA) -> None:
+                print(f"Event A triggered with parameter: {context1.parameterA}")
             
-            @self.publisher.subscribe(EventSubscriberB)
-            def listen_event_b(context: EventB) -> None:
-                print(f"Event B triggered with parameter: {context.parameter}")
+            @self.publisher.subscribe(EventSubscriber)
+            def listen_event_b(context2: EventB) -> None:
+                print(f"Event B triggered with parameter: {context2.parameterB}")
         
-    instance = Example()
+    instance = Observer()
     instance.publisher.update(EventA("Hello World!"))
     instance.publisher.update(EventB("Goodbye World!"))

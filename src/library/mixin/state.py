@@ -35,7 +35,7 @@ if __name__ == '__main__':
             print("PlayerState2 action")
 
     class Player(HasPlayerState):
-        def __init__(self):
+        def __init__(self) -> None:
             super().__init__(initial_state=PlayerState1())
         
         def action(self) -> None:
