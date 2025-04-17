@@ -1,22 +1,24 @@
-from abc import ABC, abstractmethod
 from threading import Thread
 from typing import Callable
 
-class EventContext(ABC):
+class EventContext():
     pass
 
-class EventSubscriber(ABC):
+class EventSubscriber():
     def __init__(self, callback: Callable[[EventContext], None]) -> None:
         self.callback: Callable[[EventContext], None] = callback
 
-    def update(self, context: EventContext) -> None:
-        Thread(target=self.callback, args=(context,), daemon=True).start()
+    def update(self, context: EventContext, threaded: bool = True) -> None:
+        if threaded:
+            Thread(target=self.callback, args=(context,), daemon=True).start()
+        else:
+            self.callback(context)
 
 class EventPublisher():
     def __init__(self) -> None:
         self.__targets: dict[type[EventContext], list[EventSubscriber]] = {}
 
-    def subscribe(self, listener: type[EventSubscriber]) -> Callable:
+    def subscribe(self, subscriber: type[EventSubscriber]) -> Callable:
         def wrapper(func: Callable[[EventContext], None]) -> Callable[[EventContext], None]:
             for name, value in func.__annotations__.items():
                 if name == "return":
@@ -24,14 +26,14 @@ class EventPublisher():
                 if not issubclass(value, EventContext):
                     raise TypeError(f"Subscribe must wrap a function with an argument subtype EventContext, but '{func.__name__}' parameter '{name}' is of type '{value.__name__}'.")
                 break
-            self.__targets.setdefault(value, []).append(listener(func))
+            self.__targets.setdefault(value, []).append(subscriber(func))
             return func
         return wrapper
     
     def update(self, context: EventContext) -> None:
-        listeners = self.__targets.get(type(context), [])
-        for listener in listeners:
-            listener.update(context)
+        subscribers = self.__targets.get(type(context), [])
+        for subscriber in subscribers:
+            subscriber.update(context)
 
 
 if __name__ == '__main__':
