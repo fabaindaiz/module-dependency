@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from dependency.core import Component, component
 from typing import Callable
-from example.plugin.hardware.observer.interfaces import HardwareEventContext, EventSubscriber
+from example.plugin.hardware.observer.interfaces import EventSubscriber, HardwareEventContext
 
 class HardwareObserver(ABC):
     @abstractmethod

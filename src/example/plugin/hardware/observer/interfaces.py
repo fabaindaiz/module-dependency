@@ -11,9 +11,3 @@ class EventHardwareOperation(HardwareEventContext):
     def __init__(self, product: str, operation: str):
         self.product = product
         self.operation = operation
-
-class EventHardwareCreatedSubscriber(EventSubscriber[EventHardwareCreated]):
-    pass
-
-class EventHardwareOperationSubscriber(EventSubscriber[EventHardwareOperation]):
-    pass

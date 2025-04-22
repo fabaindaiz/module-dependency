@@ -1,4 +1,4 @@
-# module-injection
+# module-dependency
 
 This repository contains experiments and examples for managing dependencies using dependency injection with class decorators in Python projects. The structures and patterns demonstrated here are flexible and can be adapted to suit various project needs.
 

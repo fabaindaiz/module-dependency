@@ -2,8 +2,7 @@ from dependency.core import dependent
 from dependency.core.declaration.dependent import Dependent
 from example.plugin.reporter.factory.interfaces import Reporter
 from example.plugin.hardware.observer import HardwareObserver, HardwareObserverComponent
-from example.plugin.hardware.observer.interfaces import EventHardwareCreated, EventHardwareCreatedSubscriber
-from example.plugin.hardware.observer.interfaces import EventHardwareOperation, EventHardwareOperationSubscriber
+from example.plugin.hardware.observer.interfaces import EventSubscriber, EventHardwareCreated, EventHardwareOperation
 
 @dependent(
     imports=[
@@ -17,11 +16,11 @@ class ReporterA(Reporter, Dependent):
         self.products: list[str] = []
         self.operations: list[str] = []
 
-        @self.__observer.subscribe(EventHardwareCreatedSubscriber)
+        @self.__observer.subscribe(EventSubscriber)
         def on_product_created(context: EventHardwareCreated) -> None:
             self.products.append(context.product)
 
-        @self.__observer.subscribe(EventHardwareOperationSubscriber)
+        @self.__observer.subscribe(EventSubscriber)
         def on_product_operation(context: EventHardwareOperation) -> None:
             self.operations.append(f"{context.product} -> {context.operation}")
     
