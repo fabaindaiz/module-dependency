@@ -1,11 +1,12 @@
 from typing import Callable
-from dependency_injector import containers, providers
+from dependency_injector.containers import DynamicContainer
+from dependency_injector import providers
 
 def container(
         provided_cls: type,
         provider_cls: type
-    ) -> type[containers.DynamicContainer]:
-    class Container(containers.DynamicContainer):
+    ) -> type[DynamicContainer]:
+    class Container(DynamicContainer):
         config = providers.Configuration()
         service = provider_cls(provided_cls, config)
     return Container
@@ -23,8 +24,9 @@ class Injectable:
         self.provider_cls = provider_cls
     
     def populate_container(self,
-            container: containers.DynamicContainer,
-            injetion: Callable[[type, type], type[containers.DynamicContainer]] = container,
+            container: DynamicContainer,
+            injetion: Callable[[type, type], type[DynamicContainer]] = container,
             **kwargs) -> None:
-        setattr(container, self.inject_name, providers.Container(injetion(self.provided_cls, self.provider_cls), **kwargs))
+        setattr(container, self.inject_name,
+            providers.Container(container_cls=injetion(self.provided_cls, self.provider_cls), **kwargs))
         container.wire(modules=[self.inject_cls])

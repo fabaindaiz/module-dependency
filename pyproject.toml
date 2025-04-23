@@ -3,11 +3,13 @@ requires = ["hatchling >= 1.26"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/dependency"]
+packages = [
+  "src/dependency"
+]
 
 [project]
 name = "module_dependency"
-version = "0.0.3"
+version = "0.0.4"
 dependencies = [
   "dependency_injector",
 ]
