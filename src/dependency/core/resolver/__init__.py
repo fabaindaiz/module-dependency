@@ -1,4 +1,4 @@
-from dependency.core import Provider
+from dependency.core.declaration import Provider
 from dependency.core.resolver.errors import raise_dependency_error
 from dependency.core.resolver.utils import provider_is_resolved
 

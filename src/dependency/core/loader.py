@@ -19,7 +19,7 @@ def resolve_dependency(container: Container, appmodule: type[Module]) -> None:
 
     for resolved_layer in resolved_layers:
         for provider in resolved_layer:
-            provider.resolve(container, unresolved_layers)
+            provider.resolve(container, unresolved_layers, config=container.config)
     
     container.check_dependencies()
     container.init_resources()

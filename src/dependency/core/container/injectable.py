@@ -1,5 +1,14 @@
+from typing import Callable
 from dependency_injector import containers, providers
-from dependency.core.container import Container
+
+def container(
+        provided_cls: type,
+        provider_cls: type
+    ) -> type[containers.DynamicContainer]:
+    class Container(containers.DynamicContainer):
+        config = providers.Configuration()
+        service = provider_cls(provided_cls, config)
+    return Container
 
 class Injectable:
     def __init__(self,
@@ -8,13 +17,14 @@ class Injectable:
             provided_cls: type,
             provider_cls: type = providers.Singleton
         ) -> None:
-        class Container(containers.DynamicContainer):
-            config = providers.Configuration()
-            service = provider_cls(provided_cls, config)
         self.inject_name = inject_name
         self.inject_cls = inject_cls
-        self.container = Container
+        self.provided_cls = provided_cls
+        self.provider_cls = provider_cls
     
-    def populate_container(self, container: Container) -> None:
-        setattr(container, self.inject_name, providers.Container(self.container, config=container.config))
+    def populate_container(self,
+            container: containers.DynamicContainer,
+            injetion: Callable[[type, type], type[containers.DynamicContainer]] = container,
+            **kwargs) -> None:
+        setattr(container, self.inject_name, providers.Container(injetion(self.provided_cls, self.provider_cls), **kwargs))
         container.wire(modules=[self.inject_cls])

@@ -1,7 +1,7 @@
 from pprint import pformat
 from typing import Callable, Optional, cast
-from dependency_injector import providers
-from dependency.core.container.injectable import Container, Injectable
+from dependency_injector import containers, providers
+from dependency.core.container.injectable import Injectable
 from dependency.core.declaration.base import ABCProvider
 from dependency.core.declaration.component import Component
 from dependency.core.declaration.dependent import Dependent
@@ -32,10 +32,10 @@ class Provider(ABCProvider):
             named_dependents = pformat(self.unresolved_dependents)
             raise TypeError(f"Provider {self} has unresolved dependents:\n{named_dependents}")
     
-    def resolve(self, container: Container, providers: list['Provider']) -> None:
+    def resolve(self, container: containers.DynamicContainer, providers: list['Provider'], **kwargs) -> None:
         self.__providers = providers
         self.resolve_dependents(self.dependents)
-        self.provider.populate_container(container)
+        self.provider.populate_container(container, **kwargs)
 
 class HasDependent():
     _dependency_provider: Optional[Provider] = None
