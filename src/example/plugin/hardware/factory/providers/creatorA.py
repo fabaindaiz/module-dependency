@@ -1,4 +1,4 @@
-from dependency.core import HasDependent,  provider, providers
+from dependency.core import HasDependent, provider, providers
 from example.plugin.hardware.factory import HardwareFactory, HardwareFactoryComponent
 from example.plugin.hardware.factory.interfaces import Hardware
 from example.plugin.hardware.factory.products.productA import HardwareA

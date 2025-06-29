@@ -27,6 +27,6 @@ class Injectable:
             container: DynamicContainer,
             injetion: Callable[[type, type], type[DynamicContainer]] = container,
             **kwargs) -> None:
-        setattr(container, self.inject_name,
-            providers.Container(container_cls=injetion(self.provided_cls, self.provider_cls), **kwargs))
+        container_cls = injetion(self.provided_cls, self.provider_cls)
+        setattr(container, self.inject_name,providers.Container(container_cls=container_cls, **kwargs))
         container.wire(modules=[self.inject_cls])
