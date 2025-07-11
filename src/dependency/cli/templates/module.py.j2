@@ -1,0 +1,10 @@
+from dependency.core import Module, module
+
+@module(
+    imports=[],
+    declaration=[],
+    bootstrap=[],
+)
+class {{ module.name }}(Module):
+    def declare_providers(self):
+        pass

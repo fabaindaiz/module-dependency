@@ -1,0 +1,16 @@
+from abc import ABC, abstractmethod
+from dependency.core import Component, component
+
+class {{ component.name }}(ABC):
+    """{{ component.name }}
+    """
+    {% for method in component.methods %}
+    @abstractmethod
+    def {{ method }}(self):
+        pass
+    {% endfor %}
+@component(
+    interface={{ component.name }},
+)
+class {{ component.name }}Component(Component):
+    pass

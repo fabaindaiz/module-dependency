@@ -12,6 +12,7 @@ name = "module_dependency"
 version = "0.0.4"
 dependencies = [
   "dependency_injector",
+  "Jinja2",
 ]
 requires-python = ">=3.9"
 authors = [
