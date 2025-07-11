@@ -10,8 +10,8 @@ class ConcreteProductB2(AbtractProductB):
         print("ConcreteProductB2 works")
 
 @provider(
-    provider=providers.Factory,
-    component=AbtractFactoryComponent
+    component=AbtractFactoryComponent,
+    provider=providers.Factory
 )
 class ConcreteAbtractFactory2(AbtractFactory):
     def createProductA(self) -> ConcreteProductA2:

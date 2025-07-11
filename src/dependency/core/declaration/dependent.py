@@ -1,5 +1,7 @@
-from typing import Callable, Sequence, cast
+from typing import Callable, Sequence, TypeVar, cast
 from dependency.core.declaration.base import ABCComponent, ABCProvider, ABCDependent
+
+DEPENDENT = TypeVar('DEPENDENT', bound='Dependent')
 
 class Dependent(ABCDependent):
     """Dependent Base Class
@@ -24,7 +26,7 @@ class Dependent(ABCDependent):
 
 def dependent(
         imports: Sequence[type[ABCComponent]] = [],
-    ) -> Callable[[type[Dependent]], type[Dependent]]:
+    ) -> Callable[[type[DEPENDENT]], type[DEPENDENT]]:
     """Decorator for Dependent class
 
     Args:
@@ -38,7 +40,7 @@ def dependent(
     """
     # Cast due to mypy not supporting class decorators
     _imports = cast(Sequence[ABCComponent], imports)
-    def wrap(cls: type[Dependent]) -> type[Dependent]:
+    def wrap(cls: type[DEPENDENT]) -> type[DEPENDENT]:
         if not issubclass(cls, Dependent):
             raise TypeError(f"Class {cls} is not a subclass of Dependent")
 
