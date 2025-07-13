@@ -1,2 +1,4 @@
 dependency_injector
-Jinja2
+jinja2
+pydantic
+pytest
