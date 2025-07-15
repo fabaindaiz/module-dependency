@@ -1,13 +1,7 @@
-from dependency.core.declaration.component import Component, component
-from dependency.core.declaration.provider import HasDependent, Provider, provider
-from dependency.core.declaration.dependent import Dependent, dependent
+from dependency.core.declaration.plugin import Plugin, PluginConfig, PluginMeta
 
 __all__ = [
-    "Component",
-    "component",
-    "Provider",
-    "provider",
-    "Dependent",
-    "dependent",
-    "HasDependent",
+    "Plugin",
+    "PluginConfig",
+    "PluginMeta",
 ]
