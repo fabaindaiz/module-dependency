@@ -11,6 +11,7 @@ class Instance(ABCInstance):
 
 def instance(
         component: type[Component],
+        imports: list[type[Component]] = [],
         provider: type[providers.Provider] = providers.Singleton
     ) -> Callable[[type], Instance]:
     """Decorator for instance class
@@ -29,6 +30,7 @@ def instance(
     """
     # Cast due to mypy not supporting class decorators
     _component = cast(Component, component)
+    _imports = cast(list[Component], imports)
     def wrap(cls: type) -> Instance:
         if not issubclass(cls, _component.interface_cls):
             raise TypeError(f"Class {cls} is not a subclass of {_component.interface_cls}")

@@ -10,7 +10,9 @@ class TInterface(ABC):
     def method(self) -> str:
         pass
 
-@module()
+@module(
+    module=None,
+)
 class TModule(Module):
     pass
 
@@ -23,6 +25,7 @@ class TComponent(Component):
 
 @instance(
     component=TComponent,
+    imports=[],
     provider=providers.Singleton,
 )
 class TInstance(TInterface):
