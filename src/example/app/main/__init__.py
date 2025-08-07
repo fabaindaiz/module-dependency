@@ -14,7 +14,7 @@ class MainApplication(Entrypoint):
         import example.plugins.common.loader # type: ignore
 
         container = Container.from_dict(config={"config": True}, required=True)
-        super().__init__(container, plugins=[CommonPlugin])
+        super().__init__(container, plugins=[CommonPlugin]) # type: ignore
         self.logger.info(f"Application started in {time.time() - self.init_time} seconds")
 
     def loop(self) -> None:

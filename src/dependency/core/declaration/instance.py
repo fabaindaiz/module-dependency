@@ -40,7 +40,7 @@ def instance(
             provided_cls=cls)
         _component.instance = instance_wrap
         _component.injection.set_instance(
-            imports=imports,
+            imports=[component.injection for component in _imports],
             provided_cls=cls,
             provider_cls=provider,
             bootstrap=bootstrap)

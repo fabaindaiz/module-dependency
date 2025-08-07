@@ -1,4 +1,5 @@
-from typing import Any, Callable, Optional, TypeVar
+from typing import Any, Callable, Optional, TypeVar, cast
+from typing_extensions import override
 from dependency_injector.wiring import Provide
 from dependency.core.agrupation.module import Module
 from dependency.core.declaration.base import ABCComponent, ABCInstance
@@ -30,7 +31,7 @@ class Component(ABCComponent):
         self.__instance = instance
 
 def component(
-        module: Module,
+        module: type[Module],
         interface: type
     ) -> Callable[[type[COMPONENT]], COMPONENT]:
     """Decorator for Component class
@@ -45,13 +46,14 @@ def component(
     Returns:
         Callable[[type[Component]], Component]: Decorator function that wraps the component class.
     """
+    _module = cast(Module, module)
     def wrap(cls: type[COMPONENT]) -> COMPONENT:
         if not issubclass(cls, Component):
             raise TypeError(f"Class {cls} is not a subclass of Component")
         
         injection = ProviderInjection(
             name=interface.__name__)
-        module.injection.child_add(injection)
+        _module.injection.child_add(injection)
 
         class WrapComponent(cls): # type: ignore
             def __init__(self) -> None:
@@ -61,8 +63,8 @@ def component(
                 injection.set_component(
                     self.__class__)
 
-            @staticmethod
-            def provide(
+            @override
+            def provide(self, # type: ignore
                 service: Any = Provide[injection.reference]
                 ) -> Any:
                 if isinstance(service, Provide): # type: ignore
