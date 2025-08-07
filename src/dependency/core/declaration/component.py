@@ -52,7 +52,8 @@ def component(
             raise TypeError(f"Class {cls} is not a subclass of Component")
         
         injection = ProviderInjection(
-            name=interface.__name__)
+            name=interface.__name__,
+            interface_cls=interface)
         _module.injection.child_add(injection)
 
         class WrapComponent(cls): # type: ignore
@@ -61,7 +62,7 @@ def component(
                     interface_cls=interface,
                     injection=injection)
                 injection.set_component(
-                    self.__class__)
+                    component=self)
 
             @override
             def provide(self, # type: ignore

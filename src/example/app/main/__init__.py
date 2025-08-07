@@ -2,7 +2,15 @@ import logging
 import time
 from dependency.core.injection.container import Container
 from dependency.core.agrupation.entrypoint import Entrypoint
-from example.plugins.common import CommonPlugin
+from example.plugin.base import BasePlugin
+from example.plugin.hardware import HardwarePlugin
+from example.plugin.reporter import ReporterPlugin
+
+PLUGINS = [
+    BasePlugin,
+    HardwarePlugin,
+    ReporterPlugin,
+]
 
 class MainApplication(Entrypoint):
     init_time = time.time()
@@ -11,10 +19,9 @@ class MainApplication(Entrypoint):
     logger.addHandler(logging.StreamHandler())
 
     def __init__(self) -> None:
-        import example.plugins.common.loader # type: ignore
-
+        import example.app.main.imports
         container = Container.from_dict(config={"config": True}, required=True)
-        super().__init__(container, plugins=[CommonPlugin]) # type: ignore
+        super().__init__(container, plugins=PLUGINS)
         self.logger.info(f"Application started in {time.time() - self.init_time} seconds")
 
     def loop(self) -> None:

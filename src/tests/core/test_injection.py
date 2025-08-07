@@ -9,7 +9,7 @@ class Instance:
     def test(self) -> str:
         return "Test method called"
 
-class Component:
+class Interface:
     @inject
     def test(self, service: Instance = Provide[TEST_REFERENCE]) -> str:
         return f"Injected service: {service.test()}"
@@ -17,9 +17,10 @@ class Component:
 def test_injection1():
     provider1 = ProviderInjection(
         name="provider1",
-        component=Component,
+        interface_cls=Interface,
         provided_cls=Instance,
-        provider_cls=providers.Singleton)
+        provider_cls=providers.Singleton,
+        component=Interface())
 
     container1 = ContainerInjection(name="container1")
     container2 = ContainerInjection(name="container2")
@@ -31,4 +32,4 @@ def test_injection1():
     deque(container1.child_inject(), maxlen=0)
     setattr(container, container1.name, container1.inject_cls())
     container1.child_wire(container)
-    assert Component().test() == "Injected service: Test method called"
+    assert Interface().test() == "Injected service: Test method called"

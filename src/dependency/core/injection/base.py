@@ -73,10 +73,12 @@ class ContainerInjection(BaseInjection):
 class ProviderInjection(BaseInjection):
     def __init__(self,
             name: str,
-            component: Optional[type[ABCComponent]] = None,
+            interface_cls: type,
             provided_cls: Optional[type] = None,
             provider_cls: Optional[type] = None,
+            component: Optional[type[ABCComponent]] = None,
             ) -> None:
+        self.interface_cls: type = interface_cls
         self.__provided_cls: Optional[type] = provided_cls
         self.__provider_cls: Optional[type] = provider_cls
         self.__component: Optional[type[ABCComponent]] = component
@@ -90,13 +92,6 @@ class ProviderInjection(BaseInjection):
         if self.__provided_cls is None:
             raise DependencyError("ProviderInjection must have provided_cls set before accessing it.")
         return self.__provided_cls
-    
-    @property
-    def component(self) -> type[ABCComponent]:
-        """Return the component class."""
-        if self.__component is None:
-            raise DependencyError("ProviderInjection must have component set before accessing it.")
-        return self.__component
 
     def set_instance(self,
         imports: list["ProviderInjection"],
@@ -127,7 +122,7 @@ class ProviderInjection(BaseInjection):
 
     def child_wire(self, container: containers.DynamicContainer) -> "ProviderInjection":
         """Wire the provider into the provided container."""
-        container.wire(modules=[self.__component])
+        container.wire(modules=[self.__component.__class__])
         return self
     
     def bootstrap_provider(self) -> None:

@@ -25,9 +25,8 @@ class Plugin(Module):
     container: Container
 
     @property
-    @abstractmethod
     def config(self) -> PluginConfig:
-        pass
+        return PluginConfig()
 
     def set_container(self, container: Container) -> None:
         self.container = container
