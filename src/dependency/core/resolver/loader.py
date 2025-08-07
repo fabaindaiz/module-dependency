@@ -1,6 +1,6 @@
 from pprint import pformat
 from typing import cast
-from dependency.core.declaration.module import Module
+from dependency.core.agrupation.module import Module
 from dependency.core.injection.container import Container
 
 def resolve_dependency(container: Container, appmodule: type[Module]) -> None:

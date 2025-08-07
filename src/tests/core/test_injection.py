@@ -5,20 +5,20 @@ from dependency.core.injection.base import ContainerInjection, ProviderInjection
 
 TEST_REFERENCE = "container1.container2.provider1"
 
-class Provider:
+class Instance:
     def test(self) -> str:
         return "Test method called"
 
 class Component:
     @inject
-    def test(self, service: Provider = Provide[TEST_REFERENCE]) -> str:
+    def test(self, service: Instance = Provide[TEST_REFERENCE]) -> str:
         return f"Injected service: {service.test()}"
 
 def test_injection1():
     provider1 = ProviderInjection(
         name="provider1",
         component=Component,
-        provided_cls=Provider,
+        provided_cls=Instance,
         provider_cls=providers.Singleton)
 
     container1 = ContainerInjection(name="container1")

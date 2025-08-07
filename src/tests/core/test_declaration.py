@@ -1,9 +1,11 @@
+import pytest
 from abc import ABC, abstractmethod
 from collections import deque
 from dependency_injector import containers, providers
-from dependency.core.declaration.module import Module, module
+from dependency.core.agrupation.module import Module, module
 from dependency.core.declaration.component import Component, component
 from dependency.core.declaration.instance import instance
+from dependency.core.exceptions import DependencyError
 
 class TInterface(ABC):
     @abstractmethod
@@ -33,6 +35,9 @@ class TInstance(TInterface):
         return "Hello, World!"
 
 def test_declaration():
+    with pytest.raises(DependencyError):
+        print(TComponent.provide())
+
     container = containers.DynamicContainer()
     setattr(container, TModule.injection.name, TModule.injection.inject_cls())
     deque(TModule.injection.child_inject(), maxlen=0)

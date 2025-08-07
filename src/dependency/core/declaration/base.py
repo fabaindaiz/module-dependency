@@ -1,8 +1,5 @@
 from abc import ABC
 
-class ABCModule(ABC):
-    pass
-
 class ABCComponent(ABC):
     def __init__(self, interface_cls: type) -> None:
         self.interface_cls: type = interface_cls

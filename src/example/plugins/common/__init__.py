@@ -1,4 +1,4 @@
-from dependency.core.declaration.module import Module, module
+from dependency.core.agrupation.module import Module, module
 
 @module(
 )

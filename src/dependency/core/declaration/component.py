@@ -1,6 +1,6 @@
 from typing import Any, Callable, Optional, TypeVar
 from dependency_injector.wiring import Provide
-from dependency.core.declaration.module import Module
+from dependency.core.agrupation.module import Module
 from dependency.core.declaration.base import ABCComponent, ABCInstance
 from dependency.core.injection.base import ProviderInjection
 from dependency.core.exceptions import DependencyError
@@ -67,6 +67,8 @@ def component(
             def provide(self,
                     service: Any = Provide[injection.reference]
                 ) -> Any:
+                if isinstance(service, Provide):
+                    raise DependencyError(f"Component {self} was not provided")
                 return service
         return WrapComponent()
     return wrap

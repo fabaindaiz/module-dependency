@@ -1,5 +1,5 @@
 from typing import Callable, Optional, TypeVar
-from dependency.core.declaration.base import ABCModule
+from dependency.core.agrupation.base import ABCModule
 from dependency.core.injection.base import ContainerInjection
 
 MODULE = TypeVar('MODULE', bound='Module')
@@ -16,7 +16,7 @@ class Module(ABCModule):
         return self.__injection
 
 def module(
-    module: Optional[Module] = None,
+    module: Optional[Module] = None
     ) -> Callable[[type[MODULE]], MODULE]:
     """Decorator for Module class
 

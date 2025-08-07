@@ -1,7 +1,7 @@
 from typing import Callable, cast
 from dependency_injector import providers
-from dependency.core.declaration.component import Component
 from dependency.core.declaration.base import ABCInstance
+from dependency.core.declaration.component import Component
 
 class Instance(ABCInstance):
     """Instance Base Class
