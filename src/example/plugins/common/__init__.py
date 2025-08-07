@@ -1,6 +1,10 @@
-from dependency.core.agrupation.module import Module, module
+from dependency.core.agrupation.plugin import Plugin, PluginMeta, module
+from example.plugins.common.settings import CommonPluginConfig
 
-@module(
-)
-class CommonModule(Module):
-    pass
+@module()
+class CommonPlugin(Plugin):
+    meta = PluginMeta(name="common_plugin", version="0.1.0")
+    
+    @property
+    def config(self) -> CommonPluginConfig:
+        return CommonPluginConfig(**self.container.config())

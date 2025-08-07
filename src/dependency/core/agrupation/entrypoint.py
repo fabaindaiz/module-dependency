@@ -1,10 +1,9 @@
 from collections import deque
-from dependency.core.agrupation.module import Module
+from dependency.core.agrupation.plugin import Plugin
 from dependency.core.injection.container import Container
+from dependency.core.injection.loader import InjectionLoader
 
 class Entrypoint():
-    def __init__(self, container: Container, modules: list[Module]) -> None:
-        for module in modules:
-            setattr(container, module.injection.name, module.injection.inject_cls())
-            deque(module.injection.child_inject(container), maxlen=0)
-            module.injection.child_wire(container)
+    def __init__(self, container: Container, plugins: list[Plugin]) -> None:
+        self.loader = InjectionLoader(container, plugins)
+        self.loader.resolve_dependencies()

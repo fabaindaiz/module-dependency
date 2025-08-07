@@ -28,7 +28,7 @@ def test_injection1():
     assert provider1.reference == TEST_REFERENCE
 
     container = containers.DynamicContainer()
-    setattr(container, container1.name, container1.inject_cls())
     deque(container1.child_inject(), maxlen=0)
+    setattr(container, container1.name, container1.inject_cls())
     container1.child_wire(container)
     assert Component().test() == "Injected service: Test method called"

@@ -12,7 +12,8 @@ class Instance(ABCInstance):
 def instance(
         component: type[Component],
         imports: list[type[Component]] = [],
-        provider: type[providers.Provider] = providers.Singleton
+        provider: type[providers.Provider] = providers.Singleton,
+        bootstrap: bool = False,
     ) -> Callable[[type], Instance]:
     """Decorator for instance class
 
@@ -36,9 +37,12 @@ def instance(
             raise TypeError(f"Class {cls} is not a subclass of {_component.interface_cls}")
         
         instance_wrap = Instance(
-            provided_cls=cls
-        )
+            provided_cls=cls)
         _component.instance = instance_wrap
-        _component.injection.set_instance(provided_cls=cls, provider_cls=provider)
+        _component.injection.set_instance(
+            imports=imports,
+            provided_cls=cls,
+            provider_cls=provider,
+            bootstrap=bootstrap)
         return instance_wrap
     return wrap

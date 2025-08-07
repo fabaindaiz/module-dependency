@@ -3,11 +3,13 @@ from example.plugins.common.storage import StorageService, StorageServiceCompone
 
 @instance(
     component=StorageServiceComponent,
-    provider=providers.Singleton
+    provider=providers.Singleton,
+    bootstrap=True,
 )
 class LocalStorageService(StorageService):
     def __init__(self) -> None:
         self.storage: dict[str, str] = {}
+        print("LocalStorageService initialized")
 
     def get(self, key: str) -> str:
         return self.storage.get(key, "")

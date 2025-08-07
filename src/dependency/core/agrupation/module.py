@@ -7,8 +7,8 @@ MODULE = TypeVar('MODULE', bound='Module')
 class Module(ABCModule):
     """Module Base Class
     """
-    def __init__(self, injection: ContainerInjection) -> None:
-        super().__init__()
+    def __init__(self, name: str, injection: ContainerInjection) -> None:
+        super().__init__(name)
         self.__injection: ContainerInjection = injection
     
     @property
@@ -28,13 +28,14 @@ def module(
             raise TypeError(f"Class {cls} is not a subclass of Module")
 
         injection = ContainerInjection(
-            name=cls.__name__.lower())
+            name=cls.__name__)
         if module:
             module.injection.child_add(injection)
 
         class WrapModule(cls): # type: ignore
             def __init__(self) -> None:
                 super().__init__(
+                    name=cls.__name__,
                     injection=injection)
         return WrapModule()
     return wrap

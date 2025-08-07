@@ -19,6 +19,6 @@ def test_agrupation():
         "field1": "value",
         "field2": 100
     })
-    TPlugin.inject(container)
+    TPlugin.set_container(container)
     config: TPluginConfig = TPlugin.config # type: ignore
     assert config.field1 == "value" and config.field2 == 100

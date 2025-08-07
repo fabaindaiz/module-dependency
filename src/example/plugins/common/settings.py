@@ -1,8 +1,8 @@
-from dependency.core.declaration import PluginConfig
+from dependency.core.agrupation.plugin import PluginConfig
 from pydantic import BaseModel
 
 class General(BaseModel):
     debug: bool = False
 
-class BasePluginConfig(PluginConfig):
+class CommonPluginConfig(PluginConfig):
     general: General = General()

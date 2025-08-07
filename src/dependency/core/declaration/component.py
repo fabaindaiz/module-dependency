@@ -29,10 +29,6 @@ class Component(ABCComponent):
             raise DependencyError(f"Component {self} is already instanced by {self.__instance}. Attempted to set new instance: {instance}")
         self.__instance = instance
 
-    @staticmethod
-    def provide(service: Any = None) -> Any: # TODO: provide signature
-        pass
-
 def component(
         module: Module,
         interface: type
@@ -54,7 +50,7 @@ def component(
             raise TypeError(f"Class {cls} is not a subclass of Component")
         
         injection = ProviderInjection(
-            name=interface.__name__.lower())
+            name=interface.__name__)
         module.injection.child_add(injection)
 
         class WrapComponent(cls): # type: ignore
@@ -62,13 +58,15 @@ def component(
                 super().__init__(
                     interface_cls=interface,
                     injection=injection)
-                injection.set_component(self.__class__)
+                injection.set_component(
+                    self.__class__)
 
-            def provide(self,
-                    service: Any = Provide[injection.reference]
+            @staticmethod
+            def provide(
+                service: Any = Provide[injection.reference]
                 ) -> Any:
-                if isinstance(service, Provide):
-                    raise DependencyError(f"Component {self} was not provided")
+                if isinstance(service, Provide): # type: ignore
+                    raise DependencyError(f"Component {cls.__name__} was not provided")
                 return service
         return WrapComponent()
     return wrap
