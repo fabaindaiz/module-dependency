@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
-from dependency_injector import containers
 from typing import Any, Generator, Optional
+from dependency_injector import containers
 from dependency.core.declaration.base import ABCComponent
 from dependency.core.exceptions import DependencyError
 

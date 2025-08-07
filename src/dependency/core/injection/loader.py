@@ -42,9 +42,13 @@ class InjectionLoader:
             ]
         named_layers = pformat(resolved_layers)
         logger.info(f"Resolved layers:\n{named_layers}")
+        self.container.check_dependencies()
+        self.container.init_resources()
 
         for resolved_layer in resolved_layers:
             for provider in resolved_layer:
                 provider.child_wire(self.container)
                 provider.bootstrap_provider()
+        
+        logger.info("Dependencies resolved and injected")
         return resolved_layers

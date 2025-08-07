@@ -21,7 +21,6 @@ dependencies = [
   "dependency_injector",
   "jinja2",
   "pydantic",
-  "pytest",
 ]
 requires-python = ">=3.9"
 authors = [
