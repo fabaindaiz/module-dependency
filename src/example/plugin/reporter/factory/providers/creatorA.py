@@ -1,10 +1,13 @@
-from dependency.core.declaration.instance import instance, providers
+from dependency.core import instance, providers
 from example.plugin.reporter.factory import ReporterFactory, ReporterFactoryComponent
 from example.plugin.reporter.factory.interfaces import Reporter
 from example.plugin.reporter.factory.products.productA import ReporterA
 
 @instance(
     component=ReporterFactoryComponent,
+    products=[
+        ReporterA,
+    ],
     provider=providers.Singleton,
 )
 class ReporterFactoryCreatorA(ReporterFactory):

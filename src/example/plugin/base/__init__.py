@@ -1,4 +1,4 @@
-from dependency.core.agrupation.plugin import Plugin, PluginMeta, module
+from dependency.core import Plugin, PluginMeta, module
 
 @module()
 class BasePlugin(Plugin):

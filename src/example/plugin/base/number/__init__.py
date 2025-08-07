@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from dependency.core.declaration.component import Component, component
+from dependency.core import Component, component
 from example.plugin.base import BasePlugin
 
 class NumberService(ABC):

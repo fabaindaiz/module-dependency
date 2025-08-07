@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import Callable
-from dependency.core.declaration.component import Component, component
+from dependency.core import Component, component
 from example.plugin.hardware.observer.interfaces import EventSubscriber, HardwareEventContext
 from example.plugin.hardware import HardwarePlugin
 

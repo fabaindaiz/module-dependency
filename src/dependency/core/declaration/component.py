@@ -1,5 +1,4 @@
 from typing import Any, Callable, Optional, TypeVar, cast
-from typing_extensions import override
 from dependency_injector.wiring import Provide
 from dependency.core.agrupation.module import Module
 from dependency.core.declaration.base import ABCComponent, ABCInstance
@@ -31,9 +30,9 @@ class Component(ABCComponent):
         self.__instance = instance
 
 def component(
-        module: type[Module],
-        interface: type
-    ) -> Callable[[type[COMPONENT]], COMPONENT]:
+    module: type[Module],
+    interface: type
+) -> Callable[[type[COMPONENT]], COMPONENT]:
     """Decorator for Component class
 
     Args:
@@ -53,21 +52,18 @@ def component(
         
         injection = ProviderInjection(
             name=interface.__name__,
-            interface_cls=interface)
-        _module.injection.child_add(injection)
+            interface_cls=interface,
+            parent=_module.injection)
 
         class WrapComponent(cls): # type: ignore
             def __init__(self) -> None:
                 super().__init__(
                     interface_cls=interface,
                     injection=injection)
-                injection.set_component(
-                    component=self)
 
-            @override
             def provide(self, # type: ignore
                 service: Any = Provide[injection.reference]
-                ) -> Any:
+            ) -> Any:
                 if isinstance(service, Provide): # type: ignore
                     raise DependencyError(f"Component {cls.__name__} was not provided")
                 return service

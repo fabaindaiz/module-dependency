@@ -5,9 +5,14 @@ from dependency.core.declaration.base import ABCComponent
 from dependency.core.exceptions import DependencyError
 
 class BaseInjection(ABC):
-    def __init__(self, name: str) -> None:
-        self.parent: Optional["BaseInjection"] = None
-        self.__name: str = name
+    def __init__(self,
+        name: str,
+        parent: Optional["ContainerInjection"] = None
+    ) -> None:
+        self.__name = name
+        self.__parent = parent
+        if parent:
+            parent.childs.append(self)
 
     @property
     def name(self) -> str:
@@ -16,9 +21,9 @@ class BaseInjection(ABC):
     
     @property
     def reference(self) -> str:
-        if self.parent:
-            return f"{self.parent.reference}.{self.name}"
-        return self.name
+        if not self.__parent:
+            return self.name
+        return f"{self.__parent.reference}.{self.name}"
     
     @abstractmethod
     def inject_cls(self) -> Any:
@@ -26,18 +31,8 @@ class BaseInjection(ABC):
         raise NotImplementedError("This method should be implemented by subclasses.")
     
     @abstractmethod
-    def child_add(self, child: "BaseInjection") -> None:
-        """Add a child injection to the current injection context."""
-        raise NotImplementedError("This method should be implemented by subclasses.")
-    
-    @abstractmethod
-    def child_inject(self) -> Generator['ProviderInjection', None, None]:
+    def resolve_providers(self) -> Generator['ProviderInjection', None, None]:
         """Inject all children into the current injection context."""
-        raise NotImplementedError("This method should be implemented by subclasses.")
-
-    @abstractmethod
-    def child_wire(self, container: containers.DynamicContainer) -> "BaseInjection":
-        """Wire the injection into the provided container."""
         raise NotImplementedError("This method should be implemented by subclasses.")
 
     def __repr__(self) -> str:
@@ -45,90 +40,73 @@ class BaseInjection(ABC):
 
 class ContainerInjection(BaseInjection):
     def __init__(self,
-            name: str
+            name: str,
+            parent: Optional["ContainerInjection"] = None
             ) -> None:
-        self.__childs: list[BaseInjection] = []
+        self.childs: list[BaseInjection] = []
         self.container = containers.DynamicContainer()
-        super().__init__(name)
-    
+        super().__init__(name=name, parent=parent)
+
     def inject_cls(self) -> containers.DynamicContainer:
         """Return the container instance."""
         return self.container
-
-    def child_add(self, child: BaseInjection) -> None:
-        self.__childs.append(child)
-        child.parent = self
     
-    def child_inject(self) -> Generator['ProviderInjection', None, None]:
-        for child in self.__childs:
+    def resolve_providers(self) -> Generator['ProviderInjection', None, None]:
+        for child in self.childs:
             setattr(self.container, child.name, child.inject_cls())
-            yield from child.child_inject()
+            yield from child.resolve_providers()
 
-    def child_wire(self, container: containers.DynamicContainer) -> "ContainerInjection":
-        """Wire all child injections into the provided container."""
-        for child in self.__childs:
-            child.child_wire(container)
-        return self
+class ProviderDependency():
+    def __init__(self,
+        name: str,
+        imports: list['ProviderInjection']
+    ) -> None:
+        self.name: str = name
+        self.imports: list['ProviderInjection'] = imports
 
 class ProviderInjection(BaseInjection):
     def __init__(self,
             name: str,
             interface_cls: type,
-            provided_cls: Optional[type] = None,
-            provider_cls: Optional[type] = None,
-            component: Optional[type[ABCComponent]] = None,
+            parent: Optional["ContainerInjection"] = None
             ) -> None:
         self.interface_cls: type = interface_cls
-        self.__provided_cls: Optional[type] = provided_cls
-        self.__provider_cls: Optional[type] = provider_cls
-        self.__component: Optional[type[ABCComponent]] = component
+        self.provided_cls: type
+        self.provider_cls: type
+        self.component: ABCComponent
         self.imports: list["ProviderInjection"] = []
         self.bootstrap: bool = False
-        super().__init__(name)
-    
-    @property
-    def provided_cls(self) -> type:
-        """Return the provided class."""
-        if self.__provided_cls is None:
-            raise DependencyError("ProviderInjection must have provided_cls set before accessing it.")
-        return self.__provided_cls
-
-    def set_instance(self,
-        imports: list["ProviderInjection"],
-        bootstrap: bool,
-        provided_cls: type,
-        provider_cls: type,
-        ) -> None:
-        self.__provided_cls = provided_cls
-        self.__provider_cls = provider_cls
-        self.imports = imports
-        self.bootstrap = bootstrap
-
-    def set_component(self, component: type[ABCComponent]) -> None:
-        self.__component = component
+        super().__init__(name=name, parent=parent)
 
     def inject_cls(self) -> Any:
         """Return the provider instance."""
-        if self.__provided_cls is None or self.__provider_cls is None:
+        if self.provider_cls is None:
             raise DependencyError("ProviderInjection must have provided_cls and provider_cls set before injection.")
-        return self.__provider_cls(self.__provided_cls)
-    
-    def child_add(self, child: BaseInjection) -> None:
-        """ProviderInjection does not support child additions."""
-        raise DependencyError("ProviderInjection cannot have children.")
+        return self.provider_cls(self.provided_cls)
 
-    def child_inject(self) -> Generator['ProviderInjection', None, None]:
+    def resolve_providers(self) -> Generator['ProviderInjection', None, None]:
         yield self
 
-    def child_wire(self, container: containers.DynamicContainer) -> "ProviderInjection":
-        """Wire the provider into the provided container."""
-        container.wire(modules=[self.__component.__class__])
-        return self
-    
-    def bootstrap_provider(self) -> None:
-        """Bootstrap the provider if it has a bootstrap method."""
+    def set_implementation(self,
+        provided_cls: type,
+        provider_cls: type,
+        component: ABCComponent,
+        imports: list["ProviderInjection"] = [],
+        depends: list[ProviderDependency] = [],
+        bootstrap: bool = False
+    ) -> None:
+        """Set the parameters for the provider."""
+        self.provided_cls = provided_cls
+        self.provider_cls = provider_cls
+        self.component = component
+        self.imports = imports
+        self.depends = depends
+        self.bootstrap = bootstrap
+
+    def do_bootstrap(self, container: containers.DynamicContainer) -> None:
+        container.wire(modules=[self.component.__class__])
         if not self.bootstrap:
             return
-        if not self.__component:
+        if not self.component:
             raise DependencyError("ProviderInjection must have a component set before bootstrapping.")
-        self.__component.provide()
+        self.component.provide()

@@ -2,6 +2,8 @@ from typing import Callable, cast
 from dependency_injector import providers
 from dependency.core.declaration.base import ABCInstance
 from dependency.core.declaration.component import Component
+from dependency.core.declaration.product import Product
+from dependency.core.injection.base import ProviderDependency
 
 class Instance(ABCInstance):
     """Instance Base Class
@@ -12,6 +14,7 @@ class Instance(ABCInstance):
 def instance(
         component: type[Component],
         imports: list[type[Component]] = [],
+        products: list[type[Product]] = [],
         provider: type[providers.Provider] = providers.Singleton,
         bootstrap: bool = False,
     ) -> Callable[[type], Instance]:
@@ -22,7 +25,8 @@ def instance(
         imports (list[type[Component]], optional): List of components to be imported by the provider. Defaults to [].
         dependents (list[type[Dependent]], optional): List of dependents to be declared by the provider. Defaults to [].
         provider (type[providers.Provider], optional): Provider class to be used. Defaults to providers.Singleton.
-
+        bootstrap (bool, optional): Whether the provider should be bootstrapped. Defaults to False.
+        
     Raises:
         TypeError: If the wrapped class is not a subclass of Component declared base class.
 
@@ -32,17 +36,24 @@ def instance(
     # Cast due to mypy not supporting class decorators
     _component = cast(Component, component)
     _imports = cast(list[Component], imports)
+    _products = cast(list[Product], products)
     def wrap(cls: type) -> Instance:
         if not issubclass(cls, _component.interface_cls):
             raise TypeError(f"Class {cls} is not a subclass of {_component.interface_cls}")
         
-        instance_wrap = Instance(
-            provided_cls=cls)
-        _component.instance = instance_wrap
-        _component.injection.set_instance(
-            imports=[component.injection for component in _imports],
+        _component.injection.set_implementation(
             provided_cls=cls,
             provider_cls=provider,
+            component=_component,
+            imports=[component.injection for component in _imports],
+            depends=[ProviderDependency(
+                name=product.__class__.__name__,
+                imports=[
+                    component.injection
+                    for component in product._dependency_imports]
+            ) for product in _products],
             bootstrap=bootstrap)
-        return instance_wrap
+        _component.instance = Instance(
+            provided_cls=cls)
+        return _component.instance
     return wrap

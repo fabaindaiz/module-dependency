@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from dependency.core.declaration.component import Component, component
+from dependency.core import Component, component
 from example.plugin.hardware import HardwarePlugin
 
 class HardwareAbstraction(ABC):

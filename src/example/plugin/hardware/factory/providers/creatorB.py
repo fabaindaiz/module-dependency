@@ -1,4 +1,4 @@
-from dependency.core.declaration.instance import instance, providers
+from dependency.core import instance, providers
 from example.plugin.hardware.factory import HardwareFactory, HardwareFactoryComponent
 from example.plugin.hardware.factory.interfaces import Hardware
 from example.plugin.hardware.factory.products.productB import HardwareB
@@ -10,6 +10,10 @@ from example.plugin.hardware.observer.interfaces import EventHardwareCreated
     component=HardwareFactoryComponent,
     imports=[
         HardwareObserverComponent,
+    ],
+    products=[
+        HardwareB,
+        HardwareC
     ],
     provider=providers.Singleton,
 )

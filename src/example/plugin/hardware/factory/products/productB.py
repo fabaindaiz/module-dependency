@@ -1,7 +1,11 @@
+from dependency.core import Product, product
 from example.plugin.hardware.factory.interfaces import Hardware
 from example.plugin.base.string import StringService, StringServiceComponent
 
-class HardwareB(Hardware):
+@product(
+    imports=[StringServiceComponent],
+)
+class HardwareB(Hardware, Product):
     def __init__(self) -> None:
         self.__string: StringService = StringServiceComponent.provide()
 

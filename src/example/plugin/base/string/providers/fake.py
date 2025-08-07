@@ -1,4 +1,4 @@
-from dependency.core.declaration.instance import instance, providers
+from dependency.core import instance, providers
 from example.plugin.base.string import StringService, StringServiceComponent
 
 @instance(

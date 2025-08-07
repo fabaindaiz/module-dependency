@@ -28,9 +28,8 @@ def module(
             raise TypeError(f"Class {cls} is not a subclass of Module")
 
         injection = ContainerInjection(
-            name=cls.__name__)
-        if module:
-            module.injection.child_add(injection)
+            name=cls.__name__,
+            parent=module.injection if module else None)
 
         class WrapModule(cls): # type: ignore
             def __init__(self) -> None:

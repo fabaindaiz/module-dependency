@@ -1,6 +1,5 @@
 import pytest
 from abc import ABC, abstractmethod
-from collections import deque
 from dependency_injector import containers, providers
 from dependency.core.agrupation.module import Module, module
 from dependency.core.declaration.component import Component, component
@@ -40,8 +39,8 @@ def test_declaration():
 
     container = containers.DynamicContainer()
     setattr(container, TModule.injection.name, TModule.injection.inject_cls())
-    deque(TModule.injection.child_inject(), maxlen=0)
-    TModule.injection.child_wire(container)
+    for provider in list(TModule.injection.resolve_providers()):
+        provider.do_bootstrap(container)
 
     component: TInterface = TComponent.provide()
     assert isinstance(component, TInterface)

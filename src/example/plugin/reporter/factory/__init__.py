@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
-from dependency.core.declaration.component import Component, component
-from example.plugin.reporter.factory.interfaces import Reporter
+from dependency.core import Component, component
 from example.plugin.reporter import ReporterPlugin
+from example.plugin.reporter.factory.interfaces import Reporter
 
 class ReporterFactory(ABC):
     @abstractmethod
