@@ -1,3 +1,4 @@
+from abc import abstractmethod
 from pprint import pformat
 from pydantic import BaseModel
 from dependency_injector import containers, providers
@@ -23,8 +24,9 @@ class Plugin(Module):
     container: Container
 
     @property
+    @abstractmethod
     def config(self) -> PluginConfig:
-        return PluginConfig()
+        pass
 
     def set_container(self, container: Container) -> None:
         self.container = container

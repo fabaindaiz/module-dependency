@@ -1,15 +1,14 @@
 from abc import ABC, abstractmethod
 from dependency.core import Component, component
+from {{ module.path }} import {{ module.name }}
 
 class {{ component.name }}(ABC):
-    """{{ component.name }}
-    """
-    {% for method in component.methods %}
     @abstractmethod
-    def {{ method }}(self):
+    def method(self) -> None:
         pass
-    {% endfor %}
+
 @component(
+    module={{ module.name }},
     interface={{ component.name }},
 )
 class {{ component.name }}Component(Component):

@@ -3,7 +3,7 @@ from example.plugin.base.string import StringService, StringServiceComponent
 
 @instance(
     component=StringServiceComponent,
-    provider=providers.Singleton
+    provider=providers.Singleton,
 )
 class FakeStringService(StringService):
     def getRandomString(self) -> str:

@@ -1,0 +1,18 @@
+from dependency.core import instance, providers
+from {{ component.path }} import {{ component.name }}, {{ component.name }}Component
+
+@instance(
+    component={{ component.name }},
+    imports=[{% for import in instance.imports %}
+        {{ import.name }}Component,{% endfor %}
+    ],
+    provider=providers.Singleton,
+)
+class {{ instance.name }}({{ component.name }}):
+    def __init__(self) -> None:
+        {% for import in instance.imports %}
+        self.__{import.var}: {{ import.name }} = {{ import.name }}Component.provide(){% endfor %}
+        super().__init__()
+    
+    def method(self) -> None:
+        pass

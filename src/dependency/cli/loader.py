@@ -4,55 +4,65 @@ from typing import Any
 
 env = Environment(
     loader=PackageLoader(
-        package_name="dependency.cli"),
+        package_name="dependency.cli"
+    ),
     autoescape=select_autoescape(
         enabled_extensions=["j2"]
     )
 )
 
-class Module(BaseModel):
-    name: str
-    path: str
-
-class Interface(BaseModel):
+class Imports(BaseModel):
+    var: str
     name: str
 
 class Component(BaseModel):
     name: str
-    methods: list[str] = ["method"]
+    path: str
 
-class Provider(BaseModel):
+class Instance(BaseModel):
     name: str
-    imports: list[Component] = []
+    imports: list[Imports]
+
+class Module(BaseModel):
+    name: str
+    path: str
+
+def load_component(
+        module: Module,
+    ) -> str:
+    variables: dict[str, Any] = {
+        "module": module,
+    }
+    template = env.get_template("component.py.j2")
+    return template.render(variables)
+
+def load_instance(
+        component: Component,
+        instance: Instance,
+    ) -> str:
+    variables: dict[str, Any] = {
+        "component": component,
+        "instance": instance,
+    }
+    template = env.get_template("instance.py.j2")
+    return template.render(variables)
 
 def load_module(
+        parent: Module,
         module: Module,
-        ) -> str:
+    ) -> str:
     variables: dict[str, Any] = {
+        "parent": parent,
         "module": module,
     }
     template = env.get_template("module.py.j2")
     return template.render(variables)
 
-def load_component(
+def load_plugin(
         module: Module,
-        component: Component,
-        ) -> str:
-    variables: dict[str, Any] = {
-        "component": component,
-    }
-    template = env.get_template("component.py.j2")
-    return template.render(variables)
-
-def load_provider(
-        module: Module,
-        component: Component,
-        provider: Provider,
-        ) -> str:
+    ) -> str:
     variables: dict[str, Any] = {
         "module": module,
-        "component": component,
-        "provider": provider,
     }
-    template = env.get_template("provider.py.j2")
+    template = env.get_template("plugin.py.j2")
     return template.render(variables)

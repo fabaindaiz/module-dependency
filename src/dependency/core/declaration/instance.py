@@ -53,7 +53,8 @@ def instance(
                     for component in product._dependency_imports]
             ) for product in _products],
             bootstrap=bootstrap)
-        _component.instance = Instance(
+        instance = Instance(
             provided_cls=cls)
-        return _component.instance
+        _component.instance = instance
+        return instance
     return wrap
