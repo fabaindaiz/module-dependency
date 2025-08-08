@@ -1,8 +1,6 @@
 import logging
 from pprint import pformat
-from typing import cast
-from dependency.core.agrupation.plugin import Plugin
-from dependency.core.injection.base import ProviderInjection, ProviderDependency
+from dependency.core.injection.base import ProviderInjection
 from dependency.core.injection.container import Container
 from dependency.core.injection.utils import (
     provider_is_resolved,
@@ -12,17 +10,9 @@ from dependency.core.injection.utils import (
 logger = logging.getLogger("DependencyLoader")
 
 class InjectionLoader:
-    def __init__(self, container: Container, plugins: list[type[Plugin]]) -> None:
-        _plugins = cast(list[Plugin], plugins)
-        for plugin in _plugins:
-            plugin.set_container(container)
+    def __init__(self, container: Container, providers: list[ProviderInjection]) -> None:
         self.container: Container = container
-        self.plugins: list[Plugin] = _plugins
-        self.providers: list[ProviderInjection] = [
-            provider
-            for plugin in _plugins
-            for provider in plugin.injection.resolve_providers()
-        ]
+        self.providers: list[ProviderInjection] = providers
 
     def resolve_dependencies(self) -> list[list[ProviderInjection]]:
         unresolved_providers: list[ProviderInjection] = self.providers
