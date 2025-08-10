@@ -49,6 +49,9 @@ class InjectionLoader:
         self.container.check_dependencies()
         self.container.init_resources()
 
+        for provider in self.providers:
+            provider.do_prewiring()
+
         for resolved_layer in resolved_layers:
             for provider in resolved_layer:
                 provider.do_bootstrap(self.container)
