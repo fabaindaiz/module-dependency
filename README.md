@@ -1,10 +1,22 @@
 # module-dependency
 
-This repository contains experiments and examples for managing dependencies using dependency injection with class decorators in Python projects. The structures and patterns demonstrated here are flexible and can be adapted to suit various project needs.
+A dependency injection framework for embedded Python applications.
 
 ## Overview
 
-The goal of this project is to showcase different approaches to dependency management, focusing on modularity, flexibility, and ease of use. While the provided examples are specific, the underlying concepts can be applied to a wide range of scenarios.
+The goal of this project is to provide a comprehensive framework for managing structure for complex Python applications. The framework is designed to be modular, allowing developers to define components, interfaces, and instances that can be easily managed and injected into applications.
+
+Declare components with interfaces, provide multiple implementations of them, and manage which implementation to use at runtime. Multiple components can be organized and composed together to form complex behaviors using modular design principles.
+
+This repository includes a working example of a simple application that demonstrates these concepts in action. Based on a real-world use case, the example showcases how to effectively manage dependencies and implement modular design patterns in an embedded Python environment.
+
+## Install
+
+This project can be installed using pip:
+
+```bash
+pip install module-dependency
+```
 
 ## Core Components
 
@@ -171,13 +183,15 @@ class SomeDependent(Interface, Dependent):
 
 This repository includes a practical example demonstrating how to use the framework. You can find this example in the `example` directory. It showcases the implementation of the core components and how they interact to manage dependencies effectively in a sample application.
 
+This example requires the `module-injection` package to be installed and the `library` folder to be present in the project root.
+
 ## Future Work
 
 This project is a work in progress, and there are several improvements and enhancements planned for the future. Some of the areas that will be explored include:
-- Improve component registration and resolution mechanisms
-- Improve ways to handle module definitions and configurations
+- Improve component registration and resolution strategies
 - Explore more advanced dependency injection patterns and use cases
-- Enhance validation and error handling mechanisms of the framework
+- Enhance static and dynamic error handling mechanisms of the framework
+- Improve testing and validation for projects using this framework
 
 ## Aknowledgements
 
