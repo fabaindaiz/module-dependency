@@ -12,7 +12,7 @@ This repository includes a working example of a simple application that demonstr
 
 ## Install
 
-This project can be installed using pip:
+This project is available on PyPI on [module_dependency](https://pypi.org/project/module_dependency/). It can be installed using pip:
 
 ```bash
 pip install module-dependency
