@@ -8,7 +8,7 @@ from {{ component.path }} import {{ component.interface }}, {{ component.name }}
     ],
     provider=providers.Singleton,
 )
-class {{ instance.name }}({{ component.name }}):
+class {{ instance.name }}({{ component.interface }}):
     def __init__(self) -> None:
         {% for import in instance.imports %}
         self.__{{ import.lower() }}: {{ import }} = {{ import }}.provide(){% endfor %}
