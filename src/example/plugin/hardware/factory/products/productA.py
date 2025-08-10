@@ -3,7 +3,9 @@ from example.plugin.hardware.factory.interfaces import Hardware
 from example.plugin.base.number import NumberService, NumberServiceComponent
 
 @product(
-    imports=[NumberServiceComponent],
+    imports=[
+        NumberServiceComponent,
+    ],
 )
 class HardwareA(Hardware, Product):
     def __init__(self) -> None:

@@ -63,6 +63,9 @@ class ProviderDependency():
         self.name: str = name
         self.imports: list['ProviderInjection'] = imports
 
+    def __repr__(self) -> str:
+        return self.name
+
 class ProviderInjection(BaseInjection):
     def __init__(self,
             name: str,
@@ -73,8 +76,9 @@ class ProviderInjection(BaseInjection):
         self.provided_cls: type
         self.provider_cls: type
         self.modules_cls: list[type]
-        self.imports: list["ProviderInjection"] = []
-        self.bootstrap: Optional[Callable] = None
+        self.imports: list["ProviderInjection"]
+        self.depends: list[ProviderDependency]
+        self.bootstrap: Optional[Callable]
         super().__init__(name=name, parent=parent)
 
     def inject_cls(self) -> Any:
@@ -101,6 +105,12 @@ class ProviderInjection(BaseInjection):
         self.imports = imports
         self.depends = depends
         self.bootstrap = bootstrap
+
+    @property
+    def dependency(self) -> ProviderDependency:
+        return ProviderDependency(
+            name=self.name,
+            imports=self.imports)
 
     def add_wire_cls(self, wire_cls: type) -> None:
         self.modules_cls.append(wire_cls)
