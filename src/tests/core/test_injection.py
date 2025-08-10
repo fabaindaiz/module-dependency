@@ -1,6 +1,6 @@
 from dependency_injector import containers, providers
 from dependency_injector.wiring import Provide, inject
-from dependency.core.injection.base import ContainerInjection, ProviderInjection
+from dependency.core.injection import ContainerInjection, ProviderInjection
 
 TEST_REFERENCE = "container1.container2.provider1"
 
@@ -23,7 +23,7 @@ def test_injection1():
     provider1.set_implementation(
         provided_cls=Instance,
         provider_cls=providers.Singleton,
-        component=Interface())
+        component_cls=Interface)
     assert provider1.reference == TEST_REFERENCE
 
     container = containers.DynamicContainer()

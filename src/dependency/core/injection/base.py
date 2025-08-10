@@ -1,7 +1,6 @@
 from abc import ABC, abstractmethod
-from typing import Any, Generator, Optional
+from typing import Any, Callable, Generator, Optional
 from dependency_injector import containers
-from dependency.core.declaration.base import ABCComponent
 from dependency.core.exceptions import DependencyError
 
 class BaseInjection(ABC):
@@ -73,9 +72,9 @@ class ProviderInjection(BaseInjection):
         self.interface_cls: type = interface_cls
         self.provided_cls: type
         self.provider_cls: type
-        self.component: ABCComponent
+        self.component_cls: type
         self.imports: list["ProviderInjection"] = []
-        self.bootstrap: bool = False
+        self.bootstrap: Optional[Callable] = None
         super().__init__(name=name, parent=parent)
 
     def inject_cls(self) -> Any:
@@ -90,23 +89,20 @@ class ProviderInjection(BaseInjection):
     def set_implementation(self,
         provided_cls: type,
         provider_cls: type,
-        component: ABCComponent,
+        component_cls: type,
         imports: list["ProviderInjection"] = [],
         depends: list[ProviderDependency] = [],
-        bootstrap: bool = False
+        bootstrap: Optional[Callable] = None
     ) -> None:
         """Set the parameters for the provider."""
         self.provided_cls = provided_cls
         self.provider_cls = provider_cls
-        self.component = component
+        self.component_cls = component_cls
         self.imports = imports
         self.depends = depends
         self.bootstrap = bootstrap
 
     def do_bootstrap(self, container: containers.DynamicContainer) -> None:
-        container.wire(modules=[self.component.__class__])
-        if not self.bootstrap:
-            return
-        if not self.component:
-            raise DependencyError("ProviderInjection must have a component set before bootstrapping.")
-        self.component.provide()
+        container.wire(modules=[self.component_cls])
+        if self.bootstrap is not None:
+            self.bootstrap()

@@ -3,7 +3,6 @@ from dependency_injector import providers
 from dependency.core.declaration.base import ABCInstance
 from dependency.core.declaration.component import Component
 from dependency.core.declaration.product import Product
-from dependency.core.injection.base import ProviderDependency
 
 class Instance(ABCInstance):
     """Instance Base Class
@@ -40,19 +39,17 @@ def instance(
     def wrap(cls: type) -> Instance:
         if not issubclass(cls, _component.interface_cls):
             raise TypeError(f"Class {cls} is not a subclass of {_component.interface_cls}")
-        
+
+        imports = [component.injection for component in _imports]
+        depends = [product._dependency_imports for product in _products]
         _component.injection.set_implementation(
             provided_cls=cls,
             provider_cls=provider,
-            component=_component,
-            imports=[component.injection for component in _imports],
-            depends=[ProviderDependency(
-                name=product.__class__.__name__,
-                imports=[
-                    component.injection
-                    for component in product._dependency_imports]
-            ) for product in _products],
-            bootstrap=bootstrap)
+            component_cls=_component.__class__,
+            imports=imports,
+            depends=depends,
+            bootstrap=_component.provide if bootstrap else None)
+        
         instance = Instance(
             provided_cls=cls)
         _component.instance = instance

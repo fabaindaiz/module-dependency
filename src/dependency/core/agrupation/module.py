@@ -31,10 +31,7 @@ def module(
             name=cls.__name__,
             parent=module.injection if module else None)
 
-        class WrapModule(cls): # type: ignore
-            def __init__(self) -> None:
-                super().__init__(
-                    name=cls.__name__,
-                    injection=injection)
-        return WrapModule()
+        return cls(
+            name=cls.__name__,
+            injection=injection)
     return wrap

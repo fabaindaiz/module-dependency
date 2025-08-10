@@ -1,5 +1,5 @@
 from typing import Any, Callable, Optional, TypeVar, cast
-from dependency_injector.wiring import Provide
+from dependency_injector.wiring import Provide, inject
 from dependency.core.agrupation.module import Module
 from dependency.core.declaration.base import ABCComponent, ABCInstance
 from dependency.core.injection.base import ProviderInjection
@@ -28,6 +28,10 @@ class Component(ABCComponent):
         if self.__instance:
             raise DependencyError(f"Component {self} is already instanced by {self.__instance}. Attempted to set new instance: {instance}")
         self.__instance = instance
+    
+    @staticmethod
+    def provide() -> Any:
+        pass
 
 def component(
     module: type[Module],
@@ -45,6 +49,7 @@ def component(
     Returns:
         Callable[[type[Component]], Component]: Decorator function that wraps the component class.
     """
+    # Cast due to mypy not supporting class decorators
     _module = cast(Module, module)
     def wrap(cls: type[COMPONENT]) -> COMPONENT:
         if not issubclass(cls, Component):
@@ -61,9 +66,8 @@ def component(
                     interface_cls=interface,
                     injection=injection)
 
-            def provide(self, # type: ignore
-                service: Any = Provide[injection.reference]
-            ) -> Any:
+            @inject
+            def provide(self, service: Any = Provide[injection.reference]) -> Any:
                 if isinstance(service, Provide): # type: ignore
                     raise DependencyError(f"Component {cls.__name__} was not provided")
                 return service

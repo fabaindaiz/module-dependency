@@ -13,11 +13,11 @@ class ReporterA(Reporter, Product):
         self.products: list[str] = []
         self.operations: list[str] = []
 
-        @self.__observer.subscribe(EventSubscriber)
+        @self.__observer.subscribe(EventSubscriber)  # type: ignore
         def on_product_created(context: EventHardwareCreated) -> None:
             self.products.append(context.product)
 
-        @self.__observer.subscribe(EventSubscriber)
+        @self.__observer.subscribe(EventSubscriber)  # type: ignore
         def on_product_operation(context: EventHardwareOperation) -> None:
             self.operations.append(f"{context.product} -> {context.operation}")
     

@@ -1,13 +1,8 @@
 from abc import ABC
-from typing import Any
 
 class ABCComponent(ABC):
     def __init__(self, interface_cls: type) -> None:
         self.interface_cls: type = interface_cls
-    
-    @staticmethod
-    def provide(service: Any = None) -> Any: # TODO: provide signature
-        pass
 
     def __repr__(self) -> str:
         return self.interface_cls.__name__

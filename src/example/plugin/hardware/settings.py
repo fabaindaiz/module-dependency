@@ -1,4 +1,4 @@
-from dependency.core import PluginConfig
+from pydantic import BaseModel
 
-class HardwarePluginConfig(PluginConfig):
+class HardwarePluginConfig(BaseModel):
     config: bool

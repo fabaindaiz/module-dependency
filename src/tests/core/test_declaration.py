@@ -1,9 +1,8 @@
 import pytest
 from abc import ABC, abstractmethod
 from dependency_injector import containers, providers
-from dependency.core.agrupation.module import Module, module
-from dependency.core.declaration.component import Component, component
-from dependency.core.declaration.instance import instance
+from dependency.core.agrupation import Module, module
+from dependency.core.declaration import Component, component, instance
 from dependency.core.exceptions import DependencyError
 
 class TInterface(ABC):

@@ -1,4 +1,4 @@
-from dependency.core import PluginConfig
+from pydantic import BaseModel
 
-class ReporterPluginConfig(PluginConfig):
+class ReporterPluginConfig(BaseModel):
     config: bool

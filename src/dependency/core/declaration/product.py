@@ -1,10 +1,11 @@
 from typing import Callable, TypeVar, cast
 from dependency.core.declaration.component import Component
+from dependency.core.injection.base import ProviderDependency
 
 PRODUCT = TypeVar('PRODUCT', bound='Product')
 
 class Product():
-    _dependency_imports: list[Component]
+    _dependency_imports: ProviderDependency
 
 def product(
     imports: list[type[Component]] = []
@@ -26,6 +27,8 @@ def product(
         if not issubclass(cls, Product):
             raise TypeError(f"Class {cls} is not a subclass of Product")
 
-        cls._dependency_imports = _imports
+        cls._dependency_imports = ProviderDependency(
+            name=cls.__name__,
+            imports=[component.injection for component in _imports])
         return cls
     return wrap
