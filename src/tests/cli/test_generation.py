@@ -1,5 +1,8 @@
-from dependency.cli.base import Module, Component, Instance
-import dependency.cli.loader as loader
+from dependency.cli.models.base import Module, Component, Instance
+from dependency.cli.generation.plugin import PluginGenerator
+from dependency.cli.generation.module import ModuleGenerator
+from dependency.cli.generation.component import ComponentGenerator
+from dependency.cli.generation.instance import InstanceGenerator
 
 def test_generation():
     plugin = Module(
@@ -20,19 +23,19 @@ def test_generation():
         name="ComponentA",
         imports=["Component"],
     )
-    
-    loader.load_plugin(
+
+    PluginGenerator.generate(
         module=plugin,
     )
-    loader.load_module(
+    ModuleGenerator.generate(
         parent=plugin,
         module=module,
     )
-    loader.load_component(
+    ComponentGenerator.generate(
         component=component,
         module=module,
     )
-    loader.load_instance(
+    InstanceGenerator.generate(
         component=component,
         instance=instance,
     )
