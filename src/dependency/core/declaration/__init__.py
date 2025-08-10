@@ -1,12 +1,12 @@
 from dependency.core.declaration.component import Component, component
-from dependency.core.declaration.provider import Provider, provider
-from dependency.core.declaration.dependent import Dependent, dependent
+from dependency.core.declaration.instance import instance, providers
+from dependency.core.declaration.product import Product, product
 
 __all__ = [
     "Component",
     "component",
-    "Provider",
-    "provider",
-    "Dependent",
-    "dependent",
+    "instance",
+    "providers",
+    "Product",
+    "product"
 ]

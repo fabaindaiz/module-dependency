@@ -1,4 +1,4 @@
-# module-injection
+# module-dependency
 
 This repository contains experiments and examples for managing dependencies using dependency injection with class decorators in Python projects. The structures and patterns demonstrated here are flexible and can be adapted to suit various project needs.
 
@@ -16,27 +16,12 @@ The project is built around four components that implement different aspects of 
 
 ```python
 from dependency.core import Module, module
-from plugin........component import SomeService, SomeServiceComponent
 
-@module(
-    declaration=[   # Declare all components that are part of the module
-        SomeServiceComponent,
-        ...         # Every used component must be declared in some module
-    ],
-    bootstrap=[     # Bootstrap components will be started on loading
-        SomeServiceComponent
-    ]
-)
+@module()
 class SomeModule(Module):
     """This is a module class.
-       Here the providers are declared and provided
     """
-    def declare_providers(self):
-        from plugin........provider import ImplementedSomeService
-        return [    # Here you declare the providers for the components
-            ImplementedSomeService,
-            ...     # Only one provider per component is allowed
-        ]
+    pass
 ```
 
 ### 2. Component
@@ -46,6 +31,7 @@ class SomeModule(Module):
 ```python
 from abc import ABC, abstractmethod
 from dependency.core import Component, component
+from plugin.........module import SomeModule
 
 class SomeService(ABC):
     """This is the interface for a new component."""
@@ -54,6 +40,7 @@ class SomeService(ABC):
         pass
 
 @component(
+    module=SomeModule,     # Declares the module this component belongs to
     interface=SomeService, # Declares the interface used by the component
 )
 class SomeServiceComponent(Component):
@@ -64,26 +51,26 @@ class SomeServiceComponent(Component):
     pass
 ```
 
-### 3. Provider
+### 3. Instance
 - Delivers concrete implementations of Components
 - Manages the lifecycle and injection of dependency objects
 
 ```python
-from dependency_injector import providers
-from dependency.core import provider
-from plugin........component import SomeService, SomeServiceComponent
-from plugin..other_component import OtherService, OtherServiceComponent
+from dependency.core import instance, providers
+from plugin.........component import SomeService, SomeServiceComponent
+from plugin...other_component import OtherService, OtherServiceComponent
 
 @provider(
     component=SomeServiceComponent, # Declares the component to be provided
     imports=[OtherService, ...],    # List of dependencies (components) that are needed
-    provider=providers.Singleton    # Provider type (Singleton, Factory)
+    provider=providers.Singleton,   # Provider type (Singleton, Factory)
+    bootstrap=False,                # Whether to bootstrap on application start
 )
 class ImplementedSomeService(SomeService):
     """This is a provider class. Here the component is implemented.
        Providers are injected into the respective components when provided.
     """
-    def __init__(self, cfg: dict, **kwargs) -> None:
+    def __init__(self) -> None:
         """Init method will be called when the provider is stared.
            This will happen once for singleton and every time for factories.
         """
