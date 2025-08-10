@@ -16,9 +16,13 @@ class Component(ABCComponent):
         self.__instance: Optional[ABCInstance] = None
     
     @property
+    def reference(self) -> str:
+        return self.__injection.reference
+
+    @property
     def injection(self) -> ProviderInjection:
         return self.__injection
-
+    
     @property
     def instance(self) -> Optional[ABCInstance]:
         return self.__instance

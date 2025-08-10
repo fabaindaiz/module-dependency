@@ -72,7 +72,7 @@ class ProviderInjection(BaseInjection):
         self.interface_cls: type = interface_cls
         self.provided_cls: type
         self.provider_cls: type
-        self.component_cls: type
+        self.modules_cls: type
         self.imports: list["ProviderInjection"] = []
         self.bootstrap: Optional[Callable] = None
         super().__init__(name=name, parent=parent)
@@ -97,12 +97,19 @@ class ProviderInjection(BaseInjection):
         """Set the parameters for the provider."""
         self.provided_cls = provided_cls
         self.provider_cls = provider_cls
-        self.component_cls = component_cls
+        self.modules_cls = [component_cls]
         self.imports = imports
         self.depends = depends
         self.bootstrap = bootstrap
 
+    def add_wire_cls(self, wire_cls: type):
+        self.modules_cls.append(wire_cls)
+
+    def do_prewiring(self):
+        for provider in self.imports:
+            provider.add_wire_cls(self.provided_cls)
+
     def do_bootstrap(self, container: containers.DynamicContainer) -> None:
-        container.wire(modules=[self.component_cls])
+        container.wire(modules=self.modules_cls)
         if self.bootstrap is not None:
             self.bootstrap()
