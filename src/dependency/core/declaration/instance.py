@@ -30,16 +30,6 @@ def instance(
         TypeError: If the wrapped class is not a subclass of Component declared base class.
 
     Returns:
-        component (type[Component]): Component class to be used as a base class for the instance.
-        imports (list[type[Component]], optional): List of components to be imported by the instance. Defaults to [].
-        products (list[type[Product]], optional): List of products to be declared by the instance. Defaults to [].
-        provider (type[providers.Provider], optional): Provider class to be used for instantiation. Defaults to providers.Singleton.
-        bootstrap (bool, optional): Whether the instance should be bootstrapped. Defaults to False.
-        
-    Raises:
-        TypeError: If the wrapped class is not a subclass of the Component declared base class.
-
-    Returns:
         Callable[[type], Instance]: Decorator function that wraps the instance class and returns an Instance object.
     """
     # Cast due to mypy not supporting class decorators
