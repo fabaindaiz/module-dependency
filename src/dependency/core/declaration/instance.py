@@ -30,7 +30,7 @@ def instance(
         TypeError: If the wrapped class is not a subclass of Component declared base class.
 
     Returns:
-        Callable[[type], Provider]: Decorator function that wraps the provider class.
+        Callable[[type], Instance]: Decorator function that wraps the instance class and returns an Instance object.
     """
     # Cast due to mypy not supporting class decorators
     _component = cast(Component, component)
