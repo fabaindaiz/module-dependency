@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import Any, Callable, Generator, Optional
-from dependency_injector import containers
+from dependency_injector import containers, providers
 from dependency.core.exceptions import DependencyError
 
 class BaseInjection(ABC):
@@ -73,22 +73,29 @@ class ProviderDependency():
 class ProviderInjection(BaseInjection):
     def __init__(self,
             name: str,
+            component_name: str,
             interface_cls: type,
             parent: Optional["ContainerInjection"] = None
             ) -> None:
+        self.component_name: str = component_name
         self.interface_cls: type = interface_cls
-        self.provided_cls: type
-        self.provider_cls: type
-        self.modules_cls: set[type]
-        self.imports: list["ProviderInjection"]
-        self.depends: list[ProviderDependency]
-        self.bootstrap: Optional[Callable]
+        self.__provided_cls: Optional[type] = None
+        self.provider_cls: type = providers.Singleton
+        self.modules_cls: set[type] = set()
+        self.imports: list["ProviderInjection"] = []
+        self.depends: list[ProviderDependency] = []
+        self.bootstrap: Optional[Callable] = None
         super().__init__(name=name, parent=parent)
+    
+    @property
+    def provided_cls(self) -> type:
+        """Return the provided class."""
+        if self.__provided_cls is None:
+            raise DependencyError(f"Component {self.component_name} was not provided")
+        return self.__provided_cls
 
     def inject_cls(self) -> Any:
         """Return the provider instance."""
-        if self.provider_cls is None:
-            raise DependencyError("ProviderInjection must have provided_cls and provider_cls set before injection.")
         return self.provider_cls(self.provided_cls)
 
     def resolve_providers(self) -> Generator['ProviderInjection', None, None]:
@@ -113,7 +120,7 @@ class ProviderInjection(BaseInjection):
             depends (list[ProviderDependency], optional): A list of provider dependencies for this provider.
             bootstrap (Optional[Callable], optional): A bootstrap function for the provider.
         """
-        self.provided_cls = provided_cls
+        self.__provided_cls = provided_cls
         self.provider_cls = provider_cls
         self.modules_cls = set((component_cls,))
         self.imports = imports

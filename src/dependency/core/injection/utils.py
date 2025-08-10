@@ -72,7 +72,7 @@ def raise_cycle_error(providers: list[ProviderInjection]) -> None:
     cycles = find_cycles(providers)
     if cycles:
         for cycle in cycles:
-            logger.error(f"Circular dependency detected: {cycle}")
+            logger.error(f"Circular import: {cycle}")
         raise DependencyError("Circular dependencies detected")
 
 def raise_dependency_error(

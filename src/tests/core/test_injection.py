@@ -18,6 +18,7 @@ def test_injection1():
     container2 = ContainerInjection(name="container2", parent=container1)
     provider1 = ProviderInjection(
         name="provider1",
+        component_name="provider1",
         interface_cls=Interface,
         parent=container2)
     provider1.set_implementation(
