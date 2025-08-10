@@ -20,6 +20,7 @@ class BaseInjection(ABC):
     
     @property
     def reference(self) -> str:
+        """Return the reference for dependency injection."""
         if not self.__parent:
             return self.name
         return f"{self.__parent.reference}.{self.name}"
@@ -51,6 +52,7 @@ class ContainerInjection(BaseInjection):
         return self.container
     
     def resolve_providers(self) -> Generator['ProviderInjection', None, None]:
+        """Inject all children into the current injection context."""
         for child in self.childs:
             setattr(self.container, child.name, child.inject_cls())
             yield from child.resolve_providers()
@@ -58,9 +60,11 @@ class ContainerInjection(BaseInjection):
 class ProviderDependency():
     def __init__(self,
         name: str,
+        provided_cls: type,
         imports: list['ProviderInjection']
     ) -> None:
         self.name: str = name
+        self.provided_cls: type = provided_cls
         self.imports: list['ProviderInjection'] = imports
 
     def __repr__(self) -> str:
@@ -75,7 +79,7 @@ class ProviderInjection(BaseInjection):
         self.interface_cls: type = interface_cls
         self.provided_cls: type
         self.provider_cls: type
-        self.modules_cls: list[type]
+        self.modules_cls: set[type]
         self.imports: list["ProviderInjection"]
         self.depends: list[ProviderDependency]
         self.bootstrap: Optional[Callable]
@@ -88,6 +92,7 @@ class ProviderInjection(BaseInjection):
         return self.provider_cls(self.provided_cls)
 
     def resolve_providers(self) -> Generator['ProviderInjection', None, None]:
+        """Inject all children into the current injection context."""
         yield self
 
     def set_implementation(self,
@@ -98,28 +103,49 @@ class ProviderInjection(BaseInjection):
         depends: list[ProviderDependency] = [],
         bootstrap: Optional[Callable] = None
     ) -> None:
-        """Set the parameters for the provider."""
+        """Set the parameters for the provider.
+
+        Args:
+            provided_cls (type): The class that is provided by the provider.
+            provider_cls (type): The class that is used to create the provider.
+            component_cls (type): The class of the component that is being provided.
+            imports (list["ProviderInjection"], optional): A list of provider injections that are imported by this provider.
+            depends (list[ProviderDependency], optional): A list of provider dependencies for this provider.
+            bootstrap (Optional[Callable], optional): A bootstrap function for the provider.
+        """
         self.provided_cls = provided_cls
         self.provider_cls = provider_cls
-        self.modules_cls = [component_cls]
+        self.modules_cls = set((component_cls,))
         self.imports = imports
         self.depends = depends
         self.bootstrap = bootstrap
 
     @property
     def dependency(self) -> ProviderDependency:
+        """Return the dependency information for the provider."""
         return ProviderDependency(
             name=self.name,
+            provided_cls=self.provided_cls,
             imports=self.imports)
 
     def add_wire_cls(self, wire_cls: type) -> None:
-        self.modules_cls.append(wire_cls)
+        """Add a class to the set of modules that need to be wired."""
+        self.modules_cls.add(wire_cls)
 
     def do_prewiring(self) -> None:
+        """Declare all modules that need to be wired on their respective providers."""
         for provider in self.imports:
             provider.add_wire_cls(self.provided_cls)
+        for dependency in self.depends:
+            for provider in dependency.imports:
+                provider.add_wire_cls(dependency.provided_cls)
 
     def do_bootstrap(self, container: containers.DynamicContainer) -> None:
+        """Wire all modules with their dependencies and bootstrap required components.
+
+        Args:
+            container (containers.DynamicContainer): The container to bootstrap the provider in.
+        """
         container.wire(modules=self.modules_cls)
         if self.bootstrap is not None:
             self.bootstrap()
