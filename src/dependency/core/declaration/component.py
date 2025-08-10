@@ -61,6 +61,7 @@ def component(
         
         injection = ProviderInjection(
             name=interface.__name__,
+            component_name=cls.__name__,
             interface_cls=interface,
             parent=_module.injection)
 
