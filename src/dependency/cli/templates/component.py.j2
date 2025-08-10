@@ -2,14 +2,14 @@ from abc import ABC, abstractmethod
 from dependency.core import Component, component
 from {{ module.path }} import {{ module.name }}
 
-class {{ component.name }}(ABC):
+class {{ component.interface }}(ABC):
     @abstractmethod
     def method(self) -> None:
         pass
 
 @component(
     module={{ module.name }},
-    interface={{ component.name }},
+    interface={{ component.interface }},
 )
-class {{ component.name }}Component(Component):
+class {{ component.name }}(Component):
     pass

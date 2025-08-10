@@ -1,68 +1,50 @@
 from jinja2 import Environment, PackageLoader, select_autoescape
-from pydantic import BaseModel
-from typing import Any
+from dependency.cli.base import Module, Component, Instance
 
 env = Environment(
     loader=PackageLoader(
-        package_name="dependency.cli"
+        package_name="dependency.cli",
+        package_path="templates",
     ),
     autoescape=select_autoescape(
         enabled_extensions=["j2"]
     )
 )
 
-class Imports(BaseModel):
-    var: str
-    name: str
-
-class Component(BaseModel):
-    name: str
-    path: str
-
-class Instance(BaseModel):
-    name: str
-    imports: list[Imports]
-
-class Module(BaseModel):
-    name: str
-    path: str
-
-def load_component(
+def load_plugin(
         module: Module,
     ) -> str:
-    variables: dict[str, Any] = {
-        "module": module,
-    }
-    template = env.get_template("component.py.j2")
-    return template.render(variables)
-
-def load_instance(
-        component: Component,
-        instance: Instance,
-    ) -> str:
-    variables: dict[str, Any] = {
-        "component": component,
-        "instance": instance,
-    }
-    template = env.get_template("instance.py.j2")
-    return template.render(variables)
+    template = env.get_template("plugin.py.j2")
+    return template.render(
+        module=module,
+    )
 
 def load_module(
         parent: Module,
         module: Module,
     ) -> str:
-    variables: dict[str, Any] = {
-        "parent": parent,
-        "module": module,
-    }
     template = env.get_template("module.py.j2")
-    return template.render(variables)
+    return template.render(
+        parent=parent,
+        module=module,
+    )
 
-def load_plugin(
+def load_component(
+        component: Component,
         module: Module,
     ) -> str:
-    variables: dict[str, Any] = {
-        "module": module,
-    }
-    template = env.get_template("plugin.py.j2")
-    return template.render(variables)
+    template = env.get_template("component.py.j2")
+    return template.render(
+        component=component,
+        module=module,
+    )
+
+def load_instance(
+        component: Component,
+        instance: Instance,
+    ) -> str:
+    template = env.get_template("instance.py.j2")
+    return template.render(
+        component=component,
+        instance=instance,
+    )

@@ -1,18 +1,38 @@
-from dependency.cli import loader
+from dependency.cli.base import Module, Component, Instance
+import dependency.cli.loader as loader
 
-if __name__ == "__main__":
-    print(loader.load_provider(
-        module=loader.Module(
-            name="Module",
-            path="src.plugin.module",
-        ),
-        component=loader.Component(
-            name="Interface",
-            interface="Interface",
-            methods=["method1", "method2", "method3"],
-        ),
-        provider=loader.Provider(
-            name="InterfaceA",
-            imports=["interface1", "interface2"],
-        ),
-    ))
+def test_generation():
+    plugin = Module(
+        path="src.plugin",
+        name="Plugin",
+    )
+    module = Module(
+        path="src.plugin.module",
+        name="Module",
+    )
+    component = Component(
+        path="src.plugin.module.component",
+        name="Component",
+        interface="Interface",
+    )
+    instance = Instance(
+        path="src.plugin.module.component.instance",
+        name="ComponentA",
+        imports=["Component"],
+    )
+    
+    loader.load_plugin(
+        module=plugin,
+    )
+    loader.load_module(
+        parent=plugin,
+        module=module,
+    )
+    loader.load_component(
+        component=component,
+        module=module,
+    )
+    loader.load_instance(
+        component=component,
+        instance=instance,
+    )
