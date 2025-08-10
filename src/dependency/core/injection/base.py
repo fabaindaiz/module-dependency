@@ -72,7 +72,7 @@ class ProviderInjection(BaseInjection):
         self.interface_cls: type = interface_cls
         self.provided_cls: type
         self.provider_cls: type
-        self.modules_cls: type
+        self.modules_cls: list[type]
         self.imports: list["ProviderInjection"] = []
         self.bootstrap: Optional[Callable] = None
         super().__init__(name=name, parent=parent)
@@ -102,10 +102,10 @@ class ProviderInjection(BaseInjection):
         self.depends = depends
         self.bootstrap = bootstrap
 
-    def add_wire_cls(self, wire_cls: type):
+    def add_wire_cls(self, wire_cls: type) -> None:
         self.modules_cls.append(wire_cls)
 
-    def do_prewiring(self):
+    def do_prewiring(self) -> None:
         for provider in self.imports:
             provider.add_wire_cls(self.provided_cls)
 

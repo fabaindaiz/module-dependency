@@ -68,6 +68,7 @@ class SomeServiceComponent(Component):
 - Manages the lifecycle and injection of dependency objects
 
 ```python
+from dependency_injector.wiring import Provide, inject
 from dependency.core import instance, providers
 from ...plugin.........component import SomeService, SomeServiceComponent
 from ...plugin...other_component import OtherService, OtherServiceComponent
@@ -75,6 +76,7 @@ from ...plugin...other_component import OtherService, OtherServiceComponent
 @instance(
     component=SomeServiceComponent, # Declares the component to be provided
     imports=[OtherService, ...],    # List of dependencies (components) that are needed
+    products=[SomeProduct, ...],    # List of products that this instance will create
     provider=providers.Singleton,   # Provider type (Singleton, Factory)
     bootstrap=False,                # Whether to bootstrap on application start
 )
@@ -89,9 +91,17 @@ class ImplementedSomeService(SomeService):
         # Once declared, i can use the dependencies for the class.
         self.dependency: OtherService = OtherServiceComponent.provide()
     
-    def method(self, ...) -> ...:
+    @inject
+    def method(self,
+        # Dependencies also can be used in this way
+        dependency: OtherService = Provide[OtherServiceComponent.reference],
+    ...) -> ...:
         """Methods declared in the interface must be implemented.
         """
+        # Once declared, i can safely create any product
+        product = SomeProduct()
+
+        # You can do anything here
         do_something()
 ```
 
@@ -161,19 +171,19 @@ class SomePlugin(Plugin):
         return SomePluginConfig(**self.container.config())
 ```
 
-### 3. Dependent
+### 3. Product
 - Represents a class produced by a Provider that requires dependencies
 - Allows to provide standalone classes without the need to define new providers
 
 ```python
-from dependency.core import Dependent, dependent
+from dependency.core import Product, product
 
-@dependent(
+@product(
     imports=[SomeComponent, ...], # List of dependencies (components) that are needed
 )
-class SomeDependent(Interface, Dependent):
-    """This is the dependent class. This class will check for its dependencies.
-       Dependents must be declared in some provider and can be instantiated as normal classes.
+class SomeProduct(Interface, Product):
+    """This is the product class. This class will check for its dependencies.
+       Products must be declared in some instance and can be instantiated as normal classes.
     """
     def method(self, ...) -> ...:
         pass
