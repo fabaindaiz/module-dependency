@@ -8,7 +8,7 @@ The goal of this project is to showcase different approaches to dependency manag
 
 ## Core Components
 
-The project is built around four components that implement different aspects of dependency management:
+The project is built around three components that implement different aspects of dependency management:
 
 ### 1. Module
 - Acts as a container for organizing and grouping related dependencies
@@ -19,7 +19,7 @@ from dependency.core import Module, module
 
 @module()
 class SomeModule(Module):
-    """This is a module class.
+    """This is a module class. Use this to group related components.
     """
     pass
 ```
@@ -31,21 +31,21 @@ class SomeModule(Module):
 ```python
 from abc import ABC, abstractmethod
 from dependency.core import Component, component
-from plugin.........module import SomeModule
+from ...plugin.........module import SomeModule
 
 class SomeService(ABC):
-    """This is the interface for a new component."""
+    """This is the interface for a new component.
+    """
     @abstractmethod
     def method(self, ...) -> ...:
         pass
 
 @component(
-    module=SomeModule,     # Declares the module this component belongs to
+    module=SomeModule,     # Declares the module or plugin this component belongs to
     interface=SomeService, # Declares the interface used by the component
 )
 class SomeServiceComponent(Component):
-    """This is the component class.
-       Provider selected for this component will injected here.
+    """This is the component class. A instance will be injected here.
        Components are only started when provided or bootstrapped.
     """
     pass
@@ -57,35 +57,101 @@ class SomeServiceComponent(Component):
 
 ```python
 from dependency.core import instance, providers
-from plugin.........component import SomeService, SomeServiceComponent
-from plugin...other_component import OtherService, OtherServiceComponent
+from ...plugin.........component import SomeService, SomeServiceComponent
+from ...plugin...other_component import OtherService, OtherServiceComponent
 
-@provider(
+@instance(
     component=SomeServiceComponent, # Declares the component to be provided
     imports=[OtherService, ...],    # List of dependencies (components) that are needed
     provider=providers.Singleton,   # Provider type (Singleton, Factory)
     bootstrap=False,                # Whether to bootstrap on application start
 )
 class ImplementedSomeService(SomeService):
-    """This is a provider class. Here the component is implemented.
-       Providers are injected into the respective components when provided.
+    """This is a instance class. Here the component is implemented.
+       Instances are injected into the respective components when provided.
     """
     def __init__(self) -> None:
-        """Init method will be called when the provider is stared.
+        """Init method will be called when the instance is stared.
            This will happen once for singleton and every time for factories.
         """
-
         # Once declared, i can use the dependencies for the class.
         self.dependency: OtherService = OtherServiceComponent.provide()
     
     def method(self, ...) -> ...:
-        """Methods declared in the interface must be implemented."""
+        """Methods declared in the interface must be implemented.
+        """
         do_something()
 ```
 
-## 4. Dependent
+These components work together to create a powerful and flexible dependency injection system, allowing for more maintainable and testable Python applications.
+
+## Extra Components
+
+The project has additional components that enhance its functionality and organization. These components include:
+
+### 1. Entrypoint
+- Represents a entry point for the application
+- Responsible for initializing and starting the application
+
+```python
+from dependency.core import Entrypoint, Container
+from ...plugin...... import SomePlugin
+
+class SomeApplication(Entrypoint):
+    """This is an application entry point.
+       Plugins included here will be loaded and initialized.
+    """
+    def __init__(self) -> None:
+        # Import the instances that will be used on the application
+        # This will generate the internal provider structure
+        import ...plugin.........component
+
+        # This is the main container, it will hold all the providers
+        container = Container.from_dict(config={...}, required=True)
+        super().__init__(
+            container,
+            plugins=[
+                SomePlugin,
+                ...
+            ])
+
+    def main_loop(self) -> None:
+        """Main application loop.
+        """
+        pass
+```
+
+### 2. Plugin
+- Represents a special module that can be included in the application
+- Provides additional functionality or features to the application
+
+```python
+from pydantic import BaseModel
+from dependency.core import Plugin, PluginMeta, module
+
+class SomePluginConfig(BaseModel):
+    """Include configuration options for the plugin.
+    """
+    pass
+
+@module()
+class SomePlugin(Plugin):
+    """This is a plugin class. Plugins can be included in the application.
+       Plugins are modules that provide additional functionality.
+    """
+    meta = PluginMeta(name="SomePlugin", version="0.0.1")
+
+    @property
+    def config(self) -> SomePluginConfig:
+        """Plugins can have their own configuration options.
+           Instantiates the model using the container config.
+        """
+        return SomePluginConfig(**self.container.config())
+```
+
+### 3. Dependent
 - Represents a class produced by a Provider that requires dependencies
-- Allows to provide standalone classed without the need to define new providers
+- Allows to provide standalone classes without the need to define new providers
 
 ```python
 from dependency.core import Dependent, dependent
@@ -94,15 +160,12 @@ from dependency.core import Dependent, dependent
     imports=[SomeComponent, ...], # List of dependencies (components) that are needed
 )
 class SomeDependent(Interface, Dependent):
-    """This is the dependent class.
-       Dependents must be declared in the provider that provides them.
-       Dependents can be instantiated without the need to define new providers.
+    """This is the dependent class. This class will check for its dependencies.
+       Dependents must be declared in some provider and can be instantiated as normal classes.
     """
     def method(self, ...) -> ...:
         pass
 ```
-
-These components work together to create a powerful and flexible dependency injection system, allowing for more maintainable and testable Python applications.
 
 ## Usage Examples
 
