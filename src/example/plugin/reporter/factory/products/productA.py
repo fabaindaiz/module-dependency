@@ -4,7 +4,9 @@ from example.plugin.hardware.observer import HardwareObserver, HardwareObserverC
 from example.plugin.hardware.observer.interfaces import EventSubscriber, EventHardwareCreated, EventHardwareOperation
 
 @product(
-    imports=[HardwareObserverComponent],
+    imports=[
+        HardwareObserverComponent,
+    ],
 )
 class ReporterA(Reporter, Product):
     def __init__(self) -> None:

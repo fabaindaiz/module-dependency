@@ -22,7 +22,7 @@ class InjectionLoader:
             new_layer = [
                 provider
                 for provider in unresolved_providers
-                if provider_is_resolved(provider.imports, resolved_layers)
+                if provider_is_resolved(provider.dependency, resolved_layers)
             ]
 
             if len(new_layer) == 0:
@@ -41,7 +41,7 @@ class InjectionLoader:
             depends
             for provider in self.providers
             for depends in provider.depends
-            if not provider_is_resolved(depends.imports, resolved_layers)]
+            if not provider_is_resolved(depends, resolved_layers)]
         if unresolved_depends:
             logger.error(f"Unresolved dependencies: {unresolved_depends}")
             raise_dependency_error(unresolved_depends, resolved_layers)
