@@ -1,3 +1,4 @@
+from dependency_injector.wiring import Provide, inject
 from dependency.core import Product, product
 from example.plugin.hardware.factory.interfaces import Hardware
 from example.plugin.base.string import StringService, StringServiceComponent
@@ -8,9 +9,10 @@ from example.plugin.base.string import StringService, StringServiceComponent
     ],
 )
 class HardwareB(Hardware, Product):
-    def __init__(self) -> None:
-        self.__string: StringService = StringServiceComponent.provide()
-
-    def doStuff(self, operation: str) -> None:
-        random_string = self.__string.getRandomString()
+    @inject
+    def doStuff(self,
+            operation: str,
+            string: StringService = Provide[StringServiceComponent.reference],
+        ) -> None:
+        random_string = string.getRandomString()
         print(f"HardwareB {random_string} works with operation: {operation}")

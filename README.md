@@ -88,7 +88,7 @@ class ImplementedSomeService(SomeService):
         """Init method will be called when the instance is stared.
            This will happen once for singleton and every time for factories.
         """
-        # Once declared, i can use the dependencies for the class.
+        # Once declared, i can use the dependencies for the class
         self.dependency: OtherService = OtherServiceComponent.provide()
     
     @inject
@@ -99,6 +99,7 @@ class ImplementedSomeService(SomeService):
         """Methods declared in the interface must be implemented.
         """
         # Once declared, i can safely create any product
+        # Products are just normal classes (see next section)
         product = SomeProduct()
 
         # You can do anything here
@@ -185,9 +186,18 @@ class SomeProduct(Interface, Product):
     """This is the product class. This class will check for its dependencies.
        Products must be declared in some instance and can be instantiated as normal classes.
     """
+    def __init__(self, ...) -> None:
+        # Dependencies can be used in the same way as before
+        self.dependency: OtherService = OtherServiceComponent.provide()
+
     def method(self, ...) -> ...:
         pass
 ```
+
+## Important Notes
+
+- Declare all the dependencies (components) on Instances and Products to avoid injection issues.
+- Read the documentation carefully and refer to the examples to understand the framework's behavior.
 
 ## Usage Examples
 

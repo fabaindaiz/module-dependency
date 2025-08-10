@@ -29,6 +29,7 @@ def product(
 
         cls._dependency_imports = ProviderDependency(
             name=cls.__name__,
+            provided_cls=cls,
             imports=[component.injection for component in _imports])
         return cls
     return wrap

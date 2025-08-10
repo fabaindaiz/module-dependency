@@ -18,6 +18,7 @@ class ReporterFacadeA(ReportFacade):
         self.startModule()
         print("FacadeA initialized")
 
+    @inject
     def startModule(self,
             factory: ReporterFactory = Provide[ReporterFactoryComponent.reference],
             bridge: HardwareAbstraction = Provide[HardwareAbstractionComponent.reference],
