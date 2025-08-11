@@ -85,7 +85,7 @@ class ImplementedSomeService(SomeService):
        Instances are injected into the respective components when provided.
     """
     def __init__(self) -> None:
-        """Init method will be called when the instance is stared.
+        """Init method will be called when the instance is started.
            This will happen once for singleton and every time for factories.
         """
         # Once declared, i can use the dependencies for the class
@@ -125,11 +125,13 @@ class SomeApplication(Entrypoint):
        Plugins included here will be loaded and initialized.
     """
     def __init__(self) -> None:
-        # Import the instances that will be used on the application
-        # This will generate the internal provider structure
-        import ...plugin.........component
+        # Import all the instances that will be used on the application
+        # You can apply some logic to determine which instances to import
+        # This will automatically generate the internal provider structure
+        import ...plugin.........instance
 
-        # This is the main container, it will hold all the providers
+        # This is the main container, it will hold all the containers and providers
+        # Requires to have a valid configuration that will be used to initialize plugins
         container = Container.from_dict(config={...}, required=True)
         super().__init__(
             container,
@@ -146,7 +148,7 @@ class SomeApplication(Entrypoint):
 
 ### 2. Plugin
 - Represents a special module that can be included in the application
-- Provides additional functionality or features to the application
+- Provides additional functionality and features to the application
 
 ```python
 from pydantic import BaseModel
@@ -171,7 +173,7 @@ class SomePlugin(Plugin):
 ```
 
 ### 3. Product
-- Represents a class produced by a Provider that requires dependencies
+- Represents a class that requires dependencies injected from the framework
 - Allows to provide standalone classes without the need to define new providers
 
 ```python
@@ -205,12 +207,29 @@ This example requires the `module-injection` package to be installed and the `li
 
 ## Future Work
 
-This project is a work in progress, and there are several improvements and enhancements planned for the future. Some of the areas that will be explored include:
-- Improve component registration and resolution strategies
+This project is a work in progress, and there are several improvements and enhancements planned for the future.
+
+Some planned features are:
+- Instances that can implement multiple components
+- Improved support for asynchronous programming
+- Logging enhancements integrated with the framework
+- Testing framework integration for better test coverage
+- CLI support for easier interaction with the framework
+
+Some of the areas that will be explored in the future include:
+- Improve dependency injection performance and efficiency
+- Provide multiple injection scopes and strategies for flexibility
 - Explore more advanced dependency injection patterns and use cases
 - Enhance static and dynamic error handling mechanisms of the framework
 - Improve testing and validation for projects using this framework
 
+Feel free to leave feedback and suggestions for improvements, and contribute to the project!
+
 ## Aknowledgements
 
-This project depends on [dependency-injector](https://python-dependency-injector.ets-labs.org/introduction/di_in_python.html). This library provides a robust and flexible framework for managing dependencies in Python projects.
+This project depends on:
+- [dependency-injector](https://python-dependency-injector.ets-labs.org/introduction/di_in_python.html) a robust and flexible framework for dependency injection in Python.
+- [pydantic](https://docs.pydantic.dev/latest/) a data validation and settings management library using Python type annotations.
+- [jinja2](https://jinja.palletsprojects.com/) a modern and designer-friendly templating engine for Python.
+
+Thanks to [Reite](https://reite.cl/) for providing inspiration and guidance throughout the development of this project.
