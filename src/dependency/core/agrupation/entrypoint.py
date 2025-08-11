@@ -22,3 +22,4 @@ class Entrypoint():
             providers=providers)
         self.loader.resolve_dependencies()
         logger.info(f"Application started in {time.time() - init_time} seconds")
+        super().__init__()

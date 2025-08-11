@@ -13,6 +13,7 @@ class InjectionLoader:
     def __init__(self, container: Container, providers: list[ProviderInjection]) -> None:
         self.container: Container = container
         self.providers: list[ProviderInjection] = providers
+        super().__init__()
 
     def resolve_dependencies(self) -> list[list[ProviderInjection]]:
         unresolved_providers: list[ProviderInjection] = self.providers

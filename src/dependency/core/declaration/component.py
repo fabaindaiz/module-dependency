@@ -11,9 +11,9 @@ class Component(ABCComponent):
     """Component Base Class
     """
     def __init__(self, interface_cls: type, injection: ProviderInjection) -> None:
-        super().__init__(interface_cls=interface_cls)
         self.__injection: ProviderInjection = injection
         self.__instance: Optional[ABCInstance] = None
+        super().__init__(interface_cls=interface_cls)
     
     @property
     def reference(self) -> str:
