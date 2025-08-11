@@ -5,6 +5,8 @@ from dependency.core.injection.base import ProviderDependency
 PRODUCT = TypeVar('PRODUCT', bound='Product')
 
 class Product():
+    """Product Base Class
+    """
     _dependency_imports: ProviderDependency
 
 def product(

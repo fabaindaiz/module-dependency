@@ -1,5 +1,6 @@
 from dependency_injector.wiring import Provide, inject
 from dependency.core import instance, providers
+from example.plugin.reporter import ReporterPlugin
 from example.plugin.reporter.facade import ReportFacade, ReportFacadeComponent
 from example.plugin.reporter.factory import ReporterFactory, ReporterFactoryComponent
 from example.plugin.hardware.bridge import HardwareAbstraction, HardwareAbstractionComponent
@@ -16,6 +17,7 @@ from example.plugin.hardware.bridge import HardwareAbstraction, HardwareAbstract
 class ReporterFacadeA(ReportFacade):
     def __init__(self) -> None:
         self.startModule()
+        assert ReporterPlugin.config.config == True
         print("FacadeA initialized")
 
     @inject

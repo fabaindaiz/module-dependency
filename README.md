@@ -162,14 +162,12 @@ class SomePlugin(Plugin):
     """This is a plugin class. Plugins can be included in the application.
        Plugins are modules that provide additional functionality.
     """
+    # Meta information about the plugin (only affects logging)
     meta = PluginMeta(name="SomePlugin", version="0.0.1")
 
-    @property
-    def config(self) -> SomePluginConfig:
-        """Plugins can have their own configuration options.
-           Instantiates the model using the container config.
-        """
-        return SomePluginConfig(**self.container.config())
+    # Type hint for the plugin configuration
+    # On startup, config will be instantiated using the container config
+    config: SomePluginConfig
 ```
 
 ### 3. Product

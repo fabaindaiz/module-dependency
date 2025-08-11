@@ -12,7 +12,6 @@ class BaseInjection(ABC):
         self.__parent = parent
         if parent:
             parent.childs.append(self)
-        super().__init__()
 
     @property
     def name(self) -> str:
@@ -67,7 +66,6 @@ class ProviderDependency():
         self.name: str = name
         self.provided_cls: type = provided_cls
         self.imports: list['ProviderInjection'] = imports
-        super().__init__()
 
     def __repr__(self) -> str:
         return self.name

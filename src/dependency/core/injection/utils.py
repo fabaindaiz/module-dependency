@@ -4,6 +4,15 @@ from dependency.core.exceptions import DependencyError
 logger = logging.getLogger("DependencyLoader")
 
 def dep_in_layers(provider: ProviderInjection, layers: list[list[ProviderInjection]]) -> bool:
+    """Check if a provider is present in any of the resolved layers.
+
+    Args:
+        provider (ProviderInjection): The provider to check.
+        layers (list[list[ProviderInjection]]): The resolved layers to check against.
+
+    Returns:
+        bool: True if the provider is in the layers, False otherwise.
+    """
     return any(
         issubclass(res.provided_cls, provider.interface_cls)
         for layer in layers
@@ -11,12 +20,30 @@ def dep_in_layers(provider: ProviderInjection, layers: list[list[ProviderInjecti
     )
 
 def provider_is_resolved(dependency: ProviderDependency, resolved_layers: list[list[ProviderInjection]]) -> bool:
+    """Check if all imports of a provider are resolved in the given layers.
+
+    Args:
+        dependency (ProviderDependency): The provider dependency to check.
+        resolved_layers (list[list[ProviderInjection]]): The resolved layers to check against.
+
+    Returns:
+        bool: True if all imports are resolved, False otherwise.
+    """
     return all(
         dep_in_layers(provider, resolved_layers)
         for provider in dependency.imports
     )
 
 def provider_unresolved(dependency: ProviderDependency, resolved_layers: list[list[ProviderInjection]]) -> list[ProviderInjection]:
+    """Check if any imports of a provider are unresolved in the given layers.
+
+    Args:
+        dependency (ProviderDependency): The provider dependency to check.
+        resolved_layers (list[list[ProviderInjection]]): The resolved layers to check against.
+
+    Returns:
+        list[ProviderInjection]: A list of unresolved provider imports.
+    """
     return [
         provider
         for provider in dependency.imports
@@ -24,6 +51,8 @@ def provider_unresolved(dependency: ProviderDependency, resolved_layers: list[li
     ]
 
 class Cycle():
+    """Represents a cycle in the dependency graph.
+    """
     def __init__(self, elements: list[ProviderInjection]) -> None:
         self.elements = self.normalize(elements)
     
@@ -47,7 +76,12 @@ class Cycle():
 
 def find_cycles(providers: list[ProviderInjection]) -> set[Cycle]:
     """Detect unique cycles in the dependency graph.
-       Returns a set of cycles, each represented as a Cycle object.
+
+    Args:
+        providers (list[ProviderInjection]): The list of provider injections to check for cycles.
+
+    Returns:
+        set[Cycle]: A set of cycles, each represented as a Cycle object.
     """
     cycles: set[Cycle] = set()
 

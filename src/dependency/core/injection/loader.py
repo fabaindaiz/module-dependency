@@ -10,12 +10,22 @@ from dependency.core.injection.utils import (
 logger = logging.getLogger("DependencyLoader")
 
 class InjectionLoader:
+    """Load and resolve dependencies for provider injections.
+    """
     def __init__(self, container: Container, providers: list[ProviderInjection]) -> None:
         self.container: Container = container
         self.providers: list[ProviderInjection] = providers
         super().__init__()
 
+    # Strategy 1: Layered resolution
+    # This strategy resolves dependencies in layers, ensuring that all dependencies
+    # of a provider are resolved before the provider itself is resolved.
     def resolve_dependencies(self) -> list[list[ProviderInjection]]:
+        """Resolve dependencies in layers.
+
+        Returns:
+            list[list[ProviderInjection]]: A list of layers, each containing resolved providers.
+        """
         unresolved_providers: list[ProviderInjection] = self.providers
         resolved_layers: list[list[ProviderInjection]] = []
 
@@ -44,7 +54,6 @@ class InjectionLoader:
             for depends in provider.depends
             if not provider_is_resolved(depends, resolved_layers)]
         if unresolved_depends:
-            logger.error(f"Unresolved dependencies: {unresolved_depends}")
             raise_dependency_error(unresolved_depends, resolved_layers)
 
         self.container.check_dependencies()
@@ -56,6 +65,6 @@ class InjectionLoader:
         for resolved_layer in resolved_layers:
             for provider in resolved_layer:
                 provider.do_bootstrap(self.container)
-        
-        logger.info("Dependencies resolved and injected")
+
+        logger.info("Dependencies resolved and initialized")
         return resolved_layers
