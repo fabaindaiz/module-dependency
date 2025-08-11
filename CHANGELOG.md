@@ -7,13 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [v0.4.2] - 2025-08-11
-
-### Changed
-
-- Plugin config now retrieved from class type hint
-
-## [v0.4.1] - 2025-08-10
+## [v0.4.3] - 2025-08-11
 
 ### Added
 
@@ -26,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Plugin config now retrieved from class type hint
 - Improved dependency resolution and injection process
 
 ## [v0.4.0] - 2025-08-09
