@@ -56,9 +56,6 @@ class InjectionLoader:
         if unresolved_depends:
             raise_dependency_error(unresolved_depends, resolved_layers)
 
-        self.container.check_dependencies()
-        self.container.init_resources()
-
         for provider in self.providers:
             provider.do_prewiring()
 

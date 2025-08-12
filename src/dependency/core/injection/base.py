@@ -122,7 +122,7 @@ class ProviderInjection(BaseInjection):
         """
         self.__provided_cls = provided_cls
         self.provider_cls = provider_cls
-        self.modules_cls = set((component_cls,))
+        self.modules_cls = {component_cls}
         self.imports = imports
         self.depends = depends
         self.bootstrap = bootstrap
