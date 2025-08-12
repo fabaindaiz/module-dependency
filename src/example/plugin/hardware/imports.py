@@ -5,4 +5,4 @@ import example.plugin.hardware.observer.providers.publisherA
 
 # Plugin import
 from example.plugin.hardware import HardwarePlugin
-__all__ = [HardwarePlugin]
+__all__ = ["HardwarePlugin"]

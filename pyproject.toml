@@ -9,6 +9,12 @@ packages = ["src/dependency"]
 plugins = [
   "pydantic.mypy",
 ]
+mypy_path = [
+  "src",
+  "stubs",
+]
+explicit_package_bases = true
+show_error_codes = true
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]
