@@ -1,4 +1,5 @@
 from example.app.main import MainApplication
 
 def test_main():
-    MainApplication()
+    app = MainApplication()
+    assert app.loader is not None

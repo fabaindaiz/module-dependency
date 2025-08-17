@@ -41,7 +41,7 @@ def instance(
             raise TypeError(f"Class {cls} is not a subclass of {_component.interface_cls}")
 
         imports = [component.injection for component in _imports]
-        depends = [product._dependency_imports for product in _products]
+        depends = [product.dependency_imports for product in _products]
         _component.injection.set_implementation(
             provided_cls=cls,
             provider_cls=provider,

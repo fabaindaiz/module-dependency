@@ -9,10 +9,17 @@ class InjectionLoader:
     """
     container: Container
     providers: list[ProviderInjection]
+    resolved: list[ProviderInjection]
     def __init__(self, container: Container, providers: list[ProviderInjection]) -> None: ...
-    def resolve_dependencies(self) -> list[list[ProviderInjection]]:
-        """Resolve dependencies in layers.
-
-        Returns:
-            list[list[ProviderInjection]]: A list of layers, each containing resolved providers.
+    def resolve_dependencies(self) -> None:
+        """Resolve all dependencies.
+        """
+    def resolve_providers(self) -> None:
+        """Resolve all providers in layers.
+        """
+    def resolve_products(self) -> None:
+        """Check that all product dependencies are resolved.
+        """
+    def start_providers(self) -> None:
+        """Start all resolved providers.
         """

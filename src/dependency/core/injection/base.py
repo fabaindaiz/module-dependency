@@ -57,7 +57,7 @@ class ContainerInjection(BaseInjection):
             setattr(self.container, child.name, child.inject_cls())
             yield from child.resolve_providers()
 
-class ProviderDependency():
+class ProviderDependency:
     def __init__(self,
         name: str,
         provided_cls: type,
@@ -100,6 +100,7 @@ class ProviderInjection(BaseInjection):
 
     def resolve_providers(self) -> Generator['ProviderInjection', None, None]:
         """Inject all children into the current injection context."""
+        self.do_prewiring()
         yield self
 
     def set_implementation(self,

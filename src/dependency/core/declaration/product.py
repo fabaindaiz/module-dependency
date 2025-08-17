@@ -4,10 +4,10 @@ from dependency.core.injection.base import ProviderDependency
 
 PRODUCT = TypeVar('PRODUCT', bound='Product')
 
-class Product():
+class Product:
     """Product Base Class
     """
-    _dependency_imports: ProviderDependency
+    dependency_imports: ProviderDependency
 
 def product(
     imports: list[type[Component]] = []
@@ -29,7 +29,7 @@ def product(
         if not issubclass(cls, Product):
             raise TypeError(f"Class {cls} is not a subclass of Product")
 
-        cls._dependency_imports = ProviderDependency(
+        cls.dependency_imports = ProviderDependency(
             name=cls.__name__,
             provided_cls=cls,
             imports=[component.injection for component in _imports])

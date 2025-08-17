@@ -1,4 +1,5 @@
 from dependency.core.declaration.component import Component
+from dependency.core.injection.base import ProviderDependency
 from typing import Callable, TypeVar
 
 PRODUCT = TypeVar('PRODUCT', bound='Product')
@@ -6,6 +7,7 @@ PRODUCT = TypeVar('PRODUCT', bound='Product')
 class Product:
     """Product Base Class
     """
+    dependency_imports: ProviderDependency
 
 def product(imports: list[type[Component]] = []) -> Callable[[type[PRODUCT]], type[PRODUCT]]:
     """Decorator for Product class

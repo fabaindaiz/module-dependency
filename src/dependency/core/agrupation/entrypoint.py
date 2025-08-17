@@ -8,7 +8,7 @@ from dependency.core.injection.loader import InjectionLoader
 logger = logging.getLogger("DependencyLoader")
 init_time = time.time()
 
-class Entrypoint():
+class Entrypoint:
     """Entrypoint for the application.
     """
     def __init__(self, container: Container, plugins: list[type[Plugin]]) -> None:

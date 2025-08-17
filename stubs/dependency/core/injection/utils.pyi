@@ -3,32 +3,32 @@ from dependency.core.injection.base import ProviderDependency as ProviderDepende
 
 logger: Incomplete
 
-def dep_in_layers(provider: ProviderInjection, layers: list[list[ProviderInjection]]) -> bool:
-    """Check if a provider is present in any of the resolved layers.
+def dep_in_resolved(provider: ProviderInjection, resolved: list[ProviderInjection]) -> bool:
+    """Check if a provider is present in the resolved providers.
 
     Args:
         provider (ProviderInjection): The provider to check.
-        layers (list[list[ProviderInjection]]): The resolved layers to check against.
+        resolved (list[ProviderInjection]): The resolved providers to check against.
 
     Returns:
-        bool: True if the provider is in the layers, False otherwise.
+        bool: True if the provider is resolved, False otherwise.
     """
-def provider_is_resolved(dependency: ProviderDependency, resolved_layers: list[list[ProviderInjection]]) -> bool:
-    """Check if all imports of a provider are resolved in the given layers.
+def provider_is_resolved(dependency: ProviderDependency, resolved: list[ProviderInjection]) -> bool:
+    """Check if all imports of a provider are in the resolved providers.
 
     Args:
         dependency (ProviderDependency): The provider dependency to check.
-        resolved_layers (list[list[ProviderInjection]]): The resolved layers to check against.
+        resolved (list[ProviderInjection]): The resolved providers to check against.
 
     Returns:
         bool: True if all imports are resolved, False otherwise.
     """
-def provider_unresolved(dependency: ProviderDependency, resolved_layers: list[list[ProviderInjection]]) -> list[ProviderInjection]:
-    """Check if any imports of a provider are unresolved in the given layers.
+def provider_unresolved(dependency: ProviderDependency, resolved: list[ProviderInjection]) -> list[ProviderInjection]:
+    """Check if any imports of a provider are not in the resolved providers.
 
     Args:
         dependency (ProviderDependency): The provider dependency to check.
-        resolved_layers (list[list[ProviderInjection]]): The resolved layers to check against.
+        resolved (list[ProviderInjection]): The resolved providers to check against.
 
     Returns:
         list[ProviderInjection]: A list of unresolved provider imports.
@@ -54,5 +54,5 @@ def find_cycles(providers: list[ProviderInjection]) -> set[Cycle]:
         set[Cycle]: A set of cycles, each represented as a Cycle object.
     """
 def raise_cycle_error(providers: list[ProviderInjection]) -> None: ...
-def raise_dependency_error(dependencies: list[ProviderDependency], resolved_layers: list[list[ProviderInjection]]) -> None: ...
-def raise_providers_error(providers: list[ProviderInjection], resolved_layers: list[list[ProviderInjection]]) -> None: ...
+def raise_dependency_error(dependencies: list[ProviderDependency], resolved: list[ProviderInjection]) -> None: ...
+def raise_providers_error(providers: list[ProviderInjection], resolved: list[ProviderInjection]) -> None: ...
