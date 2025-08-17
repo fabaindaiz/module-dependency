@@ -1,33 +1,28 @@
-name: Client Python Package
+name: Python Package Publish
 
 on:
   release:
-    types: [released]
+    types: [published]
+
+permissions:
+  contents: read
+  id-token: write
 
 jobs:
-  build:
+  release:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.9", "3.10", "3.11", "3.12"]
+    environment: release
+    
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
-          python-version: ${{ matrix.python-version }}
-      - name: Set up pip cache
-        if: runner.os == 'Linux'
-        uses: actions/cache@v3
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('pyproject.toml') }}
-          restore-keys: ${{ runner.os }}-pip-
+          python-version: '3.12'
       - name: Install Hatch
         run: pipx install hatch
       - name: Run tests
         run: hatch run pytest
       - name: Build dist
         run: hatch build
-      - name: Publish on PyPI
-        if: github.ref == 'refs/heads/main'
-        run: hatch publish
+      - name: Publish package distributions to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
