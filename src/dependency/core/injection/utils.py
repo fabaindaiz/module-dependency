@@ -1,6 +1,6 @@
 import logging
 from dependency.core.injection.base import ProviderInjection, ProviderDependency
-from dependency.core.exceptions import DependencyError
+from dependency.core.exceptions import ResolutionError
 logger = logging.getLogger("DependencyLoader")
 
 def dep_in_resolved(provider: ProviderInjection, resolved: list[ProviderInjection]) -> bool:
@@ -101,26 +101,51 @@ def find_cycles(providers: list[ProviderInjection]) -> set[Cycle]:
         visit(provider, [], set())
     return cycles
 
-def raise_cycle_error(providers: list[ProviderInjection]) -> None:
+def raise_cycle_error(
+        providers: list[ProviderInjection]
+    ) -> None:
+    """Raise an error if circular dependencies are detected.
+
+    Args:
+        providers (list[ProviderInjection]): The list of provider injections to check for cycles.
+
+    Raises:
+        ResolutionError: If circular dependencies are detected.
+    """
     cycles = find_cycles(providers)
     if cycles:
         for cycle in cycles:
             logger.error(f"Circular import: {cycle}")
-        raise DependencyError("Circular dependencies detected")
+        raise ResolutionError("Circular dependencies detected")
 
 def raise_dependency_error(
         dependencies: list[ProviderDependency],
         resolved: list[ProviderInjection],
     ) -> None:
+    """Raise an error if unresolved dependencies are detected.
+
+    Args:
+        dependencies (list[ProviderDependency]): The list of provider dependencies to check.
+        resolved (list[ProviderInjection]): The resolved providers to check against.
+
+    Raises:
+        ResolutionError: If unresolved dependencies are detected.
+    """
     for dependency in dependencies:
         unresolved = provider_unresolved(dependency, resolved)
         logger.error(f"Provider {dependency} has unresolved dependencies: {unresolved}")
-    raise DependencyError("Providers cannot be resolved")
+    raise ResolutionError("Providers cannot be resolved")
 
 def raise_providers_error(
         providers: list[ProviderInjection],
         resolved: list[ProviderInjection],
     ) -> None:
+    """Raise an error if unresolved provider imports are detected.
+
+    Args:
+        providers (list[ProviderInjection]): The list of provider injections to check.
+        resolved (list[ProviderInjection]): The resolved providers to check against.
+    """
     raise_cycle_error(providers)
     raise_dependency_error(
         dependencies=[

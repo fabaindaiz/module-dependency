@@ -3,7 +3,7 @@ from dependency_injector.wiring import Provide, inject
 from dependency.core.agrupation.module import Module
 from dependency.core.declaration.base import ABCComponent, ABCInstance
 from dependency.core.injection.base import ProviderInjection
-from dependency.core.exceptions import DependencyError
+from dependency.core.exceptions import DeclarationError
 
 COMPONENT = TypeVar('COMPONENT', bound='Component')
 
@@ -50,10 +50,10 @@ class Component(ABCComponent):
             instance (ABCInstance): The instance to set for the component.
 
         Raises:
-            DependencyError: If the component is already instanced.
+            DeclarationError: If the component is already instanced.
         """
         if self.__instance:
-            raise DependencyError(f"Component {self} is already instanced by {self.__instance}. Attempted to set new instance: {instance}")
+            raise DeclarationError(f"Component {self} is already instanced by {self.__instance}. Attempted to set new instance: {instance}")
         self.__instance = instance
     
     @staticmethod
@@ -102,7 +102,7 @@ def component(
             @inject
             def provide(self, service: Any = Provide[injection.reference]) -> Any:
                 if isinstance(service, Provide): # type: ignore
-                    raise DependencyError(f"Component {cls.__name__} was not provided")
+                    raise DeclarationError(f"Component {cls.__name__} was not provided")
                 return service
         return WrapComponent()
     return wrap

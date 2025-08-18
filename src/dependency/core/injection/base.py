@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Any, Callable, Generator, Optional
 from dependency_injector import containers, providers
-from dependency.core.exceptions import DependencyError
+from dependency.core.exceptions import DeclarationError
 
 class BaseInjection(ABC):
     def __init__(self,
@@ -94,9 +94,13 @@ class ProviderInjection(BaseInjection):
     
     @property
     def provided_cls(self) -> type:
-        """Return the provided class."""
+        """Return the provided class.
+
+        Raises:
+            DeclarationError: If the component was not provided.
+        """
         if self.__provided_cls is None:
-            raise DependencyError(f"Component {self.component_name} was not provided")
+            raise DeclarationError(f"Component {self.component_name} was not provided")
         return self.__provided_cls
 
     def inject_cls(self) -> Any:
