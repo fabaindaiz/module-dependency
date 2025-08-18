@@ -12,6 +12,9 @@ dependencies = [
   "pydantic",
 ]
 
+[tool.hatch.envs.default.scripts]
+example = "python src/main.py"
+
 [tool.mypy]
 plugins = [
   "pydantic.mypy",

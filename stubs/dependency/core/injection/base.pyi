@@ -33,6 +33,8 @@ class ProviderDependency:
     provided_cls: type
     imports: list['ProviderInjection']
     def __init__(self, name: str, provided_cls: type, imports: list['ProviderInjection']) -> None: ...
+    def prewiring(self) -> None:
+        """Declare modules that need to be wired on their respective providers."""
 
 class ProviderInjection(BaseInjection):
     component_name: str
@@ -50,6 +52,9 @@ class ProviderInjection(BaseInjection):
         """Return the provider instance."""
     def resolve_providers(self) -> Generator['ProviderInjection', None, None]:
         """Inject all children into the current injection context."""
+    def add_wire_cls(self, wire_cls: type) -> None:
+        """Add a class to the set of modules that need to be wired."""
+    def wire_provider(self, container: containers.DynamicContainer) -> ProviderInjection: ...
     def set_implementation(self, provided_cls: type, provider_cls: type, component_cls: type, imports: list['ProviderInjection'] = [], depends: list[ProviderDependency] = [], bootstrap: Callable | None = None) -> None:
         '''Set the parameters for the provider.
 
@@ -64,13 +69,5 @@ class ProviderInjection(BaseInjection):
     @property
     def dependency(self) -> ProviderDependency:
         """Return the dependency information for the provider."""
-    def add_wire_cls(self, wire_cls: type) -> None:
-        """Add a class to the set of modules that need to be wired."""
-    def do_prewiring(self) -> None:
-        """Declare all modules that need to be wired on their respective providers."""
-    def do_bootstrap(self, container: containers.DynamicContainer) -> None:
-        """Wire all modules with their dependencies and bootstrap required components.
-
-        Args:
-            container (containers.DynamicContainer): The container to bootstrap the provider in.
-        """
+    def do_bootstrap(self) -> None:
+        """Wire all modules with their dependencies and bootstrap required components."""

@@ -35,11 +35,11 @@ class TInstance(TInterface):
 def test_declaration():
     with pytest.raises(DependencyError):
         print(TComponent.provide())
-
+    
     container = containers.DynamicContainer()
-    setattr(container, TModule.injection.name, TModule.injection.inject_cls())
-    for provider in list(TModule.injection.resolve_providers()):
-        provider.do_bootstrap(container)
+    setattr(container, TModule.injection.name, TModule.injection.inject_cls()) # type: ignore
+    for provider in list(TModule.injection.resolve_providers()): # type: ignore
+        provider.wire_provider(container)
 
     component: TInterface = TComponent.provide()
     assert isinstance(component, TInterface)

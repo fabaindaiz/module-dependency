@@ -9,9 +9,9 @@ from example.plugin.hardware.bridge import HardwareAbstraction, HardwareAbstract
     component=ReportFacadeComponent,
     imports=[
         ReporterFactoryComponent,
-        HardwareAbstractionComponent
+        HardwareAbstractionComponent,
     ],
-    provider = providers.Singleton,
+    provider=providers.Singleton,
     bootstrap=True,
 )
 class ReporterFacadeA(ReportFacade):

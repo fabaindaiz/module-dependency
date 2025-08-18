@@ -16,5 +16,5 @@ def test_agrupation():
         "field1": "value",
         "field2": 100
     })
-    TPlugin.resolve_providers(container)
+    TPlugin.resolve_providers(container) # type: ignore
     assert TPlugin.config.field1 == "value" and TPlugin.config.field2 == 100

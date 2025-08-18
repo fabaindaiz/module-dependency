@@ -37,7 +37,7 @@ class InjectionLoader:
 
         while unresolved_providers:
             new_layer = [
-                provider
+                provider.wire_provider(container=self.container)
                 for provider in unresolved_providers
                 if provider_is_resolved(provider.dependency, self.resolved)
             ]
@@ -69,7 +69,5 @@ class InjectionLoader:
     def start_providers(self) -> None:
         """Start all resolved providers.
         """
-        #for provider in self.resolved:
-        #    provider.do_prewiring()
         for provider in self.resolved:
-            provider.do_bootstrap(self.container)
+            provider.do_bootstrap()

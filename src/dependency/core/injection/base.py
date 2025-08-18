@@ -66,6 +66,11 @@ class ProviderDependency:
         self.name: str = name
         self.provided_cls: type = provided_cls
         self.imports: list['ProviderInjection'] = imports
+    
+    def prewiring(self) -> None:
+        """Declare modules that need to be wired on their respective providers."""
+        for provider in self.imports:
+            provider.add_wire_cls(self.provided_cls)
 
     def __repr__(self) -> str:
         return self.name
@@ -100,8 +105,18 @@ class ProviderInjection(BaseInjection):
 
     def resolve_providers(self) -> Generator['ProviderInjection', None, None]:
         """Inject all children into the current injection context."""
-        self.do_prewiring()
+        self.dependency.prewiring()
+        for dependency in self.depends:
+            dependency.prewiring()
         yield self
+
+    def add_wire_cls(self, wire_cls: type) -> None:
+        """Add a class to the set of modules that need to be wired."""
+        self.modules_cls.add(wire_cls)
+    
+    def wire_provider(self, container: containers.DynamicContainer) -> "ProviderInjection":
+        container.wire(modules=self.modules_cls)
+        return self
 
     def set_implementation(self,
         provided_cls: type,
@@ -136,24 +151,7 @@ class ProviderInjection(BaseInjection):
             provided_cls=self.provided_cls,
             imports=self.imports)
 
-    def add_wire_cls(self, wire_cls: type) -> None:
-        """Add a class to the set of modules that need to be wired."""
-        self.modules_cls.add(wire_cls)
-
-    def do_prewiring(self) -> None:
-        """Declare all modules that need to be wired on their respective providers."""
-        for provider in self.imports:
-            provider.add_wire_cls(self.provided_cls)
-        for dependency in self.depends:
-            for provider in dependency.imports:
-                provider.add_wire_cls(dependency.provided_cls)
-
-    def do_bootstrap(self, container: containers.DynamicContainer) -> None:
-        """Wire all modules with their dependencies and bootstrap required components.
-
-        Args:
-            container (containers.DynamicContainer): The container to bootstrap the provider in.
-        """
-        container.wire(modules=self.modules_cls)
+    def do_bootstrap(self) -> None:
+        """Wire all modules with their dependencies and bootstrap required components."""
         if self.bootstrap is not None:
             self.bootstrap()
