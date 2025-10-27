@@ -7,9 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+
+## [v0.4.5] - 2025-10-27
+
 ### Added
 
 - Stubs for dependency and library modules
+
+### Fixed
+
+- Removed unused casts for class decorators in type hints
 
 ## [v0.4.3] - 2025-08-11
 
