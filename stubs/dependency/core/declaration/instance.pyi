@@ -1,15 +1,17 @@
 from dependency.core.declaration.base import ABCInstance
 from dependency.core.declaration.component import Component
 from dependency.core.declaration.product import Product
-from dependency_injector import providers
-from typing import Callable
+from dependency_injector import providers as providers
+from typing import Any, Callable
+
+__all__ = ['Instance', 'instance', 'providers']
 
 class Instance(ABCInstance):
     """Instance Base Class
     """
     def __init__(self, provided_cls: type) -> None: ...
 
-def instance(component: type[Component], imports: list[type[Component]] = [], products: list[type[Product]] = [], provider: type[providers.Provider] = ..., bootstrap: bool = False) -> Callable[[type], Instance]:
+def instance(component: Component, imports: list[Component] = [], products: list[Product] = [], provider: type[providers.Provider[Any]] = ..., bootstrap: bool = False) -> Callable[[type], Instance]:
     """Decorator for instance class
 
     Args:

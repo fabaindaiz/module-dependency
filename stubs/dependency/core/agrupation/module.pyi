@@ -1,5 +1,5 @@
-from dependency.core.agrupation.base import ABCModule
-from dependency.core.injection.base import ContainerInjection
+from dependency.core.agrupation.base import ABCModule as ABCModule
+from dependency.core.injection.base import ContainerInjection as ContainerInjection
 from typing import Callable, TypeVar
 
 MODULE = TypeVar('MODULE', bound='Module')
@@ -16,7 +16,7 @@ class Module(ABCModule):
             ContainerInjection: The container injection for the module.
         """
 
-def module(module: type[Module] | None = None) -> Callable[[type[MODULE]], MODULE]:
+def module(module: Module | None = None) -> Callable[[type[MODULE]], MODULE]:
     """Decorator for Module class
 
     Args:

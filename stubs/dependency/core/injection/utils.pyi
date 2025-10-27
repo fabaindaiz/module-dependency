@@ -1,7 +1,5 @@
-from _typeshed import Incomplete
+from dependency.core.exceptions import DependencyError as DependencyError
 from dependency.core.injection.base import ProviderDependency as ProviderDependency, ProviderInjection as ProviderInjection
-
-logger: Incomplete
 
 def dep_in_resolved(provider: ProviderInjection, resolved: list[ProviderInjection]) -> bool:
     """Check if a provider is present in the resolved providers.
@@ -37,12 +35,12 @@ def provider_unresolved(dependency: ProviderDependency, resolved: list[ProviderI
 class Cycle:
     """Represents a cycle in the dependency graph.
     """
-    elements: Incomplete
+    elements: tuple[str, ...]
     def __init__(self, elements: list[ProviderInjection]) -> None: ...
     @staticmethod
     def normalize(cycle: list[ProviderInjection]) -> tuple[str, ...]: ...
     def __hash__(self) -> int: ...
-    def __eq__(self, other) -> bool: ...
+    def __eq__(self, other: object) -> bool: ...
 
 def find_cycles(providers: list[ProviderInjection]) -> set[Cycle]:
     """Detect unique cycles in the dependency graph.

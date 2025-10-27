@@ -1,7 +1,7 @@
 import logging
 from dependency.core.injection.base import ProviderInjection, ProviderDependency
 from dependency.core.exceptions import DependencyError
-logger = logging.getLogger("DependencyLoader")
+_logger = logging.getLogger("DependencyLoader")
 
 def dep_in_resolved(provider: ProviderInjection, resolved: list[ProviderInjection]) -> bool:
     """Check if a provider is present in the resolved providers.
@@ -53,7 +53,7 @@ class Cycle():
     """Represents a cycle in the dependency graph.
     """
     def __init__(self, elements: list[ProviderInjection]) -> None:
-        self.elements = self.normalize(elements)
+        self.elements: tuple[str, ...] = self.normalize(elements)
     
     @staticmethod
     def normalize(cycle: list[ProviderInjection]) -> tuple[str, ...]:
@@ -65,7 +65,7 @@ class Cycle():
     def __hash__(self) -> int:
         return hash(self.elements)
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: object) -> bool:
         if not isinstance(other, Cycle):
             return False
         return self.elements == other.elements
@@ -105,7 +105,7 @@ def raise_cycle_error(providers: list[ProviderInjection]) -> None:
     cycles = find_cycles(providers)
     if cycles:
         for cycle in cycles:
-            logger.error(f"Circular import: {cycle}")
+            _logger.error(f"Circular import: {cycle}")
         raise DependencyError("Circular dependencies detected")
 
 def raise_dependency_error(
@@ -114,7 +114,7 @@ def raise_dependency_error(
     ) -> None:
     for dependency in dependencies:
         unresolved = provider_unresolved(dependency, resolved)
-        logger.error(f"Provider {dependency} has unresolved dependencies: {unresolved}")
+        _logger.error(f"Provider {dependency} has unresolved dependencies: {unresolved}")
     raise DependencyError("Providers cannot be resolved")
 
 def raise_providers_error(

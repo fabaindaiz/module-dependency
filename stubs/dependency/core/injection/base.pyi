@@ -1,6 +1,6 @@
 import abc
-from _typeshed import Incomplete
 from abc import ABC, abstractmethod
+from dependency.core.exceptions import DependencyError as DependencyError
 from dependency_injector import containers
 from typing import Any, Callable, Generator
 
@@ -21,7 +21,7 @@ class BaseInjection(ABC, metaclass=abc.ABCMeta):
 
 class ContainerInjection(BaseInjection):
     childs: list[BaseInjection]
-    container: Incomplete
+    container: containers.DynamicContainer
     def __init__(self, name: str, parent: ContainerInjection | None = None) -> None: ...
     def inject_cls(self) -> containers.DynamicContainer:
         """Return the container instance."""
@@ -43,7 +43,7 @@ class ProviderInjection(BaseInjection):
     modules_cls: set[type]
     imports: list['ProviderInjection']
     depends: list[ProviderDependency]
-    bootstrap: Callable | None
+    bootstrap: Callable[[], Any] | None
     def __init__(self, name: str, component_name: str, interface_cls: type, parent: ContainerInjection | None = None) -> None: ...
     @property
     def provided_cls(self) -> type:
@@ -55,7 +55,7 @@ class ProviderInjection(BaseInjection):
     def add_wire_cls(self, wire_cls: type) -> None:
         """Add a class to the set of modules that need to be wired."""
     def wire_provider(self, container: containers.DynamicContainer) -> ProviderInjection: ...
-    def set_implementation(self, provided_cls: type, provider_cls: type, component_cls: type, imports: list['ProviderInjection'] = [], depends: list[ProviderDependency] = [], bootstrap: Callable | None = None) -> None:
+    def set_implementation(self, provided_cls: type, provider_cls: type, component_cls: type, imports: list['ProviderInjection'] = [], depends: list[ProviderDependency] = [], bootstrap: Callable[[], Any] | None = None) -> None:
         '''Set the parameters for the provider.
 
         Args:

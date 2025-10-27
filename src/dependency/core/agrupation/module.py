@@ -1,4 +1,4 @@
-from typing import Callable, Optional, TypeVar, cast
+from typing import Callable, Optional, TypeVar
 from dependency.core.agrupation.base import ABCModule
 from dependency.core.injection.base import ContainerInjection
 
@@ -21,7 +21,7 @@ class Module(ABCModule):
         return self.__injection
 
 def module(
-    module: Optional[type[Module]] = None
+    module: Optional[Module] = None
     ) -> Callable[[type[MODULE]], MODULE]:
     """Decorator for Module class
 
@@ -31,15 +31,13 @@ def module(
     Returns:
         Callable[[type[Module]], Module]: Decorator function that wraps the module class.
     """
-    # Cast due to mypy not supporting class decorators
-    _module = cast(Optional[Module], module)
     def wrap(cls: type[MODULE]) -> MODULE:
         if not issubclass(cls, Module):
             raise TypeError(f"Class {cls} is not a subclass of Module")
 
         injection = ContainerInjection(
             name=cls.__name__,
-            parent=_module.injection if _module else None)
+            parent=module.injection if module else None)
 
         return cls(
             name=cls.__name__,

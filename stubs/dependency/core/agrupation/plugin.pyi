@@ -1,4 +1,5 @@
-from dependency.core.agrupation.module import Module
+from dependency.core.agrupation.module import Module as Module
+from dependency.core.exceptions import DependencyError as DependencyError
 from dependency.core.injection.base import ProviderInjection as ProviderInjection
 from dependency.core.injection.container import Container as Container
 from pydantic import BaseModel

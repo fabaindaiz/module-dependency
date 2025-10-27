@@ -1,6 +1,7 @@
-from dependency.core.agrupation.module import Module
-from dependency.core.declaration.base import ABCComponent, ABCInstance as ABCInstance
-from dependency.core.injection.base import ProviderInjection
+from dependency.core.agrupation.module import Module as Module
+from dependency.core.declaration.base import ABCComponent as ABCComponent, ABCInstance as ABCInstance
+from dependency.core.exceptions import DependencyError as DependencyError
+from dependency.core.injection.base import ProviderInjection as ProviderInjection
 from typing import Any, Callable, TypeVar
 
 COMPONENT = TypeVar('COMPONENT', bound='Component')

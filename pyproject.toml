@@ -2,18 +2,41 @@
 requires = ["hatchling >= 1.26"]
 build-backend = "hatchling.build"
 
-[tool.hatch.build.targets.wheel]
-packages = ["src/dependency"]
+[tool.hatch.metadata]
+allow-direct-references = true
 
-[tool.hatch.envs.default]
-dependencies = [
-  "dependency_injector",
-  "jinja2",
-  "pydantic",
+[tool.hatch.build.targets.wheel]
+packages = [
+  "src/dependency"
 ]
 
-[tool.hatch.envs.default.scripts]
-example = "python src/main.py"
+[tool.hatch.build.targets.wheel.force-include]
+"stubs/dependency" = "dependency-stubs"
+
+[tool.hatch.envs.build]
+template = "default"
+skip-install = false
+dependencies = [
+  "mypy",
+  "pytest-asyncio",
+  "pytest-cov",
+]
+
+[tool.hatch.envs.build.scripts]
+coverage = "pytest --cov src/dependency --cov-report html"
+stubs = "stubgen src/dependency -o stubs --include-docstrings"
+typecheck = "mypy --strict src/dependency"
+
+[tool.hatch.envs.example]
+template = "default"
+skip-install = false
+dependencies = [
+  "mypy",
+]
+
+[tool.hatch.envs.example.scripts]
+run = "python src/main.py"
+typecheck = "mypy --strict src/main.py"
 
 [tool.mypy]
 plugins = [
@@ -29,10 +52,13 @@ show_error_codes = true
 [tool.pytest.ini_options]
 pythonpath = ["src"]
 testpaths = ["src/tests"]
+asyncio_default_fixture_loop_scope = "module"
+asyncio_default_test_loop_scope = "module"
+asyncio_mode = "auto"
 
 [project]
 name = "module_dependency"
-version = "0.4.4"
+version = "0.4.5"
 dependencies = [
   "dependency_injector",
   "jinja2",

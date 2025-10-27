@@ -1,8 +1,6 @@
-from _typeshed import Incomplete
 from dependency.core.injection.base import ProviderInjection as ProviderInjection
 from dependency.core.injection.container import Container as Container
-
-logger: Incomplete
+from dependency.core.injection.utils import provider_is_resolved as provider_is_resolved, raise_dependency_error as raise_dependency_error, raise_providers_error as raise_providers_error
 
 class InjectionLoader:
     """Load and resolve dependencies for provider injections.
