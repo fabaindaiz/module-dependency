@@ -10,8 +10,6 @@ class BaseInjection(ABC):
     ) -> None:
         self.__name = name
         self.__parent = parent
-        if parent:
-            parent.childs.append(self)
 
     @property
     def name(self) -> str:
@@ -24,7 +22,12 @@ class BaseInjection(ABC):
         if not self.__parent:
             return self.name
         return f"{self.__parent.reference}.{self.name}"
-    
+
+    def include_on_injection(self) -> None:
+        """Include the current injection on the parent."""
+        if self.__parent:
+            self.__parent.childs.append(self)
+
     @abstractmethod
     def inject_cls(self) -> Any:
         """Return the class to be injected."""
@@ -43,9 +46,10 @@ class ContainerInjection(BaseInjection):
             name: str,
             parent: Optional["ContainerInjection"] = None
             ) -> None:
+        super().__init__(name=name, parent=parent)
         self.childs: list[BaseInjection] = []
         self.container = containers.DynamicContainer()
-        super().__init__(name=name, parent=parent)
+        self.include_on_injection()
 
     def inject_cls(self) -> containers.DynamicContainer:
         """Return the container instance."""
@@ -140,6 +144,7 @@ class ProviderInjection(BaseInjection):
             depends (list[ProviderDependency], optional): A list of provider dependencies for this provider.
             bootstrap (Optional[Callable], optional): A bootstrap function for the provider.
         """
+        self.include_on_injection()
         self.__provided_cls = provided_cls
         self.provider_cls = provider_cls
         self.modules_cls = {component_cls}
