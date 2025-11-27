@@ -43,7 +43,7 @@ testpaths = ["src/tests"]
 
 [project]
 name = "module_dependency"
-version = "0.4.4"
+version = "0.4.6"
 dependencies = [
   "dependency_injector",
   "jinja2",
