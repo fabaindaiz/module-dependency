@@ -38,6 +38,17 @@ dependencies = [
 run = "python src/main.py"
 typecheck = "mypy --strict src/main.py"
 
+[tool.hatch.envs.test]
+dependencies = [
+  "dependency_injector",
+  "jinja2",
+  "pydantic",
+  "pytest-cov",
+]
+
+[tool.hatch.envs.test.scripts]
+coverage = "pytest --cov src/dependency --cov-report html"
+
 [tool.mypy]
 plugins = [
   "pydantic.mypy",
@@ -58,7 +69,7 @@ asyncio_mode = "auto"
 
 [project]
 name = "module_dependency"
-version = "0.4.5"
+version = "0.4.6"
 dependencies = [
   "dependency_injector",
   "jinja2",

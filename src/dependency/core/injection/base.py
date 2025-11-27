@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Any, Callable, Generator, Optional
 from dependency_injector import containers, providers
-from dependency.core.exceptions import DependencyError
+from dependency.core.exceptions import DeclarationError
 
 class BaseInjection(ABC):
     def __init__(self,
@@ -10,8 +10,6 @@ class BaseInjection(ABC):
     ) -> None:
         self.__name = name
         self.__parent = parent
-        if parent:
-            parent.childs.append(self)
 
     @property
     def name(self) -> str:
@@ -24,7 +22,12 @@ class BaseInjection(ABC):
         if not self.__parent:
             return self.name
         return f"{self.__parent.reference}.{self.name}"
-    
+
+    def include_on_injection(self) -> None:
+        """Include the current injection on the parent."""
+        if self.__parent:
+            self.__parent.childs.append(self)
+
     @abstractmethod
     def inject_cls(self) -> Any:
         """Return the class to be injected."""
@@ -43,9 +46,10 @@ class ContainerInjection(BaseInjection):
             name: str,
             parent: Optional["ContainerInjection"] = None
             ) -> None:
-        self.childs: list[BaseInjection] = []
-        self.container: containers.DynamicContainer = containers.DynamicContainer()
         super().__init__(name=name, parent=parent)
+        self.childs: list[BaseInjection] = []
+        self.container = containers.DynamicContainer()
+        self.include_on_injection()
 
     def inject_cls(self) -> containers.DynamicContainer:
         """Return the container instance."""
@@ -94,9 +98,13 @@ class ProviderInjection(BaseInjection):
     
     @property
     def provided_cls(self) -> type:
-        """Return the provided class."""
+        """Return the provided class.
+
+        Raises:
+            DeclarationError: If the component was not provided.
+        """
         if self.__provided_cls is None:
-            raise DependencyError(f"Component {self.component_name} was not provided")
+            raise DeclarationError(f"Component {self.component_name} was not provided")
         return self.__provided_cls
 
     def inject_cls(self) -> Any:
@@ -136,6 +144,7 @@ class ProviderInjection(BaseInjection):
             depends (list[ProviderDependency], optional): A list of provider dependencies for this provider.
             bootstrap (Optional[Callable], optional): A bootstrap function for the provider.
         """
+        self.include_on_injection()
         self.__provided_cls = provided_cls
         self.provider_cls = provider_cls
         self.modules_cls = {component_cls}

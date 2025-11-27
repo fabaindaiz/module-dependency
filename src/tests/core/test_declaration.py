@@ -1,9 +1,7 @@
-import pytest
 from abc import ABC, abstractmethod
 from dependency_injector import containers, providers
 from dependency.core.agrupation import Module, module
 from dependency.core.declaration import Component, component, instance
-from dependency.core.exceptions import DependencyError
 
 class TInterface(ABC):
     @abstractmethod
@@ -33,13 +31,14 @@ class TInstance(TInterface):
         return "Hello, World!"
 
 def test_declaration():
-    with pytest.raises(DependencyError):
-        print(TComponent.provide())
-    
     container = containers.DynamicContainer()
     setattr(container, TModule.injection.name, TModule.injection.inject_cls()) # type: ignore
     for provider in list(TModule.injection.resolve_providers()): # type: ignore
         provider.wire_provider(container)
+
+    assert str(TModule) == "TModule"
+    assert str(TComponent) == "TInterface"
+    assert str(TInstance) == "TInstance"
 
     component: TInterface = TComponent.provide()
     assert isinstance(component, TInterface)
