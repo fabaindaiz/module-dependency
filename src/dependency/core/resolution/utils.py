@@ -86,13 +86,15 @@ def raise_dependency_error(
     """
     for injectable in unresolved_injectable:
         unresolved = [
-            dep
-            for dep in injectable.imports
-            if not dep.is_resolved
+            dependency
+            for dependency in injectable.imports
+            if not dependency.is_resolved
         ]
         logger.error(f"Provider {injectable} has unresolved dependencies: {unresolved}")
     raise ResolutionError("Providers cannot be resolved")
 
+# TODO: Allow to raise both errors together with extended information
+# TODO: Improve and simplify circular dependency detection implementation
 def raise_providers_error(
         injectables: list[Injectable],
         unresolved: list[Injectable],
@@ -101,9 +103,7 @@ def raise_providers_error(
 
     Args:
         providers (list[ProviderInjection]): The list of provider injections to check.
-        resolved (list[ProviderInjection]): The resolved providers to check against.
+        unresolved (list[ProviderInjection]): The resolved providers to check against.
     """
     raise_cycle_error(injectables)
-    raise_dependency_error(
-        unresolved_injectable=unresolved
-    )
+    raise_dependency_error(unresolved)

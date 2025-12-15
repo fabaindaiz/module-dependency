@@ -7,6 +7,7 @@ from dependency.core.exceptions import ResolutionError
 from dependency.core.resolution.container import Container
 logger = logging.getLogger("DependencyLoader")
 
+# TODO: Permitir distintas configuraciones default según alguna condición
 class PluginConfig(BaseModel):
     """Empty configuration model for the plugin.
     """

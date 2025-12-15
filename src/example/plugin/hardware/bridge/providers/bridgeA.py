@@ -23,10 +23,14 @@ class HardwareAbstractionBridgeA(HardwareAbstraction):
         instance = self.__factory.createHardware(product=product)
         instance.doStuff("someOperation")
         self.__observer.update(
-            context=EventHardwareOperation(product=product, operation="someOperation"))
+            context=EventHardwareOperation(
+                product=product,
+                operation="someOperation"))
 
     def otherOperation(self, product: str) -> None:
         instance = self.__factory.createHardware(product=product)
         instance.doStuff("otherOperation")
         self.__observer.update(
-            context=EventHardwareOperation(product=product, operation="otherOperation"))
+            context=EventHardwareOperation(
+                product=product,
+                operation="otherOperation"))

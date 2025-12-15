@@ -47,6 +47,7 @@ class Injectable:
         for implementation in self.imports:
             implementation.add_wire_cls(self.provided_cls)
 
+    # TODO: Permite definir una condición de inicialización en bootstrap
     def do_bootstrap(self) -> None:
         """Execute the bootstrap function if it exists."""
         if self.bootstrap is not None:

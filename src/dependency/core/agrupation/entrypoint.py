@@ -5,6 +5,8 @@ from dependency.core.resolution.container import Container
 from dependency.core.resolution.resolver import InjectionResolver
 _logger = logging.getLogger("DependencyLoader")
 
+# TODO: Permitir configurar el comportamiento del framework desde el entrypoint
+# TODO: Mejorar el control de apagado y reinicio, incluyendo un resumen de eventos
 class Entrypoint:
     """Entrypoint for the application.
     """

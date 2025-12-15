@@ -18,6 +18,11 @@ class Component(ABCComponent, ABCInjectable):
         super().__init__(interface_cls=interface_cls)
         self.injection: ProviderInjection = injection
 
+    @property
+    def reference(self) -> str:
+        """Return the reference name of the component."""
+        return self.injection.reference
+
 def component(
     module: Module,
     interface: type[T],

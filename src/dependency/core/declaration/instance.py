@@ -4,6 +4,7 @@ from dependency.core.declaration.base import ABCInstance
 from dependency.core.declaration.component import Component
 from dependency.core.injection.injectable import Injectable
 
+# TODO: Añadir soporte para late init mediante una función
 class Instance(ABCInstance):
     """Instance Base Class
     """

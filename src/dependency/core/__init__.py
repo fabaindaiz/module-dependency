@@ -14,6 +14,7 @@ from dependency.core.declaration import (
 )
 from dependency.core.resolution import (
     Container,
+    InjectionResolver,
 )
 from dependency.core.exceptions import (
     DependencyError,
@@ -31,5 +32,8 @@ __all__ = [
     "instance",
     "providers",
     "Container",
+    "InjectionResolver",
     "DependencyError",
 ]
+
+# TODO: Simplificar los imports utilizados para definir una aplicación

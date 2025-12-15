@@ -5,6 +5,8 @@ from dependency.core.resolution.container import Container
 from dependency.core.resolution.utils import raise_providers_error
 _logger = logging.getLogger("DependencyLoader")
 
+# TODO: Añadir API para interacción meta con el framework
+# TODO: Separar la resolución e inicialización de dependencias
 class InjectionResolver:
     """Injection Resolver Class
     """

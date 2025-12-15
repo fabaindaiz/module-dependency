@@ -22,7 +22,7 @@ class ReporterA(Reporter, Product):
         @self.__observer.subscribe(EventSubscriber)  # type: ignore
         def on_product_operation(context: EventHardwareOperation) -> None:
             self.operations.append(f"{context.product} -> {context.operation}")
-    
+
     def reportProducts(self) -> list[str]:
         return self.products
 
