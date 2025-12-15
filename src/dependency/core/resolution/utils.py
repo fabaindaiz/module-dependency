@@ -1,6 +1,6 @@
 import logging
-from dependency.core2.injection.injectable import Injectable
-from dependency.core2.exceptions import ResolutionError
+from dependency.core.injection.injectable import Injectable
+from dependency.core.exceptions import ResolutionError
 logger = logging.getLogger("DependencyLoader")
 
 class Cycle():
@@ -32,6 +32,7 @@ def find_cycles(injectables: list[Injectable]) -> set[Cycle]:
 
     Args:
         injectables (list[Injectable]): The list of provider injections to check for cycles.
+
     Returns:
         set[Cycle]: A set of cycles, each represented as a Cycle object.
     """

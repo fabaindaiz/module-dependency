@@ -9,37 +9,33 @@ class Module(ABCModule):
     """
     def __init__(self, name: str, injection: ContainerInjection) -> None:
         super().__init__(name)
-        self.__injection: ContainerInjection = injection
-    
-    @property
-    def injection(self) -> ContainerInjection:
-        """Get the container injection for the module.
-
-        Returns:
-            ContainerInjection: The container injection for the module.
-        """
-        return self.__injection
+        self.injection: ContainerInjection = injection
 
 def module(
     module: Optional[Module] = None
-    ) -> Callable[[type[MODULE]], MODULE]:
+) -> Callable[[type[MODULE]], MODULE]:
     """Decorator for Module class
 
     Args:
-        module (Optional[type[Module]]): Parent module class which this module belongs to.
+        module (Optional[Module]): Parent module class which this module belongs to.
+
+    Raises:
+        TypeError: If the wrapped class is not a subclass of Module.
 
     Returns:
-        Callable[[type[Module]], Module]: Decorator function that wraps the module class.
+        Callable[[type[MODULE]], MODULE]: Decorator function that wraps the module class.
     """
     def wrap(cls: type[MODULE]) -> MODULE:
-        if not issubclass(cls, Module):
+        if not issubclass(cls, Module): # type: ignore
             raise TypeError(f"Class {cls} is not a subclass of Module")
 
         injection = ContainerInjection(
             name=cls.__name__,
-            parent=module.injection if module else None)
+            parent=module.injection if module else None,
+        )
 
         return cls(
             name=cls.__name__,
-            injection=injection)
+            injection=injection,
+        )
     return wrap

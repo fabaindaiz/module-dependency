@@ -1,6 +1,6 @@
 from pydantic import BaseModel
-from dependency.core2.agrupation import Plugin, PluginMeta, module
-from dependency.core2.resolution import Container
+from dependency.core.agrupation import Plugin, PluginMeta, module
+from dependency.core.resolution import Container
 
 class TPluginConfig(BaseModel):
     field1: str

@@ -1,4 +1,5 @@
-from abc import ABC
+from abc import ABC, abstractmethod
+from typing import Any
 
 class ABCComponent(ABC):
     """Abstract base class for all components.
@@ -17,3 +18,10 @@ class ABCInstance(ABC):
 
     def __repr__(self) -> str:
         return self.provided_cls.__name__
+
+class ABCInjectable(ABC):
+    """Abstract base class for all injectables.
+    """
+    @abstractmethod
+    def provide(self) -> Any:
+        pass

@@ -1,9 +1,9 @@
 import pytest
 from dependency_injector import containers
-from dependency.core2.agrupation import Plugin, PluginMeta, module
-from dependency.core2.declaration import Component, component, instance
-from dependency.core2.resolution import Container, InjectionResolver
-from dependency.core2.exceptions import DeclarationError, ResolutionError
+from dependency.core.agrupation import Plugin, PluginMeta, module
+from dependency.core.declaration import Component, component, instance
+from dependency.core.resolution import Container, InjectionResolver
+from dependency.core.exceptions import DeclarationError, ResolutionError
 
 @module()
 class TPlugin(Plugin):
