@@ -5,14 +5,14 @@ from dependency.core.declaration.base import ABCComponent, ABCInjectable
 from dependency.core.injection.provider import ProviderInjection
 from dependency.core.exceptions import DeclarationError
 
-T = TypeVar('T')
 COMPONENT = TypeVar('COMPONENT', bound='Component')
+INTERFACE = TypeVar('INTERFACE')
 
 class Component(ABCComponent, ABCInjectable):
     """Component Base Class
     """
     def __init__(self,
-        interface_cls: type[T],
+        interface_cls: type[INTERFACE],
         injection: ProviderInjection,
     ) -> None:
         super().__init__(interface_cls=interface_cls)
@@ -25,7 +25,7 @@ class Component(ABCComponent, ABCInjectable):
 
 def component(
     module: Module,
-    interface: type[T],
+    interface: type[INTERFACE],
 ) -> Callable[[type[COMPONENT]], COMPONENT]:
     """Decorator for Component class
 
@@ -50,7 +50,7 @@ def component(
 
         class WrapComponent(cls):
             @inject
-            def provide(self, instance: T = Provide[injection.reference]) -> T:
+            def provide(self, instance: INTERFACE = Provide[injection.reference]) -> INTERFACE:
                 if isinstance(instance, Provide): # type: ignore
                     raise DeclarationError(f"Component {cls.__name__} was not provided")
                 return instance

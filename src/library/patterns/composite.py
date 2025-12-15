@@ -13,4 +13,4 @@ class Composite(Generic[T]):
         self.children.remove(component)
 
     def getChildren(self) -> list[T]:
-        return self
+        return self.children

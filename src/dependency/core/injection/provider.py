@@ -39,4 +39,5 @@ class ProviderInjection(BaseInjection):
             provider.injectable
             for provider in self.__imports
         ]
+        self.injectable.prewiring()
         yield self.injectable

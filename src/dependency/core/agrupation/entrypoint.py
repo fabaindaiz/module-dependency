@@ -18,8 +18,8 @@ class Entrypoint:
             for plugin in plugins
             for provider in plugin.resolve_providers(container)]
 
-        self.loader = InjectionResolver(
+        self.resolver = InjectionResolver(
             container=container,
             injectables=injectables)
-        self.loader.resolve_injectables()
+        self.resolver.resolve_dependencies()
         _logger.info(f"Application started in {time.time() - self.init_time} seconds")

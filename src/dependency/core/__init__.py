@@ -10,6 +10,8 @@ from dependency.core.declaration import (
     component,
     Instance,
     instance,
+    Product,
+    product,
     providers,
 )
 from dependency.core.resolution import (
@@ -30,10 +32,10 @@ __all__ = [
     "component",
     "Instance",
     "instance",
+    "Product",
+    "product",
     "providers",
     "Container",
     "InjectionResolver",
     "DependencyError",
 ]
-
-# TODO: Simplificar los imports utilizados para definir una aplicación

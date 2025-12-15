@@ -2,9 +2,9 @@ from typing import Any, Callable
 from dependency_injector import providers
 from dependency.core.declaration.base import ABCInstance
 from dependency.core.declaration.component import Component
+from dependency.core.declaration.product import Product
 from dependency.core.injection.injectable import Injectable
 
-# TODO: Añadir soporte para late init mediante una función
 class Instance(ABCInstance):
     """Instance Base Class
     """
@@ -16,7 +16,7 @@ class Instance(ABCInstance):
 def instance(
     component: Component,
     imports: list[Component] = [],
-    products: list[type] = [],
+    products: list[Product] = [],
     provider: type[providers.Provider[Any]] = providers.Singleton,
     bootstrap: bool = False,
 ) -> Callable[[type], Instance]:
@@ -44,6 +44,10 @@ def instance(
                 component_cls=component.__class__,
                 provided_cls=cls,
                 provider_cls=provider,
+                products=[
+                    product.injectable
+                    for product in products
+                ],
                 bootstrap=component.provide if bootstrap else None,
             ),
             imports = [
