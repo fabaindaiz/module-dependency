@@ -29,7 +29,7 @@ def product(
         Callable[[type[Dependent]], type[Dependent]]: Decorator function that wraps the dependent class.
     """
     def wrap(cls: type[PRODUCT]) -> type[PRODUCT]:
-        if not issubclass(cls, Product): # type: ignore
+        if not issubclass(cls, Product):
             raise TypeError(f"Class {cls} is not a subclass of Product")
 
         cls.injectable = Injectable(

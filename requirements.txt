@@ -1,5 +1,4 @@
 dependency_injector
 jinja2
-mypy
 pydantic
-pytest
+pydantic-settings

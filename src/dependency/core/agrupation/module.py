@@ -26,7 +26,7 @@ def module(
         Callable[[type[MODULE]], MODULE]: Decorator function that wraps the module class.
     """
     def wrap(cls: type[MODULE]) -> MODULE:
-        if not issubclass(cls, Module): # type: ignore
+        if not issubclass(cls, Module):
             raise TypeError(f"Class {cls} is not a subclass of Module")
 
         injection = ContainerInjection(

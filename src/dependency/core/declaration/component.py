@@ -2,6 +2,7 @@ from typing import Callable, TypeVar
 from dependency_injector.wiring import Provide, inject
 from dependency.core.agrupation.module import Module
 from dependency.core.declaration.base import ABCComponent, ABCInjectable
+from dependency.core.injection.injectable import Injectable
 from dependency.core.injection.provider import ProviderInjection
 from dependency.core.exceptions import DeclarationError
 
@@ -23,6 +24,16 @@ class Component(ABCComponent, ABCInjectable):
         """Return the reference name of the component."""
         return self.injection.reference
 
+    def set_instance(self,
+        injectable: Injectable,
+        imports: list['ProviderInjection'] = [],
+    ) -> None:
+        """Set the injectable instance and its imports."""
+        self.injection.set_instance(
+            injectable=injectable,
+            imports=imports,
+        )
+
 def component(
     module: Module,
     interface: type[INTERFACE],
@@ -40,7 +51,7 @@ def component(
         Callable[[type[COMPONENT]], COMPONENT]: Decorator function that wraps the component class.
     """
     def wrap(cls: type[COMPONENT]) -> COMPONENT:
-        if not issubclass(cls, Component): # type: ignore
+        if not issubclass(cls, Component):
             raise TypeError(f"Class {cls} is not a subclass of {interface}")
 
         injection = ProviderInjection(
@@ -48,14 +59,14 @@ def component(
             parent=module.injection,
         )
 
-        class WrapComponent(cls):
+        class WrapComponent(cls): # type: ignore
             @inject
             def provide(self, instance: INTERFACE = Provide[injection.reference]) -> INTERFACE:
                 if isinstance(instance, Provide): # type: ignore
                     raise DeclarationError(f"Component {cls.__name__} was not provided")
                 return instance
 
-        return WrapComponent( # type: ignore
+        return WrapComponent(
             interface_cls=interface,
             injection=injection,
         )
