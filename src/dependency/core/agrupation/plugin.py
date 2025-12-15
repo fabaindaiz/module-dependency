@@ -56,5 +56,5 @@ class Plugin(Module):
         setattr(container, self.injection.name, self.injection.inject_cls())
         return [provider for provider in self.injection.resolve_providers()]
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"{self.meta}: {self.config}"

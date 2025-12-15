@@ -7,7 +7,7 @@ from dependency.core.injection.utils import (
     raise_providers_error,
     raise_dependency_error,
 )
-logger = logging.getLogger("DependencyLoader")
+_logger = logging.getLogger("DependencyLoader")
 
 class InjectionLoader:
     """Load and resolve dependencies for provider injections.
@@ -24,7 +24,7 @@ class InjectionLoader:
         self.resolve_providers()
         self.resolve_products()
         self.start_providers()
-        logger.info("Dependencies resolved and initialized")
+        _logger.info("Dependencies resolved and initialized")
 
     # Strategy 1: Layered resolution
     # This strategy resolves providers by layers, ensuring that all dependencies
@@ -53,7 +53,7 @@ class InjectionLoader:
                 if provider not in new_layer
             ]
         named_layers = pformat(resolved_layers)
-        logger.info(f"Resolved layers:\n{named_layers}")
+        _logger.info(f"Resolved layers:\n{named_layers}")
 
     def resolve_products(self) -> None:
         """Check that all product dependencies are resolved.

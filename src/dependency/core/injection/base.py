@@ -93,7 +93,7 @@ class ProviderInjection(BaseInjection):
         self.modules_cls: set[type] = set()
         self.imports: list["ProviderInjection"] = []
         self.depends: list[ProviderDependency] = []
-        self.bootstrap: Optional[Callable] = None
+        self.bootstrap: Optional[Callable[[], Any]] = None
         super().__init__(name=name, parent=parent)
 
     @property
@@ -132,7 +132,7 @@ class ProviderInjection(BaseInjection):
         component_cls: type,
         imports: list["ProviderInjection"] = [],
         depends: list[ProviderDependency] = [],
-        bootstrap: Optional[Callable] = None
+        bootstrap: Optional[Callable[[], Any]] = None
     ) -> None:
         """Set the parameters for the provider.
 

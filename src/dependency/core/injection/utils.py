@@ -53,7 +53,7 @@ class Cycle():
     """Represents a cycle in the dependency graph.
     """
     def __init__(self, elements: list[ProviderInjection]) -> None:
-        self.elements = self.normalize(elements)
+        self.elements: tuple[str, ...] = self.normalize(elements)
     
     @staticmethod
     def normalize(cycle: list[ProviderInjection]) -> tuple[str, ...]:
@@ -65,7 +65,7 @@ class Cycle():
     def __hash__(self) -> int:
         return hash(self.elements)
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: object) -> bool:
         if not isinstance(other, Cycle):
             return False
         return self.elements == other.elements

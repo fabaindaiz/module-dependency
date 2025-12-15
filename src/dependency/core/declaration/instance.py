@@ -1,8 +1,14 @@
-from typing import Callable, cast
+from typing import Any, Callable
 from dependency_injector import providers
 from dependency.core.declaration.base import ABCInstance
 from dependency.core.declaration.component import Component
 from dependency.core.declaration.product import Product
+
+__all__ = [
+    "Instance",
+    "instance",
+    "providers",
+]
 
 class Instance(ABCInstance):
     """Instance Base Class
@@ -11,10 +17,10 @@ class Instance(ABCInstance):
         super().__init__(provided_cls=provided_cls)
 
 def instance(
-        component: type[Component],
-        imports: list[type[Component]] = [],
-        products: list[type[Product]] = [],
-        provider: type[providers.Provider] = providers.Singleton,
+        component: Component,
+        imports: list[Component] = [],
+        products: list[Product] = [],
+        provider: type[providers.Provider[Any]] = providers.Singleton,
         bootstrap: bool = False,
     ) -> Callable[[type], Instance]:
     """Decorator for instance class
@@ -32,26 +38,22 @@ def instance(
     Returns:
         Callable[[type], Instance]: Decorator function that wraps the instance class and returns an Instance object.
     """
-    # Cast due to mypy not supporting class decorators
-    _component = cast(Component, component)
-    _imports = cast(list[Component], imports)
-    _products = cast(list[Product], products)
     def wrap(cls: type) -> Instance:
-        if not issubclass(cls, _component.interface_cls):
-            raise TypeError(f"Class {cls} is not a subclass of {_component.interface_cls}")
+        if not issubclass(cls, component.interface_cls):
+            raise TypeError(f"Class {cls} is not a subclass of {component.interface_cls}")
 
-        imports = [component.injection for component in _imports]
-        depends = [product.dependency_imports for product in _products]
-        _component.injection.set_implementation(
+        _imports = [component.injection for component in imports]
+        depends = [product.dependency_imports for product in products]
+        component.injection.set_implementation(
             provided_cls=cls,
             provider_cls=provider,
-            component_cls=_component.__class__,
-            imports=imports,
+            component_cls=component.__class__,
+            imports=_imports,
             depends=depends,
-            bootstrap=_component.provide if bootstrap else None)
+            bootstrap=component.provide if bootstrap else None)
         
         instance = Instance(
             provided_cls=cls)
-        _component.instance = instance
+        component.instance = instance
         return instance
     return wrap

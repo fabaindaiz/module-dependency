@@ -1,4 +1,4 @@
-from typing import Callable, TypeVar, cast
+from typing import Callable, TypeVar
 from dependency.core.declaration.component import Component
 from dependency.core.injection.base import ProviderDependency
 
@@ -10,7 +10,7 @@ class Product:
     dependency_imports: ProviderDependency
 
 def product(
-    imports: list[type[Component]] = []
+    imports: list[Component] = []
 ) -> Callable[[type[PRODUCT]], type[PRODUCT]]:
     """Decorator for Product class
 
@@ -23,8 +23,6 @@ def product(
     Returns:
         Callable[[type[Dependent]], type[Dependent]]: Decorator function that wraps the dependent class.
     """
-    # Cast due to mypy not supporting class decorators
-    _imports = cast(list[Component], imports)
     def wrap(cls: type[PRODUCT]) -> type[PRODUCT]:
         if not issubclass(cls, Product):
             raise TypeError(f"Class {cls} is not a subclass of Product")
@@ -32,6 +30,6 @@ def product(
         cls.dependency_imports = ProviderDependency(
             name=cls.__name__,
             provided_cls=cls,
-            imports=[component.injection for component in _imports])
+            imports=[component.injection for component in imports])
         return cls
     return wrap
