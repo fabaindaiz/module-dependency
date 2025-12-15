@@ -1,10 +1,10 @@
 # module-dependency
 
-A dependency injection framework for embedded Python applications.
+A Dependency Injection Framework for Modular Embedded Python Applications.
 
 ## Overview
 
-The goal of this project is to provide a comprehensive framework for managing structure for complex Python applications. The framework is designed to be modular, allowing developers to define components, interfaces, and instances that can be easily managed and injected into applications.
+The goal of this project is to provide a comprehensive framework for managing structure for complex Python applications. The framework is designed to be modular, allowing developers to define components, interfaces, and instances that can be easily managed and injected throughout the application.
 
 Declare components with interfaces, provide multiple implementations of them, and manage which implementation to use at runtime. Multiple components can be organized and composed together to form complex behaviors using modular design principles.
 

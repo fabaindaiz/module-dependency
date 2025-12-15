@@ -31,5 +31,5 @@ def test_injection1():
     container = containers.DynamicContainer()
     setattr(container, container1.name, container1.inject_cls())
     for provider in list(container1.resolve_providers()):
-        provider.wire_provider(container=container)
+        provider.do_wiring(container=container)
     assert Interface().test() == "Injected service: Test method called"

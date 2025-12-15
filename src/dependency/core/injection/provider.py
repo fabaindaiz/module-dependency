@@ -1,4 +1,5 @@
 from typing import Any, Generator, Optional
+from dependency_injector import providers
 from dependency.core.injection.base import BaseInjection, ContainerInjection
 from dependency.core.injection.injectable import Injectable
 from dependency.core.exceptions import DeclarationError
@@ -29,15 +30,14 @@ class ProviderInjection(BaseInjection):
         self.__injectable = injectable
         self.__imports = imports
 
-    def inject_cls(self) -> Any:
+    def inject_cls(self) -> providers.Provider[Any]:
         """Return the provider instance."""
-        return self.injectable.provide()
+        return self.injectable.provider()
 
     def resolve_providers(self) -> Generator[Injectable, None, None]:
         """Inject all imports into the current injectable."""
-        self.injectable.imports = [
+        self.injectable.imports.extend(
             provider.injectable
             for provider in self.__imports
-        ]
-        self.injectable.prewiring()
+        )
         yield self.injectable

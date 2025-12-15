@@ -8,15 +8,15 @@ class Injectable:
     def __init__(self,
         component_cls: type,
         provided_cls: type,
-        provider_cls: type = providers.Singleton,
+        provider_cls: type[providers.Provider[Any]] = providers.Singleton,
         imports: list["Injectable"] = [],
         products: list["Injectable"] = [],
         bootstrap: Optional[Callable[[], Any]] = None
     ) -> None:
         self.component_cls: type = component_cls
         self.provided_cls: type = provided_cls
-        self.provider_cls: type = provider_cls
-        self.modules_cls: set[type] = {component_cls}
+        self.provider_cls: type[providers.Provider[Any]] = provider_cls
+        self.modules_cls: set[type] = {component_cls, provided_cls}
         self.imports: list["Injectable"] = imports
         self.products: list["Injectable"] = products
         self.bootstrap: Optional[Callable[[], Any]] = bootstrap
@@ -29,24 +29,15 @@ class Injectable:
             for implementation in self.imports
         )
 
-    def add_wire_cls(self, wire_cls: type) -> None:
-        """Add a class to the set of modules that need to be wired."""
-        self.modules_cls.add(wire_cls)
+    def provider(self) -> providers.Provider[Any]:
+        """Return an instance from the provider."""
+        return self.provider_cls(self.provided_cls) # type: ignore
 
-    def prewiring(self) -> None:
-        """Prepare the imports for wiring."""
-        for implementation in self.imports:
-            implementation.add_wire_cls(self.provided_cls)
-
-    def wire_provider(self, container: containers.DynamicContainer) -> "Injectable":
+    def do_wiring(self, container: containers.DynamicContainer) -> "Injectable":
         """Wire the provider with the given container."""
         container.wire(modules=self.modules_cls)
         self.is_resolved = True
         return self
-
-    def provide(self) -> Any:
-        """Return an instance from the provider."""
-        return self.provider_cls(self.provided_cls)
 
     # TODO: Permite definir una condición de inicialización en bootstrap
     def do_bootstrap(self) -> None:

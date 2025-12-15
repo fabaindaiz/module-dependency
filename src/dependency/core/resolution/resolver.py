@@ -28,7 +28,7 @@ class InjectionResolver:
 
         while unresolved:
             new_layer = [
-                injectable.wire_provider(container=self.container)
+                injectable.do_wiring(container=self.container)
                 for injectable in unresolved
                 if injectable.import_resolved
             ]

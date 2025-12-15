@@ -34,7 +34,7 @@ def test_declaration():
     container = containers.DynamicContainer()
     setattr(container, TModule.injection.name, TModule.injection.inject_cls()) # type: ignore
     for provider in list(TModule.injection.resolve_providers()): # type: ignore
-        provider.wire_provider(container)
+        provider.do_wiring(container)
 
     assert str(TModule) == "TModule"
     assert str(TComponent) == "TInterface"
