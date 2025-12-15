@@ -14,7 +14,7 @@ class Component(ABCComponent):
         super().__init__(interface_cls=interface_cls)
         self.__injection: ProviderInjection = injection
         self.__instance: Optional[ABCInstance] = None
-    
+
     @property
     def reference(self) -> str:
         """Get the injection reference for the component.
@@ -32,7 +32,7 @@ class Component(ABCComponent):
             ProviderInjection: The provider injection for the component.
         """
         return self.__injection
-    
+
     @property
     def instance(self) -> Optional[ABCInstance]:
         """Get the instance for the component.
@@ -41,7 +41,7 @@ class Component(ABCComponent):
             Optional[ABCInstance]: The instance for the component, if it exists.
         """
         return self.__instance
-    
+
     @instance.setter
     def instance(self, instance: ABCInstance) -> None:
         """Set the instance for the component.
@@ -55,7 +55,7 @@ class Component(ABCComponent):
         if self.__instance:
             raise DeclarationError(f"Component {self} is already instanced by {self.__instance}. Attempted to set new instance: {instance}")
         self.__instance = instance
-    
+
     @staticmethod
     def provide() -> Any:
         """Provide the component instance.
@@ -74,7 +74,7 @@ def component(
     Args:
         module (ABCModule): Module instance to register the component.
         interface (type): Interface class to be used as a base class for the component.
-    
+
     Raises:
         TypeError: If the wrapped class is not a subclass of Component.
 
@@ -86,7 +86,7 @@ def component(
     def wrap(cls: type[COMPONENT]) -> COMPONENT:
         if not issubclass(cls, Component):
             raise TypeError(f"Class {cls} is not a subclass of Component")
-        
+
         injection = ProviderInjection(
             name=interface.__name__,
             component_name=cls.__name__,

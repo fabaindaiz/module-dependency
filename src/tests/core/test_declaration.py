@@ -1,7 +1,8 @@
 from abc import ABC, abstractmethod
 from dependency_injector import containers, providers
-from dependency.core.agrupation import Module, module
-from dependency.core.declaration import Component, component, instance
+from dependency.core2.agrupation.module import Module, module
+from dependency.core2.declaration.component import Component, component
+from dependency.core2.declaration.instance import instance
 
 class TInterface(ABC):
     @abstractmethod

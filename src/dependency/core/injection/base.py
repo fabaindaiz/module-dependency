@@ -15,7 +15,7 @@ class BaseInjection(ABC):
     def name(self) -> str:
         """Return the name of the injection."""
         return self.__name.lower()
-    
+
     @property
     def reference(self) -> str:
         """Return the reference for dependency injection."""
@@ -32,7 +32,7 @@ class BaseInjection(ABC):
     def inject_cls(self) -> Any:
         """Return the class to be injected."""
         raise NotImplementedError("This method should be implemented by subclasses.")
-    
+
     @abstractmethod
     def resolve_providers(self) -> Generator['ProviderInjection', None, None]:
         """Inject all children into the current injection context."""
@@ -54,7 +54,7 @@ class ContainerInjection(BaseInjection):
     def inject_cls(self) -> containers.DynamicContainer:
         """Return the container instance."""
         return self.container
-    
+
     def resolve_providers(self) -> Generator['ProviderInjection', None, None]:
         """Inject all children into the current injection context."""
         for child in self.childs:
@@ -70,7 +70,7 @@ class ProviderDependency:
         self.name: str = name
         self.provided_cls: type = provided_cls
         self.imports: list['ProviderInjection'] = imports
-    
+
     def prewiring(self) -> None:
         """Declare modules that need to be wired on their respective providers."""
         for provider in self.imports:
@@ -95,7 +95,7 @@ class ProviderInjection(BaseInjection):
         self.depends: list[ProviderDependency] = []
         self.bootstrap: Optional[Callable] = None
         super().__init__(name=name, parent=parent)
-    
+
     @property
     def provided_cls(self) -> type:
         """Return the provided class.
@@ -121,7 +121,7 @@ class ProviderInjection(BaseInjection):
     def add_wire_cls(self, wire_cls: type) -> None:
         """Add a class to the set of modules that need to be wired."""
         self.modules_cls.add(wire_cls)
-    
+
     def wire_provider(self, container: containers.DynamicContainer) -> "ProviderInjection":
         container.wire(modules=self.modules_cls)
         return self
