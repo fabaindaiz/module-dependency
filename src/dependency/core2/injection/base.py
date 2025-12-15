@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
-from dependency_injector import containers
 from typing import Any, Generator, Optional
-from dependency.core2.resolution.implementation import Implementation
+from dependency_injector import containers
+from dependency.core2.injection.injectable import Injectable
 
 class BaseInjection(ABC):
     def __init__(self,
@@ -27,7 +27,7 @@ class BaseInjection(ABC):
         pass
 
     @abstractmethod
-    def resolve_providers(self) -> Generator[Implementation, None, None]:
+    def resolve_providers(self) -> Generator[Injectable, None, None]:
         """Inject all children into the current injection context."""
         pass
 
@@ -47,7 +47,7 @@ class ContainerInjection(BaseInjection):
         """Return the container instance."""
         return self.container
 
-    def resolve_providers(self) -> Generator[Implementation, None, None]:
+    def resolve_providers(self) -> Generator[Injectable, None, None]:
         for child in self.childs:
             setattr(self.container, child.name, child.inject_cls())
             yield from child.resolve_providers()

@@ -31,7 +31,7 @@ def instance(
         products (list[type[Product]], optional): List of products to be declared by the provider. Defaults to [].
         provider (type[providers.Provider], optional): Provider class to be used. Defaults to providers.Singleton.
         bootstrap (bool, optional): Whether the provider should be bootstrapped. Defaults to False.
-        
+
     Raises:
         TypeError: If the wrapped class is not a subclass of Component declared base class.
 
@@ -51,7 +51,7 @@ def instance(
             imports=_imports,
             depends=depends,
             bootstrap=component.provide if bootstrap else None)
-        
+
         instance = Instance(
             provided_cls=cls)
         component.instance = instance

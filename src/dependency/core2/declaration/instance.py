@@ -1,10 +1,8 @@
+from typing import Callable
 from dependency_injector import providers
-from typing import Any, Callable, Optional, TypeVar
-from dependency.core2.declaration.base import ABCInstance, ABCInjectable
+from dependency.core2.declaration.base import ABCInstance
 from dependency.core2.declaration.component import Component
-from dependency.core2.resolution.implementation import Implementation
-
-T = TypeVar('T')
+from dependency.core2.injection.injectable import Injectable
 
 class Instance(ABCInstance):
     def __init__(self,
@@ -14,8 +12,8 @@ class Instance(ABCInstance):
 
 def instance(
     component: Component,
-    imports: list[ABCInjectable] = [],
-    products: list[ABCInjectable] = [],
+    imports: list[Component] = [],
+    products: list[type] = [],
     provider: type = providers.Singleton,
     bootstrap: bool = False,
 ) -> Callable[[type], Instance]:
@@ -23,12 +21,17 @@ def instance(
         if not issubclass(cls, component.interface_cls):
             raise TypeError(f"Class {cls} is not a subclass of {component.interface_cls}")
 
-        component.imports = imports
-        component.injection.implementation = Implementation(
-            provider_cls=provider,
-            provided_cls=cls,
-            component_cls=component.__class__,
-            bootstrap=component.provide if bootstrap else None,
+        component.injection.set_instance(
+            injectable = Injectable(
+                component_cls=component.__class__,
+                provided_cls=cls,
+                provider_cls=provider,
+                bootstrap=component.provide if bootstrap else None,
+            ),
+            imports = [
+                component.injection
+                for component in imports
+            ],
         )
 
         return Instance(

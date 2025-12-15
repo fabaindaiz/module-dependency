@@ -1,8 +1,9 @@
-from typing import Any, Callable, Generic, TypeVar
+from typing import Callable, TypeVar
 from dependency_injector.wiring import Provide, inject
 from dependency.core2.agrupation.module import Module
 from dependency.core2.declaration.base import ABCComponent, ABCInjectable
 from dependency.core2.injection.provider import ProviderInjection
+from dependency.core2.exceptions import DeclarationError
 
 T = TypeVar('T')
 COMPONENT = TypeVar('COMPONENT', bound='Component')
@@ -14,22 +15,25 @@ class Component(ABCComponent, ABCInjectable):
     ) -> None:
         super().__init__(interface_cls=interface_cls)
         self.injection: ProviderInjection = injection
-        self.imports: list[ABCInjectable] = []
 
 def component(
     module: Module,
     interface: type[T],
 ) -> Callable[[type[COMPONENT]], COMPONENT]:
-    def wrap(cls: type) -> Component:
+    def wrap(cls: type[COMPONENT]) -> COMPONENT:
+        if not issubclass(cls, Component):
+            raise TypeError(f"Class {cls} is not a subclass of {interface}")
 
         injection = ProviderInjection(
             name=cls.__name__,
             parent=module.injection,
         )
 
-        class WrapComponent(Component):
+        class WrapComponent(cls):
             @inject
             def provide(self, instance: T = Provide[injection.reference]) -> T:
+                if isinstance(instance, Provide): # type: ignore
+                    raise DeclarationError(f"Component {cls.__name__} was not provided")
                 return instance
 
         return WrapComponent(

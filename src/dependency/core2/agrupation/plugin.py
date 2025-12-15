@@ -2,9 +2,9 @@ import logging
 from pydantic import BaseModel
 from typing import get_type_hints
 from dependency.core2.agrupation.module import Module
-from dependency.core2.injection.provider import ProviderInjection
+from dependency.core2.injection.injectable import Injectable
 from dependency.core2.exceptions import ResolutionError
-from dependency.core2.container import Container
+from dependency.core2.resolution.container import Container
 logger = logging.getLogger("DependencyLoader")
 
 class PluginConfig(BaseModel):
@@ -43,14 +43,14 @@ class Plugin(Module):
         except Exception as e:
             raise ResolutionError(f"Failed to resolve plugin config for {self.meta}") from e
 
-    def resolve_providers(self, container: Container) -> list[ProviderInjection]:
+    def resolve_providers(self, container: Container) -> list[Injectable]:
         """Resolve provider injections for the plugin.
 
         Args:
             container (Container): The dependency injection container.
 
         Returns:
-            list[ProviderInjection]: A list of resolved provider injections.
+            list[Implementation]: A list of resolved provider injections.
         """
         self.__resolve_config(container=container)
         setattr(container, self.injection.name, self.injection.inject_cls())

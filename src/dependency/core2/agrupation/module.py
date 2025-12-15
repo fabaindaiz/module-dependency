@@ -1,4 +1,4 @@
-from typing import Callable, Optional, TypeVar, cast
+from typing import Callable, Optional, TypeVar
 from dependency.core2.agrupation.base import ABCModule
 from dependency.core2.injection.base import ContainerInjection
 
@@ -9,30 +9,22 @@ class Module(ABCModule):
     """
     def __init__(self, name: str, injection: ContainerInjection) -> None:
         super().__init__(name)
-        self.__injection: ContainerInjection = injection
-
-    @property
-    def injection(self) -> ContainerInjection:
-        """Get the container injection for the module.
-
-        Returns:
-            ContainerInjection: The container injection for the module.
-        """
-        return self.__injection
+        self.injection: ContainerInjection = injection
 
 def module(
     module: Optional[Module] = None
-    ) -> Callable[[type[MODULE]], MODULE]:
-
+) -> Callable[[type[MODULE]], MODULE]:
     def wrap(cls: type[MODULE]) -> MODULE:
-        if not issubclass(cls, Module):
+        if not issubclass(cls, Module): # type: ignore
             raise TypeError(f"Class {cls} is not a subclass of Module")
 
         injection = ContainerInjection(
             name=cls.__name__,
-            parent=module.injection if module else None)
+            parent=module.injection if module else None,
+        )
 
         return cls(
             name=cls.__name__,
-            injection=injection)
+            injection=injection,
+        )
     return wrap

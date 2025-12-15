@@ -1,6 +1,6 @@
 from typing import Any, Generator, Optional
 from dependency.core2.injection.base import BaseInjection, ContainerInjection
-from dependency.core2.resolution.implementation import Implementation
+from dependency.core2.injection.injectable import Injectable
 from dependency.core2.exceptions import DeclarationError
 
 class ProviderInjection(BaseInjection):
@@ -9,21 +9,29 @@ class ProviderInjection(BaseInjection):
         parent: Optional["ContainerInjection"] = None
     ) -> None:
         super().__init__(name=name, parent=parent)
-        self.__implementation: Optional[Implementation] = None
+        self.__injectable: Optional[Injectable] = None
+        self.__imports: list[ProviderInjection] = []
 
     @property
-    def implementation(self) -> Implementation:
-        if not self.__implementation:
-            raise DeclarationError("Implementation is not set.")
-        return self.__implementation
+    def injectable(self) -> Injectable:
+        if not self.__injectable:
+            raise DeclarationError("Injectable is not set.")
+        return self.__injectable
 
-    @implementation.setter
-    def implementation(self, implementation: Implementation) -> None:
-        self.__implementation = implementation
+    def set_instance(self,
+        injectable: Injectable,
+        imports: list['ProviderInjection'] = [],
+    ) -> None:
+        self.__injectable = injectable
+        self.__imports = imports
 
     def inject_cls(self) -> Any:
         """Return the provider instance."""
-        return self.implementation.provide()
+        return self.injectable.provide()
 
-    def resolve_providers(self) -> Generator[Implementation, None, None]:
-        yield self.implementation
+    def resolve_providers(self) -> Generator[Injectable, None, None]:
+        self.injectable.imports = [
+            provider.injectable
+            for provider in self.__imports
+        ]
+        yield self.injectable

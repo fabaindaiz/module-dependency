@@ -1,8 +1,6 @@
-from dependency_injector import containers, providers
+from dependency_injector import containers
 from dependency_injector.wiring import Provide, inject
-from dependency.core2.injection.base import ContainerInjection
-from dependency.core2.injection.provider import ProviderInjection
-from dependency.core2.resolution.implementation import Implementation
+from dependency.core2.injection import ContainerInjection, ProviderInjection, Injectable
 
 TEST_REFERENCE = "container1.container2.provider1"
 
@@ -20,11 +18,13 @@ def test_injection1():
     container2 = ContainerInjection(name="container2", parent=container1)
     provider1 = ProviderInjection(
         name="provider1",
-        parent=container2)
-    provider1.implementation = Implementation(
-        provided_cls=Instance,
-        provider_cls=providers.Singleton,
-        component_cls=Interface
+        parent=container2
+    )
+    provider1.set_instance(
+        injectable=Injectable(
+            component_cls=Interface,
+            provided_cls=Instance,
+        )
     )
     assert provider1.reference == TEST_REFERENCE
 

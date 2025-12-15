@@ -1,7 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Any, TypeVar
-
-T = TypeVar('T')
+from typing import Any
 
 class ABCComponent(ABC):
     """Abstract base class for all components.
