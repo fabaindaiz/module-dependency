@@ -1,10 +1,10 @@
 import logging
 from pydantic import BaseModel
-from typing import ClassVar, get_type_hints
-from dependency.core.agrupation.module import Module
-from dependency.core.injection.base import ProviderInjection
-from dependency.core.injection.container import Container
-from dependency.core.exceptions import ResolutionError
+from typing import get_type_hints
+from dependency.core2.agrupation.module import Module
+from dependency.core2.injection.provider import ProviderInjection
+from dependency.core2.exceptions import ResolutionError
+from dependency.core2.container import Container
 logger = logging.getLogger("DependencyLoader")
 
 class PluginConfig(BaseModel):
