@@ -20,7 +20,9 @@ class Cycle:
         return hash(self.elements)
 
     def __eq__(self, other: object) -> bool:
-        return isinstance(other, Cycle) and self.elements == other.elements
+        if not isinstance(other, Cycle):
+            return False
+        return self.elements == other.elements
 
     def __repr__(self) -> str:
         return ' -> '.join(str(p) for p in self.elements)

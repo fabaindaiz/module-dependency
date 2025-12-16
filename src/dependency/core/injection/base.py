@@ -13,9 +13,6 @@ class BaseInjection(ABC):
         self.name = name
         self.parent = parent
 
-        if parent:
-            parent.childs.append(self)
-
     @property
     def reference(self) -> str:
         """Return the reference for dependency injection."""
@@ -46,6 +43,8 @@ class ContainerInjection(BaseInjection):
         super().__init__(name=name, parent=parent)
         self.childs: list[BaseInjection] = []
         self.container = containers.DynamicContainer()
+        if self.parent:
+            self.parent.childs.append(self)
 
     def inject_cls(self) -> containers.DynamicContainer:
         """Return the container instance."""

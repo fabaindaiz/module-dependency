@@ -29,6 +29,8 @@ class ProviderInjection(BaseInjection):
         """Set the injectable instance and its imports."""
         self.__injectable = injectable
         self.__imports = imports
+        if self.parent:
+            self.parent.childs.append(self)
 
     def inject_cls(self) -> providers.Provider[Any]:
         """Return the provider instance."""
@@ -36,8 +38,8 @@ class ProviderInjection(BaseInjection):
 
     def resolve_providers(self) -> Generator[Injectable, None, None]:
         """Inject all imports into the current injectable."""
-        self.injectable.imports.extend(
+        self.injectable.imports = [
             provider.injectable
             for provider in self.__imports
-        )
+        ]
         yield self.injectable
