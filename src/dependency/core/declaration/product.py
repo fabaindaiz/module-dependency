@@ -5,8 +5,6 @@ from dependency.core.injection.injectable import Injectable
 
 PRODUCT = TypeVar('PRODUCT', bound='Product')
 
-# TODO: Definir cómo funcionarán los componentes multi-implementación
-# TODO: Implementar configuración con discriminator a nivel de product (?)
 class Product:
     """Product Base Class
     """

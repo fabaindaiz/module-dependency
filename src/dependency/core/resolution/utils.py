@@ -3,7 +3,7 @@ from dependency.core.injection.injectable import Injectable
 from dependency.core.exceptions import ResolutionError
 logger = logging.getLogger("DependencyLoader")
 
-class Cycle():
+class Cycle:
     """Represents a cycle in the dependency graph.
     """
     def __init__(self, elements: list[Injectable]) -> None:
@@ -20,9 +20,7 @@ class Cycle():
         return hash(self.elements)
 
     def __eq__(self, other: object) -> bool:
-        if not isinstance(other, Cycle):
-            return False
-        return self.elements == other.elements
+        return isinstance(other, Cycle) and self.elements == other.elements
 
     def __repr__(self) -> str:
         return ' -> '.join(str(p) for p in self.elements)
@@ -56,8 +54,8 @@ def find_cycles(injectables: list[Injectable]) -> set[Cycle]:
     return cycles
 
 def raise_cycle_error(
-        injectables: list[Injectable]
-    ) -> None:
+    injectables: list[Injectable]
+) -> None:
     """Raise an error if circular dependencies are detected.
 
     Args:
@@ -73,8 +71,8 @@ def raise_cycle_error(
         raise ResolutionError("Circular dependencies detected")
 
 def raise_dependency_error(
-        unresolved_injectable: list[Injectable],
-    ) -> None:
+    unresolved_injectable: list[Injectable],
+) -> None:
     """Raise an error if unresolved dependencies are detected.
 
     Args:
@@ -94,16 +92,18 @@ def raise_dependency_error(
     raise ResolutionError("Providers cannot be resolved")
 
 # TODO: Allow to raise both errors together with extended information
-# TODO: Improve and simplify circular dependency detection implementation
 def raise_providers_error(
-        injectables: list[Injectable],
-        unresolved: list[Injectable],
-    ) -> None:
+    injectables: list[Injectable],
+    unresolved: list[Injectable],
+) -> None:
     """Raise an error if unresolved provider imports are detected.
 
     Args:
         providers (list[ProviderInjection]): The list of provider injections to check.
         unresolved (list[ProviderInjection]): The resolved providers to check against.
+
+    Raises:
+        ResolutionError: If unresolved dependencies or cycles are detected.
     """
     raise_cycle_error(injectables)
     raise_dependency_error(unresolved)

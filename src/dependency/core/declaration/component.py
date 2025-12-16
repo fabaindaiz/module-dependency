@@ -1,15 +1,15 @@
-from typing import Callable, TypeVar
+from abc import abstractmethod
+from typing import Any, Callable, TypeVar
 from dependency_injector.wiring import Provide, inject
 from dependency.core.agrupation.module import Module
-from dependency.core.declaration.base import ABCComponent, ABCInjectable
-from dependency.core.injection.injectable import Injectable
+from dependency.core.declaration.base import ABCComponent
 from dependency.core.injection.provider import ProviderInjection
 from dependency.core.exceptions import DeclarationError
 
 COMPONENT = TypeVar('COMPONENT', bound='Component')
 INTERFACE = TypeVar('INTERFACE')
 
-class Component(ABCComponent, ABCInjectable):
+class Component(ABCComponent):
     """Component Base Class
     """
     def __init__(self,
@@ -24,15 +24,9 @@ class Component(ABCComponent, ABCInjectable):
         """Return the reference name of the component."""
         return self.injection.reference
 
-    def set_instance(self,
-        injectable: Injectable,
-        imports: list['ProviderInjection'] = [],
-    ) -> None:
-        """Set the injectable instance and its imports."""
-        self.injection.set_instance(
-            injectable=injectable,
-            imports=imports,
-        )
+    @abstractmethod
+    def provide(self) -> Any:
+        pass
 
 def component(
     module: Module,

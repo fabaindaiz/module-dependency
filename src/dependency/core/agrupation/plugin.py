@@ -3,11 +3,11 @@ from pydantic import BaseModel
 from typing import get_type_hints
 from dependency.core.agrupation.module import Module
 from dependency.core.injection.injectable import Injectable
-from dependency.core.exceptions import ResolutionError
 from dependency.core.resolution.container import Container
+from dependency.core.exceptions import ResolutionError
 logger = logging.getLogger("DependencyLoader")
 
-# TODO: Permitir distintas configuraciones default según alguna condición
+# TODO: Mejorar la forma en que se declara una configuración de plugin
 class PluginConfig(BaseModel):
     """Empty configuration model for the plugin.
     """

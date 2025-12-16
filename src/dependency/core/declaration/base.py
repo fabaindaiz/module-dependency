@@ -18,12 +18,3 @@ class ABCInstance(ABC):
 
     def __repr__(self) -> str:
         return self.provided_cls.__name__
-
-# TODO: Unificar interfaz injectable para dependencias
-# TODO: Añadir soporte para parametros en la provisión
-class ABCInjectable(ABC):
-    """Abstract base class for all injectables.
-    """
-    @abstractmethod
-    def provide(self) -> Any:
-        pass

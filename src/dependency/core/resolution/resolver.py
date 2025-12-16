@@ -5,15 +5,17 @@ from dependency.core.resolution.container import Container
 from dependency.core.resolution.utils import raise_providers_error
 _logger = logging.getLogger("DependencyLoader")
 
-# TODO: Añadir API para interacción meta con el framework
-# TODO: Separar la resolución e inicialización de dependencias
 class InjectionResolver:
     """Injection Resolver Class
     """
-    def __init__(self, container: Container, injectables: list[Injectable]) -> None:
+    def __init__(self,
+        container: Container,
+        injectables: list[Injectable]
+    ) -> None:
         self.container: Container = container
         self.injectables: list[Injectable] = injectables
 
+    # TODO: Separar los pasos de inicialización y añadir API meta con acceso al framework
     def resolve_dependencies(self) -> None:
         """Resolve all dependencies and initialize them."""
         providers = self.resolve_injectables()

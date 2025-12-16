@@ -39,7 +39,7 @@ def instance(
         if not issubclass(cls, component.interface_cls):
             raise TypeError(f"Class {cls} is not a subclass of {component.interface_cls}")
 
-        component.set_instance(
+        component.injection.set_instance(
             injectable = Injectable(
                 component_cls=component.__class__,
                 provided_cls=cls,
