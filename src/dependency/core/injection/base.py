@@ -3,6 +3,20 @@ from typing import Any, Generator, Optional
 from dependency_injector import containers
 from dependency.core.injection.injectable import Injectable
 
+class ABCInjection(ABC):
+    """Injectable Holder Interface
+    """
+    injectable: 'BaseInjection'
+
+    def change_parent(self, parent: 'ContainerInjection') -> None:
+        """Change the parent injection of this injection.
+
+        Args:
+            parent (ContainerInjection): The new parent injection.
+        """
+        self.injectable.parent = parent
+        parent.childs.append(self.injectable)
+
 class BaseInjection(ABC):
     """Base Injection Class
     """
@@ -10,8 +24,8 @@ class BaseInjection(ABC):
         name: str,
         parent: Optional["ContainerInjection"] = None
     ) -> None:
-        self.name = name
-        self.parent = parent
+        self.name: str = name
+        self.parent: Optional["ContainerInjection"] = parent
 
     @property
     def reference(self) -> str:
@@ -42,11 +56,11 @@ class ContainerInjection(BaseInjection):
     ) -> None:
         super().__init__(name=name, parent=parent)
         self.childs: list[BaseInjection] = []
-        self.container = containers.DynamicContainer()
+        self.container: containers.Container = containers.DynamicContainer()
         if self.parent:
             self.parent.childs.append(self)
 
-    def inject_cls(self) -> containers.DynamicContainer:
+    def inject_cls(self) -> containers.Container:
         """Return the container instance."""
         return self.container
 

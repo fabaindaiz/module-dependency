@@ -14,5 +14,6 @@ class HardwareA(Hardware, Product):
             operation: str,
             number: NumberService = Provide[NumberServiceComponent.reference],
         ) -> None:
+        print(f"Injected NumberService into HardwareA: {NumberServiceComponent.reference}")
         random_number = number.getRandomNumber()
         print(f"HardwareA {random_number} works with operation: {operation}")

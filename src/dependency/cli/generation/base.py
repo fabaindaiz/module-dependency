@@ -1,6 +1,6 @@
 from jinja2 import Environment, PackageLoader, select_autoescape
 
-JENV = Environment(
+JENV: Environment = Environment(
     loader=PackageLoader(
         package_name="dependency.cli",
         package_path="templates",

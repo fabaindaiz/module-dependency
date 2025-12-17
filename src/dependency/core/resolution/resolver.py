@@ -52,6 +52,10 @@ class InjectionResolver:
             ]
         named_layers = pformat(resolved_layers)
         _logger.info(f"Resolved layers:\n{named_layers}")
+
+        for injectable in self.injectables:
+            injectable.wire_products(container=self.container)
+
         return resolved_layers
 
     def start_injectables(self,

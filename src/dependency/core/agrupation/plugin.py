@@ -1,11 +1,11 @@
 import logging
 from pydantic import BaseModel
-from typing import get_type_hints
+from typing import get_type_hints, override
 from dependency.core.agrupation.module import Module
 from dependency.core.injection.injectable import Injectable
 from dependency.core.resolution.container import Container
 from dependency.core.exceptions import ResolutionError
-logger = logging.getLogger("DependencyLoader")
+_logger = logging.getLogger("DependencyLoader")
 
 # TODO: Mejorar la forma en que se declara una configuración de plugin
 class PluginConfig(BaseModel):
@@ -44,6 +44,7 @@ class Plugin(Module):
         except Exception as e:
             raise ResolutionError(f"Failed to resolve plugin config for {self.meta}") from e
 
+    @override
     def resolve_providers(self, container: Container) -> list[Injectable]:
         """Resolve provider injections for the plugin.
 
@@ -54,8 +55,7 @@ class Plugin(Module):
             list[Injectable]: A list of injectable providers.
         """
         self.__resolve_config(container=container)
-        setattr(container, self.injection.name, self.injection.inject_cls())
-        return [provider for provider in self.injection.resolve_providers()]
+        return super().resolve_providers(container=container)
 
     def __repr__(self) -> str:
         return f"{self.meta}: {self.config}"

@@ -1,15 +1,29 @@
 from typing import Callable, Optional, TypeVar
 from dependency.core.agrupation.base import ABCModule
-from dependency.core.injection.base import ContainerInjection
+from dependency.core.injection.base import ABCInjection, ContainerInjection
+from dependency.core.injection.injectable import Injectable
+from dependency.core.resolution.container import Container
 
 MODULE = TypeVar('MODULE', bound='Module')
 
-class Module(ABCModule):
+class Module(ABCModule, ABCInjection):
     """Module Base Class
     """
     def __init__(self, name: str, injection: ContainerInjection) -> None:
         super().__init__(name)
         self.injection: ContainerInjection = injection
+
+    def resolve_providers(self, container: Container) -> list[Injectable]:
+        """Resolve provider injections for the plugin.
+
+        Args:
+            container (Container): The application container.
+
+        Returns:
+            list[Injectable]: A list of injectable providers.
+        """
+        setattr(container, self.injection.name, self.injection.inject_cls())
+        return [provider for provider in self.injection.resolve_providers()]
 
 def module(
     module: Optional[Module] = None

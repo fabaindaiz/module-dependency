@@ -20,6 +20,8 @@ class Injectable:
         self.imports: list["Injectable"] = imports
         self.products: list["Injectable"] = products
         self.bootstrap: Optional[Callable[[], Any]] = bootstrap
+
+        self.container: Optional[containers.DynamicContainer] = None
         self.is_resolved: bool = False
 
     @property
@@ -36,8 +38,17 @@ class Injectable:
     def do_wiring(self, container: containers.DynamicContainer) -> "Injectable":
         """Wire the provider with the given container."""
         container.wire(modules=self.modules_cls)
+        self.container = container
         self.is_resolved = True
         return self
+
+    def wire_products(self, container: containers.DynamicContainer) -> None:
+        """Wire the products of this injectable."""
+        modules = [
+            product.provided_cls
+            for product in self.products
+        ]
+        container.wire(modules=modules)
 
     # TODO: Permite definir una condición de inicialización en bootstrap
     def do_bootstrap(self) -> None:

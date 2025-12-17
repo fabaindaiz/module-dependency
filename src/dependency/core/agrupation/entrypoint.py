@@ -1,3 +1,4 @@
+from ast import In
 import logging
 import time
 from dependency.core.agrupation.plugin import Plugin
@@ -17,7 +18,7 @@ class Entrypoint:
             for plugin in plugins
             for provider in plugin.resolve_providers(container)]
 
-        self.resolver = InjectionResolver(
+        self.resolver: InjectionResolver = InjectionResolver(
             container=container,
             injectables=injectables)
         self.resolver.resolve_dependencies()

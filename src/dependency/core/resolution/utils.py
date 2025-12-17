@@ -1,7 +1,7 @@
 import logging
 from dependency.core.injection.injectable import Injectable
 from dependency.core.exceptions import ResolutionError
-logger = logging.getLogger("DependencyLoader")
+_logger = logging.getLogger("DependencyLoader")
 
 class Cycle:
     """Represents a cycle in the dependency graph.
@@ -69,7 +69,7 @@ def raise_cycle_error(
     cycles = find_cycles(injectables)
     if cycles:
         for cycle in cycles:
-            logger.error(f"Circular import: {cycle}")
+            _logger.error(f"Circular import: {cycle}")
         raise ResolutionError("Circular dependencies detected")
 
 def raise_dependency_error(
@@ -90,7 +90,7 @@ def raise_dependency_error(
             for dependency in injectable.imports
             if not dependency.is_resolved
         ]
-        logger.error(f"Provider {injectable} has unresolved dependencies: {unresolved}")
+        _logger.error(f"Provider {injectable} has unresolved dependencies: {unresolved}")
     raise ResolutionError("Providers cannot be resolved")
 
 # TODO: Allow to raise both errors together with extended information
