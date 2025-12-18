@@ -45,7 +45,7 @@ def component(
     """
     def wrap(cls: type[COMPONENT]) -> COMPONENT:
         if not issubclass(cls, Component):
-            raise TypeError(f"Class {cls} is not a subclass of {interface}")
+            raise TypeError(f"Class {cls} is not a subclass of Component")
 
         injection = ProviderInjection(
             name=cls.__name__,
@@ -53,7 +53,7 @@ def component(
         )
 
         class WrapComponent(cls): # type: ignore
-            def provide(self) -> Any:
+            def provide(self) -> INTERFACE:
                 if not self.injection.injectable.is_resolved:
                     raise DeclarationError(f"Component {cls.__name__} injectable was not resolved")
                 return self.injection.injectable.provider() # type: ignore

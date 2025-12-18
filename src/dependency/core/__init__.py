@@ -20,6 +20,7 @@ from dependency.core.resolution import (
 )
 from dependency.core.exceptions import (
     DependencyError,
+    CancelInitialization,
 )
 
 __all__ = [
@@ -38,4 +39,5 @@ __all__ = [
     "Container",
     "InjectionResolver",
     "DependencyError",
+    "CancelInitialization",
 ]

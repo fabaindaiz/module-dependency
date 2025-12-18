@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Any, Generator, Optional
+from typing import Any, Generator, Optional, override
 from dependency_injector import containers
 from dependency.core.injection.injectable import Injectable
 
@@ -60,10 +60,12 @@ class ContainerInjection(BaseInjection):
         if self.parent:
             self.parent.childs.add(self)
 
+    @override
     def inject_cls(self) -> containers.Container:
         """Return the container instance."""
         return self.container
 
+    @override
     def resolve_providers(self) -> Generator[Injectable, None, None]:
         """Inject all children into the current container."""
         for child in self.childs:

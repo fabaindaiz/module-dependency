@@ -1,6 +1,8 @@
+import logging
 from typing import Any, Callable, Optional
 from dependency_injector import containers, providers
-from dependency.core.exceptions import CancelInitError
+from dependency.core.exceptions import InitializationError, CancelInitialization
+_logger = logging.getLogger("DependencyLoader")
 
 class Injectable:
     """Injectable Class representing a injectable dependency.
@@ -50,14 +52,17 @@ class Injectable:
         self.is_resolved = True
         return self
 
-    # TODO: Permite definir una condición de inicialización en bootstrap
     def do_bootstrap(self) -> None:
         """Execute the bootstrap function if it exists."""
+        if not self.is_resolved:
+            raise InitializationError(f"Component {self.component_cls.__name__} cannot be initialized before being resolved.")
         if self.bootstrap is not None:
             try:
                 self.bootstrap()
-            except CancelInitError:
-                pass
+            except CancelInitialization:
+                _logger.warning(f"Initialization of Component {self.component_cls.__name__} was cancelled.")
+            except Exception as e:
+                raise InitializationError(f"Failed to initialize Component {self.component_cls.__name__}") from e
 
     def __repr__(self) -> str:
         return f"{self.provided_cls.__name__}"

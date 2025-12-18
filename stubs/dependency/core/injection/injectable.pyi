@@ -1,4 +1,4 @@
-from dependency.core.exceptions import CancelInitError as CancelInitError
+from dependency.core.exceptions import CancelInitialization as CancelInitialization, InitializationError as InitializationError
 from dependency_injector import containers as containers, providers
 from typing import Any, Callable
 
@@ -20,6 +20,13 @@ class Injectable:
     def provider(self) -> providers.Provider[Any]:
         """Return an instance from the provider."""
     def do_wiring(self, container: containers.DynamicContainer) -> Injectable:
-        """Wire the provider with the given container."""
+        """Wire the provider with the given container.
+
+        Args:
+            container (containers.DynamicContainer): Container to wire the provider with.
+
+        Returns:
+            Injectable: The current injectable instance.
+        """
     def do_bootstrap(self) -> None:
         """Execute the bootstrap function if it exists."""

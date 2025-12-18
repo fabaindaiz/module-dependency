@@ -2,7 +2,7 @@ import abc
 from abc import ABC, abstractmethod
 from dependency.core.injection.injectable import Injectable as Injectable
 from dependency_injector import containers
-from typing import Any, Generator
+from typing import Any, Generator, override
 
 class BaseInjection(ABC, metaclass=abc.ABCMeta):
     """Base Injection Class
@@ -33,7 +33,9 @@ class ContainerInjection(BaseInjection):
     childs: set[BaseInjection]
     container: containers.Container
     def __init__(self, name: str, parent: ContainerInjection | None = None) -> None: ...
+    @override
     def inject_cls(self) -> containers.Container:
         """Return the container instance."""
+    @override
     def resolve_providers(self) -> Generator[Injectable, None, None]:
         """Inject all children into the current container."""
