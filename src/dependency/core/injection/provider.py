@@ -15,7 +15,6 @@ class ProviderInjection(BaseInjection):
     ) -> None:
         super().__init__(name=name, parent=parent)
         self.__injectable: Optional[Injectable] = None
-        self.__imports: list[ProviderInjection] = []
 
     @property
     def injectable(self) -> Injectable:
@@ -26,12 +25,10 @@ class ProviderInjection(BaseInjection):
 
     def set_instance(self,
         injectable: Injectable,
-        imports: list['ProviderInjection'] = [],
     ) -> None:
         """Set the injectable instance and its imports."""
         _logger.debug(f"Component {self.name} implementation set: {injectable.provided_cls.__name__}")
         self.__injectable = injectable
-        self.__imports = imports
         if self.parent:
             self.parent.childs.add(self)
 
@@ -44,8 +41,4 @@ class ProviderInjection(BaseInjection):
     def resolve_providers(self) -> Generator[Injectable, None, None]:
         """Inject all imports into the current injectable."""
         _logger.debug(f"Component {self.name} added to the injection context")
-        self.injectable.imports = [
-            provider.injectable
-            for provider in self.__imports
-        ]
         yield self.injectable

@@ -11,7 +11,7 @@ class ProviderInjection(BaseInjection):
     @property
     def injectable(self) -> Injectable:
         """Return the injectable instance."""
-    def set_instance(self, injectable: Injectable, imports: list['ProviderInjection'] = []) -> None:
+    def set_instance(self, injectable: Injectable) -> None:
         """Set the injectable instance and its imports."""
     @override
     def inject_cls(self) -> providers.Provider[Any]:

@@ -1,5 +1,5 @@
 import logging
-from typing import Any, Callable, Optional
+from typing import Any, Callable, Iterable, Optional
 from dependency_injector import containers, providers
 from dependency.core.exceptions import InitializationError, CancelInitialization
 _logger = logging.getLogger("DependencyLoader")
@@ -11,19 +11,34 @@ class Injectable:
         component_cls: type,
         provided_cls: type,
         provider_cls: type[providers.Provider[Any]] = providers.Singleton,
-        imports: list['Injectable'] = [],
-        products: list['Injectable'] = [],
+        imports: Iterable['Injectable'] = (),
+        products: Iterable['Injectable'] = (),
         bootstrap: Optional[Callable[[], Any]] = None
     ) -> None:
         self.component_cls: type = component_cls
         self.provided_cls: type = provided_cls
         self.provider_cls: type[providers.Provider[Any]] = provider_cls
         self.modules_cls: set[type] = {component_cls, provided_cls}
-        self.imports: list['Injectable'] = imports
-        self.products: list['Injectable'] = products
+        self.imports_gen: Iterable['Injectable'] = imports
+        self.products_gen: Iterable['Injectable'] = products
         self.bootstrap: Optional[Callable[[], Any]] = bootstrap
+
+        self._imports: Optional[list['Injectable']] = None
+        self._products: Optional[list['Injectable']] = None
         self._provider: Optional[providers.Provider[Any]] = None
         self.is_resolved: bool = False
+
+    @property
+    def imports(self) -> list['Injectable']:
+        if self._imports is None:
+            self._imports = list(self.imports_gen)
+        return self._imports
+
+    @property
+    def products(self) -> list['Injectable']:
+        if self._products is None:
+            self._products = list(self.products_gen)
+        return self._products
 
     @property
     def import_resolved(self) -> bool:

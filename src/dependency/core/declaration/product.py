@@ -34,14 +34,14 @@ def product(
             component_cls=cls,
             provided_cls=cls,
             provider_cls=provider,
-            imports=[
+            imports=(
                 component.injection.injectable
                 for component in imports
-            ],
-            products=[
+            ),
+            products=(
                 product.injectable
                 for product in products
-            ],
+            ),
         )
         return cls
     return wrap

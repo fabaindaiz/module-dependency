@@ -44,16 +44,16 @@ def instance(
                 component_cls=component.__class__,
                 provided_cls=cls,
                 provider_cls=provider,
-                products=[
+                imports=(
+                    component.injection.injectable
+                    for component in imports
+                ),
+                products=(
                     product.injectable
                     for product in products
-                ],
+                ),
                 bootstrap=component.provide if bootstrap else None,
-            ),
-            imports = [
-                component.injection
-                for component in imports
-            ],
+            )
         )
 
         return Instance(
