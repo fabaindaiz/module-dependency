@@ -1,11 +1,27 @@
-from dependency.core.agrupation.entrypoint import Entrypoint
-from dependency.core.agrupation.module import Module, module
-from dependency.core.agrupation.plugin import Plugin, PluginMeta
-from dependency.core.declaration.component import Component, component
-from dependency.core.declaration.instance import instance, providers
-from dependency.core.declaration.product import Product, product
-from dependency.core.injection.container import Container
-from dependency.core.exceptions import DependencyError
+from dependency.core.agrupation import (
+    Entrypoint,
+    Module,
+    module,
+    Plugin,
+    PluginMeta,
+)
+from dependency.core.declaration import (
+    Component,
+    component,
+    Instance,
+    instance,
+    Product,
+    product,
+    providers,
+)
+from dependency.core.resolution import (
+    Container,
+    InjectionResolver,
+)
+from dependency.core.exceptions import (
+    DependencyError,
+    CancelInitialization,
+)
 
 __all__ = [
     "Entrypoint",
@@ -15,10 +31,13 @@ __all__ = [
     "PluginMeta",
     "Component",
     "component",
+    "Instance",
+    "instance",
     "Product",
     "product",
-    "instance",
     "providers",
     "Container",
+    "InjectionResolver",
     "DependencyError",
+    "CancelInitialization",
 ]

@@ -1,5 +1,5 @@
-from dependency.core.injection.base import ContainerInjection as ContainerInjection, ProviderInjection as ProviderInjection
-from dependency.core.injection.container import Container as Container
-from dependency.core.injection.loader import InjectionLoader as InjectionLoader
+from dependency.core.injection.base import ContainerInjection as ContainerInjection
+from dependency.core.injection.injectable import Injectable as Injectable
+from dependency.core.injection.provider import ProviderInjection as ProviderInjection
 
-__all__ = ['ContainerInjection', 'ProviderInjection', 'Container', 'InjectionLoader']
+__all__ = ['ContainerInjection', 'ProviderInjection', 'Injectable']

@@ -7,8 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.4.8] - 2025-12-18
 
-## [v0.4.5] - 2025-10-27
+### Fixed
+
+- Corrected import handling in provider injectable resolution
+
+## [v0.4.7] - 2025-12-18
+
+### Changed
+
+- Refactored injectable definition and resolution logic
+- Products are now injected like a normal dependency
+- Improved code readability and maintainability
+- Updated type hints for class decorators
+
+### Removed
+
+- Removed redundant wiring logic on injection resolution
+
+## [v0.4.6] - 2025-11-27
 
 ### Added
 
@@ -17,6 +35,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Removed unused casts for class decorators in type hints
+
+## [v0.4.5] - 2025-10-27
 
 ## [v0.4.3] - 2025-08-11
 

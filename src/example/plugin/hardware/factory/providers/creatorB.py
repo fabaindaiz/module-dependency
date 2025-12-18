@@ -19,7 +19,7 @@ from example.plugin.hardware.observer.interfaces import EventHardwareCreated
 )
 class HardwareFactoryCreatorB(HardwareFactory):
     def __init__(self):
-        self.__observer: HardwareObserver = HardwareObserverComponent()
+        self.__observer: HardwareObserver = HardwareObserverComponent.provide()
         print("FactoryCreatorB initialized")
 
     def createProduct(self, product: str) -> Hardware:

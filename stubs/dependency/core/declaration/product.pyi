@@ -1,15 +1,16 @@
 from dependency.core.declaration.component import Component as Component
-from dependency.core.injection.base import ProviderDependency as ProviderDependency
-from typing import Callable, TypeVar
+from dependency.core.injection.injectable import Injectable as Injectable
+from dependency_injector import providers
+from typing import Any, Callable, TypeVar
 
 PRODUCT = TypeVar('PRODUCT', bound='Product')
 
 class Product:
     """Product Base Class
     """
-    dependency_imports: ProviderDependency
+    injectable: Injectable
 
-def product(imports: list[Component] = []) -> Callable[[type[PRODUCT]], type[PRODUCT]]:
+def product(imports: list[Component] = [], products: list[Product] = [], provider: type[providers.Provider[Any]] = ...) -> Callable[[type[PRODUCT]], type[PRODUCT]]:
     """Decorator for Product class
 
     Args:

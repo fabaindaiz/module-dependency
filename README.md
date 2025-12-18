@@ -1,10 +1,10 @@
 # module-dependency
 
-A dependency injection framework for embedded Python applications.
+A Dependency Injection Framework for Modular Embedded Python Applications.
 
 ## Overview
 
-The goal of this project is to provide a comprehensive framework for managing structure for complex Python applications. The framework is designed to be modular, allowing developers to define components, interfaces, and instances that can be easily managed and injected into applications.
+The goal of this project is to provide a comprehensive framework for managing structure for complex Python applications. The framework is designed to be modular, allowing developers to define components, interfaces, and instances that can be easily managed and injected throughout the application.
 
 Declare components with interfaces, provide multiple implementations of them, and manage which implementation to use at runtime. Multiple components can be organized and composed together to form complex behaviors using modular design principles.
 
@@ -28,8 +28,11 @@ The project is built around three components that implement different aspects of
 
 ```python
 from dependency.core import Module, module
+from ...plugin.........module import ParentModule
 
-@module()
+@module(
+    module=ParentModule,  # Declares the parent module (leave empty for plugins)
+)
 class SomeModule(Module):
     """This is a module class. Use this to group related components.
     """
@@ -90,7 +93,7 @@ class ImplementedSomeService(SomeService):
         """
         # Once declared, i can use the dependencies for the class
         self.dependency: OtherService = OtherServiceComponent.provide()
-    
+
     @inject
     def method(self,
         # Dependencies also can be used in this way
@@ -181,6 +184,7 @@ from dependency.core import Product, product
 
 @product(
     imports=[SomeComponent, ...], # List of dependencies (components) that are needed
+    products=[OtherProduct, ...], # List of products that this product will create
 )
 class SomeProduct(Interface, Product):
     """This is the product class. This class will check for its dependencies.

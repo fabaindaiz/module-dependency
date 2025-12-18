@@ -1,3 +1,3 @@
-from _typeshed import Incomplete
+from jinja2 import Environment
 
-JENV: Incomplete
+JENV: Environment
