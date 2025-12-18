@@ -1,20 +1,20 @@
-import logging
-from dependency.core.injection.injectable import Injectable
-from dependency.core.exceptions import ResolutionError
-_logger = logging.getLogger("DependencyLoader")
+from collections import deque
+from typing import Callable, Generic, Iterable, TypeVar
 
-class Cycle:
-    """Represents a cycle in the dependency graph.
-    """
-    def __init__(self, elements: list[Injectable]) -> None:
-        self.elements: tuple[str, ...] = self.normalize(elements)
+T = TypeVar("T")
+
+class Cycle(Generic[T]):
+    def __init__(self, elements: Iterable[T]) -> None:
+        self.elements: tuple[T, ...] = self.normalize(elements)
 
     @staticmethod
-    def normalize(cycle: list[Injectable]) -> tuple[str, ...]:
-        # Rota el ciclo para que el menor (por str) esté primero, para comparar fácilmente
-        min_idx = min(range(len(cycle)), key=lambda i: str(cycle[i]))
-        normalized = cycle[min_idx:] + cycle[:min_idx] + [cycle[min_idx]]
-        return tuple(str(p) for p in normalized)
+    def normalize(cycle: Iterable[T]) -> tuple[T, ...]:
+        str_cycle = [str(p) for p in cycle]
+        min_idx = str_cycle.index(min(str_cycle))
+        d = deque(cycle)
+        d.rotate(-min_idx)
+        d.append(d[0])
+        return tuple(d)
 
     def __hash__(self) -> int:
         return hash(self.elements)
@@ -22,90 +22,28 @@ class Cycle:
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Cycle):
             return False
-        return self.elements == other.elements
+        return self.elements == other.elements # type: ignore
 
     def __repr__(self) -> str:
         return ' -> '.join(str(p) for p in self.elements)
 
-def find_cycles(injectables: list[Injectable]) -> set[Cycle]:
-    """Detect unique cycles in the dependency graph.
+def find_cycles(function: Callable[[T], Iterable[T]], elements: Iterable[T], /) -> set[Cycle[T]]:
+    cycles: set[Cycle[T]] = set()
 
-    Args:
-        injectables (list[Injectable]): The list of provider injections to check for cycles.
-
-    Returns:
-        set[Cycle]: A set of cycles, each represented as a Cycle object.
-    """
-    cycles: set[Cycle] = set()
-
-    def visit(node: Injectable, path: list[Injectable], visited: set[Injectable]) -> None:
+    def visit(node: T, path: list[T], visited: set[T]) -> None:
         if node in path:
             cycle_start = path.index(node)
             cycle = Cycle(path[cycle_start:])
-            if cycle not in cycles:
-                cycles.add(cycle)
+            cycles.add(cycle)
             return
         if node in visited:
             return
+
         visited.add(node)
-        for dep in node.imports:
-            visit(dep, path + [node], visited)
+        path.append(node)
+        for dep in function(node):
+            visit(dep, path, visited)
 
-    for injectable in injectables:
-        visit(injectable, [], set())
+    for element in elements:
+        visit(element, [], set())
     return cycles
-
-def raise_cycle_error(
-    injectables: list[Injectable]
-) -> None:
-    """Raise an error if circular dependencies are detected.
-
-    Args:
-        providers (list[ProviderInjection]): The list of provider injections to check for cycles.
-
-    Raises:
-        ResolutionError: If circular dependencies are detected.
-    """
-    cycles = find_cycles(injectables)
-    if cycles:
-        for cycle in cycles:
-            _logger.error(f"Circular import: {cycle}")
-        raise ResolutionError("Circular dependencies detected")
-
-def raise_dependency_error(
-    unresolved_injectable: list[Injectable],
-) -> None:
-    """Raise an error if unresolved dependencies are detected.
-
-    Args:
-        dependencies (list[ProviderDependency]): The list of provider dependencies to check.
-        resolved (list[ProviderInjection]): The resolved providers to check against.
-
-    Raises:
-        ResolutionError: If unresolved dependencies are detected.
-    """
-    for injectable in unresolved_injectable:
-        unresolved = [
-            dependency
-            for dependency in injectable.imports
-            if not dependency.is_resolved
-        ]
-        _logger.error(f"Provider {injectable} has unresolved dependencies: {unresolved}")
-    raise ResolutionError("Providers cannot be resolved")
-
-# TODO: Allow to raise both errors together with extended information
-def raise_providers_error(
-    injectables: list[Injectable],
-    unresolved: list[Injectable],
-) -> None:
-    """Raise an error if unresolved provider imports are detected.
-
-    Args:
-        providers (list[ProviderInjection]): The list of provider injections to check.
-        unresolved (list[ProviderInjection]): The resolved providers to check against.
-
-    Raises:
-        ResolutionError: If unresolved dependencies or cycles are detected.
-    """
-    raise_cycle_error(injectables)
-    raise_dependency_error(unresolved)

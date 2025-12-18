@@ -1,12 +1,12 @@
 from typing import Callable, Optional, TypeVar
 from dependency.core.agrupation.base import ABCModule
-from dependency.core.injection.base import ABCInjection, ContainerInjection
+from dependency.core.injection.base import ContainerInjection
 from dependency.core.injection.injectable import Injectable
 from dependency.core.resolution.container import Container
 
 MODULE = TypeVar('MODULE', bound='Module')
 
-class Module(ABCModule, ABCInjection):
+class Module(ABCModule):
     """Module Base Class
     """
     def __init__(self, name: str, injection: ContainerInjection) -> None:

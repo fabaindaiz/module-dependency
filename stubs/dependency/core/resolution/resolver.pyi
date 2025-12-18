@@ -1,6 +1,6 @@
 from dependency.core.injection.injectable import Injectable as Injectable
 from dependency.core.resolution.container import Container as Container
-from dependency.core.resolution.utils import raise_providers_error as raise_providers_error
+from dependency.core.resolution.errors import raise_resolution_error as raise_resolution_error
 
 class InjectionResolver:
     """Injection Resolver Class

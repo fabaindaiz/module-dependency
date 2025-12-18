@@ -2,7 +2,7 @@ import logging
 from pprint import pformat
 from dependency.core.injection.injectable import Injectable
 from dependency.core.resolution.container import Container
-from dependency.core.resolution.utils import raise_providers_error
+from dependency.core.resolution.errors import raise_resolution_error
 _logger = logging.getLogger("DependencyLoader")
 
 class InjectionResolver:
@@ -36,7 +36,7 @@ class InjectionResolver:
             ]
 
             if len(new_layer) == 0:
-                raise_providers_error(
+                raise_resolution_error(
                     injectables=self.injectables,
                     unresolved=unresolved
                 )
@@ -52,10 +52,6 @@ class InjectionResolver:
             ]
         named_layers = pformat(resolved_layers)
         _logger.info(f"Resolved layers:\n{named_layers}")
-
-        for injectable in self.injectables:
-            injectable.wire_products(container=self.container)
-
         return resolved_layers
 
     def start_injectables(self,

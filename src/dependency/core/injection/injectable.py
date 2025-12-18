@@ -9,19 +9,18 @@ class Injectable:
         component_cls: type,
         provided_cls: type,
         provider_cls: type[providers.Provider[Any]] = providers.Singleton,
-        imports: list["Injectable"] = [],
-        products: list["Injectable"] = [],
+        imports: list['Injectable'] = [],
+        products: list['Injectable'] = [],
         bootstrap: Optional[Callable[[], Any]] = None
     ) -> None:
         self.component_cls: type = component_cls
         self.provided_cls: type = provided_cls
         self.provider_cls: type[providers.Provider[Any]] = provider_cls
         self.modules_cls: set[type] = {component_cls, provided_cls}
-        self.imports: list["Injectable"] = imports
-        self.products: list["Injectable"] = products
+        self.imports: list['Injectable'] = imports
+        self.products: list['Injectable'] = products
         self.bootstrap: Optional[Callable[[], Any]] = bootstrap
-
-        self.container: Optional[containers.DynamicContainer] = None
+        self._provider: Optional[providers.Provider[Any]] = None
         self.is_resolved: bool = False
 
     @property
@@ -31,24 +30,25 @@ class Injectable:
             for implementation in self.imports
         )
 
+    @property
     def provider(self) -> providers.Provider[Any]:
         """Return an instance from the provider."""
-        return self.provider_cls(self.provided_cls) # type: ignore
+        if self._provider is None:
+            self._provider = self.provider_cls(self.provided_cls) # type: ignore
+        return self._provider
 
     def do_wiring(self, container: containers.DynamicContainer) -> "Injectable":
-        """Wire the provider with the given container."""
+        """Wire the provider with the given container.
+
+        Args:
+            container (containers.DynamicContainer): Container to wire the provider with.
+
+        Returns:
+            Injectable: The current injectable instance.
+        """
         container.wire(modules=self.modules_cls)
-        self.container = container
         self.is_resolved = True
         return self
-
-    def wire_products(self, container: containers.DynamicContainer) -> None:
-        """Wire the products of this injectable."""
-        modules = [
-            product.provided_cls
-            for product in self.products
-        ]
-        container.wire(modules=modules)
 
     # TODO: Permite definir una condición de inicialización en bootstrap
     def do_bootstrap(self) -> None:

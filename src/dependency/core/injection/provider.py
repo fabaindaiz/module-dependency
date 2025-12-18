@@ -9,7 +9,7 @@ class ProviderInjection(BaseInjection):
     """
     def __init__(self,
         name: str,
-        parent: Optional["ContainerInjection"] = None
+        parent: Optional['ContainerInjection'] = None
     ) -> None:
         super().__init__(name=name, parent=parent)
         self.__injectable: Optional[Injectable] = None
@@ -30,11 +30,11 @@ class ProviderInjection(BaseInjection):
         self.__injectable = injectable
         self.__imports = imports
         if self.parent:
-            self.parent.childs.append(self)
+            self.parent.childs.add(self)
 
     def inject_cls(self) -> providers.Provider[Any]:
         """Return the provider instance."""
-        return self.injectable.provider()
+        return self.injectable.provider
 
     def resolve_providers(self) -> Generator[Injectable, None, None]:
         """Inject all imports into the current injectable."""

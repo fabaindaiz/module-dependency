@@ -1,16 +1,14 @@
 from abc import abstractmethod
 from typing import Any, Callable, TypeVar
-from dependency_injector.wiring import Provide, inject
 from dependency.core.agrupation.module import Module
 from dependency.core.declaration.base import ABCComponent
-from dependency.core.injection.base import ABCInjection
 from dependency.core.injection.provider import ProviderInjection
 from dependency.core.exceptions import DeclarationError
 
 COMPONENT = TypeVar('COMPONENT', bound='Component')
 INTERFACE = TypeVar('INTERFACE')
 
-class Component(ABCComponent, ABCInjection):
+class Component(ABCComponent):
     """Component Base Class
     """
     def __init__(self,
@@ -55,20 +53,10 @@ def component(
         )
 
         class WrapComponent(cls): # type: ignore
-            @inject
-            def provide(self, instance: INTERFACE = Provide[injection.reference]) -> INTERFACE:
-                if not isinstance(instance, Provide): # type: ignore
-                    return instance
-
-                container = self.injection.injectable.container
-                if not container:
-                    raise DeclarationError(f"Component {cls.__name__} container was not set")
-                try:
-                    for references in self.injection.reference.split('.'):
-                        container = getattr(container, references)
-                    return container() # type: ignore
-                except Exception as e:
-                    raise DeclarationError(f"Error providing component {self.injection.reference}: {e}") from e
+            def provide(self) -> Any:
+                if not self.injection.injectable.is_resolved:
+                    raise DeclarationError(f"Component {cls.__name__} injectable was not resolved")
+                return self.injection.injectable.provider() # type: ignore
 
         return WrapComponent(
             interface_cls=interface,

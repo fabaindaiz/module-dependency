@@ -3,14 +3,13 @@ from abc import abstractmethod
 from dependency.core.agrupation.module import Module as Module
 from dependency.core.declaration.base import ABCComponent as ABCComponent
 from dependency.core.exceptions import DeclarationError as DeclarationError
-from dependency.core.injection.base import ABCInjection as ABCInjection
 from dependency.core.injection.provider import ProviderInjection as ProviderInjection
 from typing import Any, Callable, TypeVar
 
 COMPONENT = TypeVar('COMPONENT', bound='Component')
 INTERFACE = TypeVar('INTERFACE')
 
-class Component(ABCComponent, ABCInjection, metaclass=abc.ABCMeta):
+class Component(ABCComponent, metaclass=abc.ABCMeta):
     """Component Base Class
     """
     injection: ProviderInjection
