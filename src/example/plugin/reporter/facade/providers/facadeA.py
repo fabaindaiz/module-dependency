@@ -1,5 +1,6 @@
-from dependency_injector.wiring import Provide, inject
+from dependency_injector.wiring import inject
 from dependency.core import instance, providers
+from dependency.core.injection import LazyProvide
 from example.plugin.reporter import ReporterPlugin
 from example.plugin.reporter.facade import ReportFacade, ReportFacadeComponent
 from example.plugin.reporter.factory import ReporterFactory, ReporterFactoryComponent
@@ -22,8 +23,8 @@ class ReporterFacadeA(ReportFacade):
 
     @inject
     def startModule(self,
-            factory: ReporterFactory = Provide[ReporterFactoryComponent.reference],
-            bridge: HardwareAbstraction = Provide[HardwareAbstractionComponent.reference],
+            factory: ReporterFactory = LazyProvide(ReporterFactoryComponent.reference),
+            bridge: HardwareAbstraction = LazyProvide(HardwareAbstractionComponent.reference),
         ) -> None:
         reporter = factory.createProduct(product="A")
         bridge.someOperation(product="A")

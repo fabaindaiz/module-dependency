@@ -1,16 +1,19 @@
-from typing import Callable, TypeVar
+from typing import Any, Callable, TypeVar
+from dependency_injector import providers
 from dependency.core.declaration.component import Component
-from dependency.core.injection.base import ProviderDependency
+from dependency.core.injection.injectable import Injectable
 
 PRODUCT = TypeVar('PRODUCT', bound='Product')
 
 class Product:
     """Product Base Class
     """
-    dependency_imports: ProviderDependency
+    injectable: Injectable
 
 def product(
-    imports: list[Component] = []
+    imports: list[Component] = [],
+    products: list[Product] = [],
+    provider: type[providers.Provider[Any]] = providers.Singleton,
 ) -> Callable[[type[PRODUCT]], type[PRODUCT]]:
     """Decorator for Product class
 
@@ -27,9 +30,18 @@ def product(
         if not issubclass(cls, Product):
             raise TypeError(f"Class {cls} is not a subclass of Product")
 
-        cls.dependency_imports = ProviderDependency(
-            name=cls.__name__,
+        cls.injectable = Injectable(
+            component_cls=cls,
             provided_cls=cls,
-            imports=[component.injection for component in imports])
+            provider_cls=provider,
+            imports=(
+                component.injection.injectable
+                for component in imports
+            ),
+            products=(
+                product.injectable
+                for product in products
+            ),
+        )
         return cls
     return wrap

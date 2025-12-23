@@ -1,4 +1,4 @@
 from pydantic import BaseModel
 
 class BasePluginConfig(BaseModel):
-    config: bool
+    config: bool = True

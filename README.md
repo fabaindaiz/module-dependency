@@ -1,10 +1,10 @@
 # module-dependency
 
-A dependency injection framework for embedded Python applications.
+A Dependency Injection Framework for Modular Embedded Python Applications.
 
 ## Overview
 
-The goal of this project is to provide a comprehensive framework for managing structure for complex Python applications. The framework is designed to be modular, allowing developers to define components, interfaces, and instances that can be easily managed and injected into applications.
+The goal of this project is to provide a comprehensive framework for managing structure for complex Python applications. The framework is designed to be modular, allowing developers to define components, interfaces, and instances that can be easily managed and injected throughout the application.
 
 Declare components with interfaces, provide multiple implementations of them, and manage which implementation to use at runtime. Multiple components can be organized and composed together to form complex behaviors using modular design principles.
 
@@ -28,8 +28,11 @@ The project is built around three components that implement different aspects of
 
 ```python
 from dependency.core import Module, module
+from ...plugin.........module import ParentModule
 
-@module()
+@module(
+    module=ParentModule,  # Declares the parent module (leave empty for plugins)
+)
 class SomeModule(Module):
     """This is a module class. Use this to group related components.
     """
@@ -68,10 +71,12 @@ class SomeServiceComponent(Component):
 - Manages the lifecycle and injection of dependency objects
 
 ```python
-from dependency_injector.wiring import Provide, inject
+from dependency_injector.wiring import inject
 from dependency.core import instance, providers
+from dependency.core.injection import LazyProvide
 from ...plugin.........component import SomeService, SomeServiceComponent
 from ...plugin...other_component import OtherService, OtherServiceComponent
+from ...plugin...........product import SomeProduct
 
 @instance(
     component=SomeServiceComponent, # Declares the component to be provided
@@ -90,11 +95,12 @@ class ImplementedSomeService(SomeService):
         """
         # Once declared, i can use the dependencies for the class
         self.dependency: OtherService = OtherServiceComponent.provide()
-    
+
     @inject
     def method(self,
-        # Dependencies also can be used in this way
-        dependency: OtherService = Provide[OtherServiceComponent.reference],
+        # Dependencies also can be provided using @inject decorator with LazyProvide
+        # With @inject always use LazyProvide, to avoid deferred evaluation issues.
+        dependency: OtherService = LazyProvide(OtherServiceComponent.reference),
     ...) -> ...:
         """Methods declared in the interface must be implemented.
         """
@@ -113,7 +119,7 @@ These components work together to create a powerful and flexible dependency inje
 The project has additional components that enhance its functionality and organization. These components include:
 
 ### 1. Entrypoint
-- Represents a entry point for the application
+- Represents a entrypoint for the application
 - Responsible for initializing and starting the application
 
 ```python
@@ -130,20 +136,18 @@ class SomeApplication(Entrypoint):
         # This will automatically generate the internal provider structure
         import ...plugin.........instance
 
+        # Declare all the plugins that will be used in the application
+        # Its recommended to declare the plugins list them in a separate file
+        # You can also include in the same file all the instances imports
+        PLUGINS = [
+            SomePlugin,
+            ...
+        ]
+
         # This is the main container, it will hold all the containers and providers
         # Requires to have a valid configuration that will be used to initialize plugins
         container = Container.from_dict(config={...}, required=True)
-        super().__init__(
-            container,
-            plugins=[
-                SomePlugin,
-                ...
-            ])
-
-    def main_loop(self) -> None:
-        """Main application loop.
-        """
-        pass
+        super().__init__(container, PLUGINS)
 ```
 
 ### 2. Plugin
@@ -177,10 +181,15 @@ class SomePlugin(Plugin):
 - Allows to provide standalone classes without the need to define new providers
 
 ```python
-from dependency.core import Product, product
+from dependency.core import Product, product, providers
+from dependency.core.injection import LazyProvide
+from ...plugin.........component import SomeService, SomeServiceComponent
+from ...plugin.....other_product import OtherProduct
 
 @product(
-    imports=[SomeComponent, ...], # List of dependencies (components) that are needed
+    imports=[SomeServiceComponent, ...], # List of dependencies (components) that are needed
+    products=[OtherProduct, ...],        # List of products that this product will create
+    provider=providers.Singleton,        # Provider type (Singleton, Factory)
 )
 class SomeProduct(Interface, Product):
     """This is the product class. This class will check for its dependencies.
@@ -188,10 +197,22 @@ class SomeProduct(Interface, Product):
     """
     def __init__(self, ...) -> None:
         # Dependencies can be used in the same way as before
-        self.dependency: OtherService = OtherServiceComponent.provide()
+        self.dependency: SomeService = SomeServiceComponent.provide()
 
-    def method(self, ...) -> ...:
-        pass
+    @inject
+    def method(self,
+        # Dependencies also can be provided using @inject decorator with LazyProvide
+        # With @inject always use LazyProvide, to avoid deferred evaluation issues.
+        dependency: SomeService = LazyProvide(SomeServiceComponent.reference),
+    ...) -> ...:
+        """Product interface can be defined using normal inheritance.
+        """
+        # Once declared, i can safely create any sub-product
+        # Products are just normal classes (see next section)
+        product = OtherProduct()
+
+        # You can do anything here
+        do_something()
 ```
 
 ## Important Notes
@@ -210,20 +231,22 @@ This example requires the `module-injection` package to be installed and the `li
 This project is a work in progress, and there are several improvements and enhancements planned for the future.
 
 Some planned features are:
-- Instances that can implement multiple components
-- Improved support for asynchronous programming
-- Logging enhancements integrated with the framework
+- Enhance documentation and examples for better understanding
+- Implement framework API and extension points for customization
+- Improve injection resolution and initialization process
+- Provide injection scopes and strategies for flexibility
 - Testing framework integration for better test coverage
-- CLI support for easier interaction with the framework
+- Visualization tools for dependency graphs and relationships
 
 Some of the areas that will be explored in the future include:
-- Improve dependency injection performance and efficiency
-- Provide multiple injection scopes and strategies for flexibility
+- Add some basic components and plugins for common use cases
+- Dependency CLI support for easier interaction with the framework
 - Explore more advanced dependency injection patterns and use cases
-- Enhance static and dynamic error handling mechanisms of the framework
 - Improve testing and validation for projects using this framework
 
-Feel free to leave feedback and suggestions for improvements, and contribute to the project!
+Pending issues that eventually will be addressed:
+- Class Decorator are not being properly type checked by mypy and other type checkers
+- Migration guide from previous versions (some breaking changes were introduced)
 
 ## Aknowledgements
 

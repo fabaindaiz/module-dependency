@@ -1,10 +1,13 @@
-from dependency.core.injection.base import ContainerInjection, ProviderInjection
-from dependency.core.injection.container import Container
-from dependency.core.injection.loader import InjectionLoader
+from dependency.core.injection.base import ContainerInjection
+from dependency.core.injection.provider import ProviderInjection
+from dependency.core.injection.injectable import Injectable
+from dependency.core.injection.utils import LazyProvide, LazyProvider, LazyClosing
 
 __all__ = [
     "ContainerInjection",
     "ProviderInjection",
-    "Container",
-    "InjectionLoader"
+    "Injectable",
+    "LazyProvide",
+    "LazyProvider",
+    "LazyClosing",
 ]

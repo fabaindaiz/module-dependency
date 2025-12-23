@@ -1,10 +1,11 @@
-from _typeshed import Incomplete
 from dependency.core.agrupation.plugin import Plugin as Plugin
-from dependency.core.injection.container import Container as Container
-from dependency.core.injection.loader import InjectionLoader as InjectionLoader
+from dependency.core.resolution.container import Container as Container
+from dependency.core.resolution.resolver import InjectionResolver as InjectionResolver
 
 class Entrypoint:
     """Entrypoint for the application.
     """
-    loader: Incomplete
+    init_time: float
+    resolver: InjectionResolver
     def __init__(self, container: Container, plugins: list[Plugin]) -> None: ...
+    def main_loop(self) -> None: ...

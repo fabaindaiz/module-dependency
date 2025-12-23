@@ -1,8 +1,9 @@
 from dependency.core.agrupation.module import Module as Module
-from dependency.core.exceptions import DependencyError as DependencyError
-from dependency.core.injection.base import ProviderInjection as ProviderInjection
-from dependency.core.injection.container import Container as Container
+from dependency.core.exceptions import ResolutionError as ResolutionError
+from dependency.core.injection.injectable import Injectable as Injectable
+from dependency.core.resolution.container import Container as Container
 from pydantic import BaseModel
+from typing import override
 
 class PluginConfig(BaseModel):
     """Empty configuration model for the plugin.
@@ -19,12 +20,13 @@ class Plugin(Module):
     """
     meta: PluginMeta
     config: BaseModel
-    def resolve_providers(self, container: Container) -> list[ProviderInjection]:
+    @override
+    def resolve_providers(self, container: Container) -> list[Injectable]:
         """Resolve provider injections for the plugin.
 
         Args:
-            container (Container): The dependency injection container.
+            container (Container): The application container.
 
         Returns:
-            list[ProviderInjection]: A list of resolved provider injections.
+            list[Injectable]: A list of injectable providers.
         """

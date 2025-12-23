@@ -1,108 +1,84 @@
-from typing import Any, Callable, Optional, TypeVar, cast
-from dependency_injector.wiring import Provide, inject
+from abc import abstractmethod
+from typing import Any, Callable, TypeVar
+from dependency_injector import providers
 from dependency.core.agrupation.module import Module
-from dependency.core.declaration.base import ABCComponent, ABCInstance
-from dependency.core.injection.base import ProviderInjection
+from dependency.core.declaration.base import ABCComponent
+from dependency.core.injection.provider import ProviderInjection
 from dependency.core.exceptions import DeclarationError
 
 COMPONENT = TypeVar('COMPONENT', bound='Component')
+INTERFACE = TypeVar('INTERFACE')
 
 class Component(ABCComponent):
     """Component Base Class
     """
-    def __init__(self, interface_cls: type, injection: ProviderInjection) -> None:
+    def __init__(self,
+        interface_cls: type[INTERFACE],
+        injection: ProviderInjection,
+    ) -> None:
         super().__init__(interface_cls=interface_cls)
-        self.__injection: ProviderInjection = injection
-        self.__instance: Optional[ABCInstance] = None
-    
-    @property
+        self.injection: ProviderInjection = injection
+
     def reference(self) -> str:
-        """Get the injection reference for the component.
-
-        Returns:
-            str: The injection reference for the component.
-        """
-        return self.__injection.reference
+        """Return the reference name of the component."""
+        return self.injection.reference
 
     @property
-    def injection(self) -> ProviderInjection:
-        """Get the provider injection for the component.
+    @abstractmethod
+    def provider(self) -> providers.Provider[Any]:
+        """Provide the provider instance"""
+        pass
 
-        Returns:
-            ProviderInjection: The provider injection for the component.
-        """
-        return self.__injection
-    
-    @property
-    def instance(self) -> Optional[ABCInstance]:
-        """Get the instance for the component.
-
-        Returns:
-            Optional[ABCInstance]: The instance for the component, if it exists.
-        """
-        return self.__instance
-    
-    @instance.setter
-    def instance(self, instance: ABCInstance) -> None:
-        """Set the instance for the component.
-
-        Args:
-            instance (ABCInstance): The instance to set for the component.
-
-        Raises:
-            DeclarationError: If the component is already instanced.
-        """
-        if self.__instance:
-            raise DeclarationError(f"Component {self} is already instanced by {self.__instance}. Attempted to set new instance: {instance}")
-        self.__instance = instance
-    
-    @staticmethod
-    def provide() -> Any:
-        """Provide the component instance.
-
-        Returns:
-            Any: The component instance.
-        """
+    @abstractmethod
+    def provide(self, **kwargs: Any) -> Any:
+        """Provide an instance of the interface class"""
         pass
 
 def component(
-    module: type[Module],
-    interface: type
+    module: Module,
+    interface: type[INTERFACE],
 ) -> Callable[[type[COMPONENT]], COMPONENT]:
     """Decorator for Component class
 
     Args:
-        module (ABCModule): Module instance to register the component.
-        interface (type): Interface class to be used as a base class for the component.
-    
+        module (Module): Module instance to register the component.
+        interface (type[T]): Interface class to be used as a base class for the component.
+
     Raises:
         TypeError: If the wrapped class is not a subclass of Component.
 
     Returns:
-        Callable[[type[Component]], Component]: Decorator function that wraps the component class.
+        Callable[[type[COMPONENT]], COMPONENT]: Decorator function that wraps the component class.
     """
-    # Cast due to mypy not supporting class decorators
-    _module = cast(Module, module)
     def wrap(cls: type[COMPONENT]) -> COMPONENT:
         if not issubclass(cls, Component):
             raise TypeError(f"Class {cls} is not a subclass of Component")
-        
+
         injection = ProviderInjection(
-            name=interface.__name__,
-            component_name=cls.__name__,
-            interface_cls=interface,
-            parent=_module.injection)
+            name=cls.__name__,
+            parent=module.injection,
+        )
 
         class WrapComponent(cls): # type: ignore
-            def __init__(self) -> None:
-                super().__init__(
-                    interface_cls=interface,
-                    injection=injection)
+            @property
+            def provider(self) -> providers.Provider[Any]:
+                if not self.injection.injectable.is_resolved:
+                    raise DeclarationError(f"Component {cls.__name__} injectable was not resolved")
+                return self.injection.injectable.provider # type: ignore
 
-            @inject
-            def provide(self, service: Any = Provide[injection.reference]) -> Any:
-                if isinstance(service, Provide): # type: ignore
-                    raise DeclarationError(f"Component {cls.__name__} was not provided")
-                return service
-        return WrapComponent()
+            def provide(self, **kwargs: Any) -> INTERFACE:
+                if not self.injection.injectable.is_resolved:
+                    raise DeclarationError(f"Component {cls.__name__} injectable was not resolved")
+                return self.injection.injectable.provider(**kwargs) # type: ignore
+
+            #@inject
+            #def provide(self, service: INTERFACE = injection.provider) -> INTERFACE:
+            #    if not injection.injectable.is_resolved:
+            #        raise DeclarationError(f"Component {cls.__name__} injectable was not resolved")
+            #    return service
+
+        return WrapComponent(
+            interface_cls=interface,
+            injection=injection,
+        )
     return wrap

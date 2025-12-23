@@ -6,5 +6,10 @@ from example.plugin.base.number import NumberService, NumberServiceComponent
     provider=providers.Singleton
 )
 class FakeNumberService(NumberService):
+    def __init__(self, starting_number: int = 42) -> None:
+        self.__number = starting_number
+
     def getRandomNumber(self) -> int:
-        return 42
+        actual_number = self.__number
+        self.__number += 1
+        return actual_number

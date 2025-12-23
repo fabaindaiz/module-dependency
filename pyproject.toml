@@ -20,34 +20,17 @@ dependencies = [
   "mypy",
   "pytest-asyncio",
   "pytest-cov",
+  "pytest-xdist",
 ]
+
+[tool.hatch.envs.build.env-vars]
+PYTHONPATH = "src"
 
 [tool.hatch.envs.build.scripts]
-coverage = "pytest --cov src/dependency --cov-report html"
+coverage = "pytest --cov src/dependency --cov-report html -n auto --dist=loadfile"
+example = "python src/main.py"
 stubs = "stubgen src/dependency -o stubs --include-docstrings"
 typecheck = "mypy --strict src/dependency"
-
-[tool.hatch.envs.example]
-template = "default"
-skip-install = false
-dependencies = [
-  "mypy",
-]
-
-[tool.hatch.envs.example.scripts]
-run = "python src/main.py"
-typecheck = "mypy --strict src/main.py"
-
-[tool.hatch.envs.test]
-dependencies = [
-  "dependency_injector",
-  "jinja2",
-  "pydantic",
-  "pytest-cov",
-]
-
-[tool.hatch.envs.test.scripts]
-coverage = "pytest --cov src/dependency --cov-report html"
 
 [tool.mypy]
 plugins = [
@@ -62,18 +45,16 @@ show_error_codes = true
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]
-testpaths = ["src/tests"]
-asyncio_default_fixture_loop_scope = "module"
-asyncio_default_test_loop_scope = "module"
-asyncio_mode = "auto"
+testpaths = ["tests"]
 
 [project]
 name = "module_dependency"
-version = "0.4.6"
+version = "0.4.9"
 dependencies = [
   "dependency_injector",
   "jinja2",
   "pydantic",
+  "pydantic-settings",
 ]
 requires-python = ">=3.9"
 authors = [
