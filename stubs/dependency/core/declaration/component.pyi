@@ -4,6 +4,8 @@ from dependency.core.agrupation.module import Module as Module
 from dependency.core.declaration.base import ABCComponent as ABCComponent
 from dependency.core.exceptions import DeclarationError as DeclarationError
 from dependency.core.injection.provider import ProviderInjection as ProviderInjection
+from dependency_injector import providers as providers
+from dependency_injector.wiring import inject as inject
 from typing import Any, Callable, TypeVar
 
 COMPONENT = TypeVar('COMPONENT', bound='Component')
@@ -15,10 +17,12 @@ class Component(ABCComponent, metaclass=abc.ABCMeta):
     injection: ProviderInjection
     def __init__(self, interface_cls: type[INTERFACE], injection: ProviderInjection) -> None: ...
     @property
+    def provider(self) -> providers.Provider[Any]: ...
+    @property
     def reference(self) -> str:
         """Return the reference name of the component."""
     @abstractmethod
-    def provide(self) -> Any: ...
+    def provide(self, **kwargs: Any) -> Any: ...
 
 def component(module: Module, interface: type[INTERFACE]) -> Callable[[type[COMPONENT]], COMPONENT]:
     """Decorator for Component class

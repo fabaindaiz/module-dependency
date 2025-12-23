@@ -1,5 +1,7 @@
 from abc import abstractmethod
 from typing import Any, Callable, TypeVar
+from dependency_injector import providers
+from dependency_injector.wiring import inject
 from dependency.core.agrupation.module import Module
 from dependency.core.declaration.base import ABCComponent
 from dependency.core.injection.provider import ProviderInjection
@@ -19,12 +21,16 @@ class Component(ABCComponent):
         self.injection: ProviderInjection = injection
 
     @property
+    def provider(self) -> providers.Provider[Any]:
+        return self.injection.provider
+
+    @property
     def reference(self) -> str:
         """Return the reference name of the component."""
         return self.injection.reference
 
     @abstractmethod
-    def provide(self) -> Any:
+    def provide(self, **kwargs: Any) -> Any:
         pass
 
 def component(
@@ -53,10 +59,16 @@ def component(
         )
 
         class WrapComponent(cls): # type: ignore
-            def provide(self) -> INTERFACE:
+            def provide(self, **kwargs: Any) -> INTERFACE:
                 if not self.injection.injectable.is_resolved:
                     raise DeclarationError(f"Component {cls.__name__} injectable was not resolved")
-                return self.injection.injectable.provider() # type: ignore
+                return self.injection.injectable.provider(**kwargs) # type: ignore
+
+            #@inject
+            #def provide(self, service: INTERFACE = injection.provider) -> INTERFACE:
+            #    if not injection.injectable.is_resolved:
+            #        raise DeclarationError(f"Component {cls.__name__} injectable was not resolved")
+            #    return service
 
         return WrapComponent(
             interface_cls=interface,

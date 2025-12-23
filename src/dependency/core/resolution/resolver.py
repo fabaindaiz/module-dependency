@@ -11,7 +11,7 @@ class InjectionResolver:
     """
     def __init__(self,
         container: Container,
-        injectables: list[Injectable]
+        injectables: list[Injectable],
     ) -> None:
         self.container: Container = container
         self.injectables: list[Injectable] = injectables
@@ -58,6 +58,10 @@ class InjectionResolver:
         resolved_layers: list[list[Injectable]],
     ) -> None:
         """Start all implementations by executing their bootstrap functions."""
-        for layer in resolved_layers:
-            for implementation in layer:
-                implementation.do_bootstrap()
+        #for container in self.container.traverse():
+        #    container.init_resources()
+
+        self.container.init_resources()
+        #for layer in resolved_layers:
+        #    for implementation in layer:
+        #        implementation.do_bootstrap()

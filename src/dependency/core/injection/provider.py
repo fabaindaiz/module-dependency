@@ -3,6 +3,7 @@ from typing import Any, Generator, Optional, override
 from dependency_injector import providers
 from dependency.core.injection.base import BaseInjection, ContainerInjection
 from dependency.core.injection.injectable import Injectable
+from dependency.core.injection.utils import LazyProvide
 from dependency.core.exceptions import DeclarationError
 _logger = logging.getLogger("DependencyLoader")
 
@@ -15,6 +16,11 @@ class ProviderInjection(BaseInjection):
     ) -> None:
         super().__init__(name=name, parent=parent)
         self.__injectable: Optional[Injectable] = None
+
+    @property
+    def provider(self) -> providers.Provider[Any]:
+        """Return the provider instance."""
+        return LazyProvide(lambda: self.reference)
 
     @property
     def injectable(self) -> Injectable:

@@ -28,7 +28,7 @@ PYTHONPATH = "src"
 
 [tool.hatch.envs.build.scripts]
 coverage = "pytest --cov src/dependency --cov-report html -n auto --dist=loadfile"
-start = "python src/main.py"
+example = "python src/main.py"
 stubs = "stubgen src/dependency -o stubs --include-docstrings"
 typecheck = "mypy --strict src/dependency"
 
@@ -49,7 +49,7 @@ testpaths = ["tests"]
 
 [project]
 name = "module_dependency"
-version = "0.4.8"
+version = "0.4.9"
 dependencies = [
   "dependency_injector",
   "jinja2",

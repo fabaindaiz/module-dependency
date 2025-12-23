@@ -1,5 +1,5 @@
 from dependency_injector import containers
-from dependency_injector.wiring import Provide, inject
+from dependency_injector.wiring import Provide, inject, required, invariant, provided
 from dependency.core.injection import ContainerInjection, ProviderInjection, Injectable
 
 TEST_REFERENCE = "container1.container2.provider1"

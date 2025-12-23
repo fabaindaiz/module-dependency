@@ -63,7 +63,10 @@ class Injectable:
         Returns:
             Injectable: The current injectable instance.
         """
-        container.wire(modules=self.modules_cls)
+        container.wire(
+            modules=self.modules_cls,
+            warn_unresolved=True
+        )
         self.is_resolved = True
         return self
 

@@ -1,5 +1,4 @@
 import logging
-import time
 from dependency.core import Entrypoint, Container
 
 logger = logging.getLogger("root")
@@ -14,7 +13,3 @@ class MainApplication(Entrypoint):
 
         container = Container.from_dict(config={"config": True}, required=True)
         super().__init__(container, PLUGINS)
-
-    def main_loop(self) -> None:
-        while True:
-            time.sleep(1)

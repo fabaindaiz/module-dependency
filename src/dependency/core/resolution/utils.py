@@ -22,7 +22,7 @@ class Cycle(Generic[T]):
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Cycle):
             return False
-        return self.elements == other.elements # type: ignore
+        return self.elements == other.elements
 
     def __repr__(self) -> str:
         return ' -> '.join(str(p) for p in self.elements)
