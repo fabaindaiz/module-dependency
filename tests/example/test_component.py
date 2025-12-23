@@ -15,6 +15,9 @@ def setup():
     return ExampleApp()
 
 def test_component(setup: object):
-    numberService: NumberService = NumberServiceComponent.provide()
-    assert isinstance(numberService, NumberService)
-    assert numberService.getRandomNumber() == 42
+    numberService1: NumberService = NumberServiceComponent.provide()
+    numberService2: NumberService = NumberServiceComponent.provider()
+    assert numberService1 == numberService2
+    assert isinstance(numberService1, NumberService)
+    assert numberService1.getRandomNumber() == 42
+    assert numberService2.getRandomNumber() == 43

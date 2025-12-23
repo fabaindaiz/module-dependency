@@ -4,7 +4,6 @@ from example.plugin.base.string.providers.fake import StringService, StringServi
 from example.plugin.hardware.factory.providers.creatorA import HardwareFactory, HardwareFactoryComponent
 from example.plugin.hardware.observer.providers.publisherA import HardwareObserver, HardwareObserverComponent
 
-
 @module()
 class TestingModule(Module):
     pass
@@ -36,7 +35,7 @@ def test_change_parent_and_resolve():
     hardware_a = hardware_factory.createHardware("A")
     hardware_a.doStuff("operation1")
 
-    number_service1: NumberService = NumberServiceComponent.provide()
+    number_service1: NumberService = NumberServiceComponent.provide(starting_number=40)
     number_service2: NumberService = NumberServiceComponent.provide()
     assert number_service1.getRandomNumber() == 43
     assert number_service2.getRandomNumber() == 44

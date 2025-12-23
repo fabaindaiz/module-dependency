@@ -5,7 +5,8 @@ from dependency.core.resolution.container import Container
 from dependency.core.resolution.errors import raise_resolution_error
 _logger = logging.getLogger("DependencyLoader")
 
-# TODO: Separar los pasos de inicialización y añadir API meta con acceso al framework
+# TODO: Separar los pasos de inicialización
+# TODO: añadir API meta con acceso al framework
 class InjectionResolver:
     """Injection Resolver Class
     """
@@ -58,10 +59,8 @@ class InjectionResolver:
         resolved_layers: list[list[Injectable]],
     ) -> None:
         """Start all implementations by executing their bootstrap functions."""
-        #for container in self.container.traverse():
-        #    container.init_resources()
-
+        self.container.check_dependencies()
         self.container.init_resources()
-        #for layer in resolved_layers:
-        #    for implementation in layer:
-        #        implementation.do_bootstrap()
+        for layer in resolved_layers:
+            for implementation in layer:
+                implementation.do_bootstrap()

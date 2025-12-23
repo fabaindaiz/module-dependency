@@ -7,13 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.4.9] - 2025-12-
+
 ### Added
 
-- Added LazyProvide class for deferred provider resolution for injection references flexibility
+- Lazy Markers for deferred resolution of injection references with @inject decorator
+- Meta functions for dynamic injection resolution and internal behavior modification
 
-### Breaking Changes
+### Changed
 
-- 'Provide[component.reference]' is replaced with 'Component.provider' for injection references
+- Prefer use of LazyProvide over Provide for dependency injection for compatibility with meta functions
 
 ## [v0.4.8] - 2025-12-18
 

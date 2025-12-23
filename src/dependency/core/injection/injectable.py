@@ -4,6 +4,7 @@ from dependency_injector import containers, providers
 from dependency.core.exceptions import InitializationError, CancelInitialization
 _logger = logging.getLogger("DependencyLoader")
 
+# TODO: Añadir soporte para más tipos de providers
 class Injectable:
     """Injectable Class representing a injectable dependency.
     """

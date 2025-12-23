@@ -1,9 +1,10 @@
 import pytest
-from dependency_injector import containers
 from dependency.core.agrupation import Plugin, PluginMeta, module
 from dependency.core.declaration import Component, component, Product, product, instance
 from dependency.core.resolution import Container, InjectionResolver
-from dependency.core.exceptions import DeclarationError, ResolutionError
+from dependency.core.exceptions import CancelInitialization
+
+BOOTSTRAPED: list[str] = []
 
 @module()
 class TPlugin(Plugin):
@@ -34,31 +35,37 @@ class TProduct1(Product):
 
 @instance(
     component=TComponent1,
-    imports=[TComponent2],
     products=[TProduct1],
+    bootstrap=True,
 )
 class TInstance1(TInterface):
-    pass
+    def __init__(self) -> None:
+        BOOTSTRAPED.append("TInstance1")
 
 @instance(
     component=TComponent2,
     imports=[TComponent1],
+    bootstrap=True,
 )
 class TInstance2(TInterface):
-    pass
+    def __init__(self) -> None:
+        BOOTSTRAPED.append("TInstance2")
+        raise CancelInitialization("Failed to initialize TInstance2")
 
 def test_exceptions():
-    container = containers.DynamicContainer()
-    with pytest.raises(ResolutionError):
-        TPlugin.resolve_providers(container) # type: ignore
-
-    container = Container()
+    container = Container.from_json("example/config.json")
     providers = TPlugin.resolve_providers(container) # type: ignore
     loader = InjectionResolver(container, providers)
+    assert "TInstance1" not in BOOTSTRAPED
 
-    with pytest.raises(DeclarationError):
-        print(TComponent1.provider())
-    with pytest.raises(DeclarationError):
-        print(TComponent1.provide())
-    with pytest.raises(ResolutionError):
-        loader.resolve_injectables()
+    layers = loader.resolve_injectables()
+    assert "TInstance1" not in BOOTSTRAPED
+
+    loader.start_injectables(layers)
+    assert "TInstance1" in BOOTSTRAPED
+    assert "TInstance2" in BOOTSTRAPED
+
+    assert TComponent1.provide() is not None
+
+    with pytest.raises(CancelInitialization):
+        TComponent2.provide()
