@@ -73,6 +73,7 @@ class SomeServiceComponent(Component):
 ```python
 from dependency_injector.wiring import inject
 from dependency.core import instance, providers
+from dependency.core.injection import LazyProvide
 from ...plugin.........component import SomeService, SomeServiceComponent
 from ...plugin...other_component import OtherService, OtherServiceComponent
 from ...plugin...........product import SomeProduct
@@ -97,8 +98,9 @@ class ImplementedSomeService(SomeService):
 
     @inject
     def method(self,
-        # Dependencies also can be used in this way
-        dependency: OtherService = OtherServiceComponent.provider,
+        # Dependencies also can be provided using @inject decorator with LazyProvide
+        # With @inject always use LazyProvide, to avoid deferred evaluation issues.
+        dependency: OtherService = LazyProvide(OtherServiceComponent.reference),
     ...) -> ...:
         """Methods declared in the interface must be implemented.
         """
@@ -180,6 +182,7 @@ class SomePlugin(Plugin):
 
 ```python
 from dependency.core import Product, product, providers
+from dependency.core.injection import LazyProvide
 from ...plugin.........component import SomeService, SomeServiceComponent
 from ...plugin.....other_product import OtherProduct
 
@@ -198,8 +201,9 @@ class SomeProduct(Interface, Product):
 
     @inject
     def method(self,
-        # Dependencies also can be used in this way
-        dependency: SomeService = SomeServiceComponent.provider,
+        # Dependencies also can be provided using @inject decorator with LazyProvide
+        # With @inject always use LazyProvide, to avoid deferred evaluation issues.
+        dependency: SomeService = LazyProvide(SomeServiceComponent.reference),
     ...) -> ...:
         """Product interface can be defined using normal inheritance.
         """
