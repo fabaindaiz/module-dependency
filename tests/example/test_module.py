@@ -22,9 +22,10 @@ def test_change_parent_and_resolve():
     assert HardwareFactoryComponent.injection.reference == "TestingModule.HardwareFactoryComponent"
 
     container = Container()
+    TestingModule.inject_container(container)
     resolver = InjectionResolver(
         container=container,
-        injectables=TestingModule.resolve_providers(container),
+        injectables=TestingModule.resolve_providers(),
     )
     resolver.resolve_dependencies()
 

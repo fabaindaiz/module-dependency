@@ -30,6 +30,7 @@ PYTHONPATH = "src"
 coverage = "pytest --cov src/dependency --cov-report html -n auto --dist=loadfile"
 example = "python src/main.py"
 stubs = "stubgen src/dependency -o stubs --include-docstrings"
+tests = "pytest -n auto --dist=loadfile"
 typecheck = "mypy --strict src/dependency"
 
 [tool.mypy]

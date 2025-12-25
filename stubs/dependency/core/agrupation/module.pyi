@@ -11,11 +11,14 @@ class Module(ABCModule):
     """
     injection: ContainerInjection
     def __init__(self, name: str, injection: ContainerInjection) -> None: ...
-    def resolve_providers(self, container: Container) -> list[Injectable]:
-        """Resolve provider injections for the plugin.
+    def inject_container(self, container: Container) -> None:
+        """Inject the module into the application container.
 
         Args:
             container (Container): The application container.
+        """
+    def resolve_providers(self) -> list[Injectable]:
+        """Resolve provider injections for the plugin.
 
         Returns:
             list[Injectable]: A list of injectable providers.

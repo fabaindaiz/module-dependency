@@ -13,16 +13,20 @@ class Module(ABCModule):
         super().__init__(name)
         self.injection: ContainerInjection = injection
 
-    def resolve_providers(self, container: Container) -> list[Injectable]:
-        """Resolve provider injections for the plugin.
+    def inject_container(self, container: Container) -> None:
+        """Inject the module into the application container.
 
         Args:
             container (Container): The application container.
+        """
+        setattr(container, self.injection.name, self.injection.inject_cls())
+
+    def resolve_providers(self) -> list[Injectable]:
+        """Resolve provider injections for the plugin.
 
         Returns:
             list[Injectable]: A list of injectable providers.
         """
-        setattr(container, self.injection.name, self.injection.inject_cls())
         return [provider for provider in self.injection.resolve_providers()]
 
 def module(

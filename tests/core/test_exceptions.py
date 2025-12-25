@@ -50,10 +50,11 @@ class TInstance2(TInterface):
 def test_exceptions():
     container = containers.DynamicContainer()
     with pytest.raises(ResolutionError):
-        TPlugin.resolve_providers(container) # type: ignore
+        TPlugin.resolve_container(container)
 
     container = Container()
-    providers = TPlugin.resolve_providers(container) # type: ignore
+    TPlugin.resolve_container(container)
+    providers = TPlugin.resolve_providers()
     loader = InjectionResolver(container, providers)
 
     with pytest.raises(DeclarationError):
