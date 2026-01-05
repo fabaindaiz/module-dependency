@@ -1,4 +1,4 @@
-from typing import Any, Callable, TypeVar
+from typing import Any, Callable, Iterable, TypeVar
 from dependency_injector import providers
 from dependency.core.declaration.component import Component
 from dependency.core.injection.injectable import Injectable
@@ -11,17 +11,19 @@ class Product:
     injectable: Injectable
 
 def product(
-    imports: list[Component] = [],
-    products: list[Product] = [],
+    imports: Iterable[type[Component]] = [],
+    products: Iterable[type[Product]] = [],
     provider: type[providers.Provider[Any]] = providers.Singleton,
 ) -> Callable[[type[PRODUCT]], type[PRODUCT]]:
     """Decorator for Product class
 
     Args:
         imports (Sequence[type[Component]], optional): List of components to be imported by the product. Defaults to [].
+        products (Sequence[type[Product]], optional): List of products to be declared by the product. Defaults to [].
+        provider (type[providers.Provider[Any]], optional): Provider class to be used. Defaults to providers.Singleton.
 
     Raises:
-        TypeError: If the wrapped class is not a subclass of Dependent.
+        TypeError: If the wrapped class is not a subclass of Product.
 
     Returns:
         Callable[[type[Dependent]], type[Dependent]]: Decorator function that wraps the dependent class.
@@ -43,5 +45,6 @@ def product(
                 for product in products
             ),
         )
+
         return cls
     return wrap

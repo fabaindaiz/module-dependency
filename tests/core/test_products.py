@@ -19,14 +19,16 @@ class TComponent1(Component):
     pass
 
 @component(
-    module=TPlugin,
     interface=TInterface,
 )
 class TComponent2(Component):
     pass
 
 @product(
-    imports=[TComponent1],
+    imports=[
+        TComponent1,
+        TComponent2,
+    ],
 )
 class TProduct1(Product):
     pass
@@ -39,22 +41,12 @@ class TProduct1(Product):
 class TInstance1(TInterface):
     pass
 
-@instance(
-    component=TComponent2,
-    imports=[TComponent1],
-)
-class TInstance2(TInterface):
-    pass
-
-def test_exceptions():
+def test_products():
     container = Container()
     TPlugin.resolve_container(container)
     providers = TPlugin.resolve_providers()
     loader = InjectionResolver(container, providers)
 
+    # TODO: Implement unresolved products policy
     with pytest.raises(DeclarationError):
-        print(TComponent1.provider())
-    with pytest.raises(DeclarationError):
-        print(TComponent1.provide())
-    with pytest.raises(ResolutionError):
         loader.resolve_injectables()

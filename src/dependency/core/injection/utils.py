@@ -1,8 +1,21 @@
-from typing import Any, Callable, Optional, Union
+from typing import Any, Callable, Generic, Iterable, Optional, TypeVar, Union
 from dependency_injector import containers, providers
 from dependency_injector.wiring import Modifier, Provide, Provider, Closing
 
-class BaseLazy:
+T = TypeVar('T')
+
+class LazyList(Generic[T]):
+    def __init__(self, iterable: Iterable[T]) -> None:
+        super().__init__()
+        self._iterable = iterable
+        self._list: Optional[list[T]] = None
+
+    def __call__(self, *args: Any, **kwargs: Any) -> list[T]:
+        if self._list is None:
+            self._list = list(self._iterable)
+        return self._list
+
+class LazyWiring:
     """Base Lazy Class for deferred provider resolution.
     """
     def __init__(self,
@@ -16,17 +29,17 @@ class BaseLazy:
     def provider(self) -> Union[providers.Provider[Any], containers.Container, str]:
         return self._provider()
 
-class LazyProvide(BaseLazy, Provide): # type: ignore
+class LazyProvide(LazyWiring, Provide): # type: ignore
     """Lazy Provide Class for deferred provider resolution.
     """
     pass
 
-class LazyProvider(BaseLazy, Provider): # type: ignore
+class LazyProvider(LazyWiring, Provider): # type: ignore
     """Lazy Provide Class for deferred provider resolution.
     """
     pass
 
-class LazyClosing(BaseLazy, Closing): # type: ignore
+class LazyClosing(LazyWiring, Closing): # type: ignore
     """Lazy Closing Class for deferred provider resolution.
     """
     pass

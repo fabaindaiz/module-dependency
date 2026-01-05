@@ -1,8 +1,7 @@
 import logging
 from pydantic import BaseModel
-from typing import get_type_hints, override
+from typing import get_type_hints
 from dependency.core.agrupation.module import Module
-from dependency.core.injection.injectable import Injectable
 from dependency.core.resolution.container import Container
 from dependency.core.exceptions import ResolutionError
 _logger = logging.getLogger("DependencyLoader")
@@ -28,7 +27,8 @@ class Plugin(Module):
     meta: PluginMeta
     config: BaseModel
 
-    def resolve_container(self, container: Container) -> None:
+    @classmethod
+    def resolve_container(cls, container: Container) -> None:
         """Resolve the plugin configuration.
 
         Args:
@@ -37,13 +37,13 @@ class Plugin(Module):
         Raises:
             ResolutionError: If the configuration is invalid.
         """
-        self.inject_container(container)
         try:
-            config_cls = get_type_hints(self.__class__).get("config", BaseModel)
+            cls.inject_container(container)
+            config_cls = get_type_hints(cls).get("config", BaseModel)
             config_cls = PluginConfig if config_cls is BaseModel else config_cls
-            self.config = config_cls(**container.config())
+            cls.config = config_cls(**container.config())
         except Exception as e:
-            raise ResolutionError(f"Failed to resolve plugin config for {self.meta}") from e
+            raise ResolutionError(f"Failed to resolve plugin config for {cls.meta}") from e
 
     def __repr__(self) -> str:
         return f"{self.meta}: {self.config}"

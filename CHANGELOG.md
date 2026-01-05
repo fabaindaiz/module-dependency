@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Component & Module classes now use class attributes and methods directly
+- Decorators refactored to use classes directly without instantiating or casting
+
+### Removed
+
+- Removed abstract base classes for Module, Component & Instance due to refactoring
+- Removed Instance class and redundant type hint casts in decorators
+
 ## [v0.4.9] - 2025-12-23
 
 ### Added

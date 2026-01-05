@@ -8,7 +8,6 @@ from dependency.core.agrupation import (
 from dependency.core.declaration import (
     Component,
     component,
-    Instance,
     instance,
     Product,
     product,
@@ -31,7 +30,6 @@ __all__ = [
     "PluginMeta",
     "Component",
     "component",
-    "Instance",
     "instance",
     "Product",
     "product",

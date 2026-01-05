@@ -1,25 +1,16 @@
-from typing import Any, Callable
+from typing import Any, Callable, Iterable
 from dependency_injector import providers
-from dependency.core.declaration.base import ABCInstance
 from dependency.core.declaration.component import Component
 from dependency.core.declaration.product import Product
 from dependency.core.injection.injectable import Injectable
 
-class Instance(ABCInstance):
-    """Instance Base Class
-    """
-    def __init__(self,
-        provided_cls: type,
-    ) -> None:
-        super().__init__(provided_cls=provided_cls)
-
 def instance(
-    component: Component,
-    imports: list[Component] = [],
-    products: list[Product] = [],
+    component: type[Component],
+    imports: Iterable[type[Component]] = [],
+    products: Iterable[type[Product]] = [],
     provider: type[providers.Provider[Any]] = providers.Singleton,
     bootstrap: bool = False,
-) -> Callable[[type], Instance]:
+) -> Callable[[type], type]:
     """Decorator for instance class
 
     Args:
@@ -35,13 +26,13 @@ def instance(
     Returns:
         Callable[[type], Instance]: Decorator function that wraps the instance class and returns an Instance object.
     """
-    def wrap(cls: type) -> Instance:
+    def wrap(cls: type) -> type:
         if not issubclass(cls, component.interface_cls):
             raise TypeError(f"Class {cls} is not a subclass of {component.interface_cls}")
 
         component.injection.set_instance(
             injectable = Injectable(
-                component_cls=component.__class__,
+                component_cls=component,
                 provided_cls=cls,
                 provider_cls=provider,
                 imports=(
@@ -56,7 +47,5 @@ def instance(
             )
         )
 
-        return Instance(
-            provided_cls=cls
-        )
+        return cls
     return wrap

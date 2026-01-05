@@ -1,4 +1,3 @@
-from dependency.core.agrupation.base import ABCModule as ABCModule
 from dependency.core.injection.base import ContainerInjection as ContainerInjection
 from dependency.core.injection.injectable import Injectable as Injectable
 from dependency.core.resolution.container import Container as Container
@@ -6,25 +5,26 @@ from typing import Callable, TypeVar
 
 MODULE = TypeVar('MODULE', bound='Module')
 
-class Module(ABCModule):
+class Module:
     """Module Base Class
     """
     injection: ContainerInjection
-    def __init__(self, name: str, injection: ContainerInjection) -> None: ...
-    def inject_container(self, container: Container) -> None:
+    @classmethod
+    def inject_container(cls, container: Container) -> None:
         """Inject the module into the application container.
 
         Args:
             container (Container): The application container.
         """
-    def resolve_providers(self) -> list[Injectable]:
+    @classmethod
+    def resolve_providers(cls) -> list[Injectable]:
         """Resolve provider injections for the plugin.
 
         Returns:
             list[Injectable]: A list of injectable providers.
         """
 
-def module(module: Module | None = None) -> Callable[[type[MODULE]], MODULE]:
+def module(module: type[Module] | None = None) -> Callable[[type[MODULE]], type[MODULE]]:
     """Decorator for Module class
 
     Args:

@@ -1,6 +1,7 @@
 import logging
 import time
 from threading import Event
+from typing import Iterable
 from dependency.core.agrupation.plugin import Plugin
 from dependency.core.injection.injectable import Injectable
 from dependency.core.resolution.container import Container
@@ -13,7 +14,10 @@ class Entrypoint:
     """
     init_time: float = time.time()
 
-    def __init__(self, container: Container, plugins: list[Plugin]) -> None:
+    def __init__(self,
+        container: Container,
+        plugins: Iterable[type[Plugin]]
+    ) -> None:
         injectables: list[Injectable] = []
 
         for plugin in plugins:

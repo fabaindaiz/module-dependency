@@ -1,43 +1,42 @@
-from abc import abstractmethod
-from typing import Any, Callable, TypeVar
+import logging
+from typing import Any, Callable, Optional, TypeVar
 from dependency_injector import providers
 from dependency.core.agrupation.module import Module
-from dependency.core.declaration.base import ABCComponent
 from dependency.core.injection.provider import ProviderInjection
 from dependency.core.exceptions import DeclarationError
+_logger = logging.getLogger("DependencyLoader")
 
 COMPONENT = TypeVar('COMPONENT', bound='Component')
-INTERFACE = TypeVar('INTERFACE')
 
-class Component(ABCComponent):
+class Component:
     """Component Base Class
     """
-    def __init__(self,
-        interface_cls: type[INTERFACE],
-        injection: ProviderInjection,
-    ) -> None:
-        super().__init__(interface_cls=interface_cls)
-        self.injection: ProviderInjection = injection
+    interface_cls: type
+    injection: ProviderInjection
 
-    def reference(self) -> str:
+    @classmethod
+    def reference(cls) -> str:
         """Return the reference name of the component."""
-        return self.injection.reference
+        return cls.injection.reference
 
-    @property
-    @abstractmethod
-    def provider(self) -> providers.Provider[Any]:
+    @classmethod
+    def provider(cls) -> providers.Provider[Any]:
         """Provide the provider instance"""
-        pass
+        if not cls.injection.injectable.is_resolved:
+            raise DeclarationError(f"Component {cls.__name__} injectable was not resolved")
+        return cls.injection.injectable.provider
 
-    @abstractmethod
-    def provide(self, **kwargs: Any) -> Any:
+    @classmethod
+    def provide(cls, **kwargs: Any) -> Any:
         """Provide an instance of the interface class"""
-        pass
+        if not cls.injection.injectable.is_resolved:
+            raise DeclarationError(f"Component {cls.__name__} injectable was not resolved")
+        return cls.injection.injectable.provider(**kwargs)
 
 def component(
-    module: Module,
-    interface: type[INTERFACE],
-) -> Callable[[type[COMPONENT]], COMPONENT]:
+    interface: type,
+    module: Optional[type[Module]] = None,
+) -> Callable[[type[COMPONENT]], type[COMPONENT]]:
     """Decorator for Component class
 
     Args:
@@ -50,35 +49,19 @@ def component(
     Returns:
         Callable[[type[COMPONENT]], COMPONENT]: Decorator function that wraps the component class.
     """
-    def wrap(cls: type[COMPONENT]) -> COMPONENT:
+    def wrap(cls: type[COMPONENT]) -> type[COMPONENT]:
         if not issubclass(cls, Component):
             raise TypeError(f"Class {cls} is not a subclass of Component")
 
-        injection = ProviderInjection(
+        if module is None:
+            # TODO: Warnings should be configurable (declaration/injection, warning/exception)
+            _logger.warning(f"Component {cls.__name__} is not registered to any module")
+
+        cls.interface_cls = interface
+        cls.injection = ProviderInjection(
             name=cls.__name__,
-            parent=module.injection,
+            parent=module.injection if module else None,
         )
 
-        class WrapComponent(cls): # type: ignore
-            @property
-            def provider(self) -> providers.Provider[Any]:
-                if not self.injection.injectable.is_resolved:
-                    raise DeclarationError(f"Component {cls.__name__} injectable was not resolved")
-                return self.injection.injectable.provider # type: ignore
-
-            def provide(self, **kwargs: Any) -> INTERFACE:
-                if not self.injection.injectable.is_resolved:
-                    raise DeclarationError(f"Component {cls.__name__} injectable was not resolved")
-                return self.injection.injectable.provider(**kwargs) # type: ignore
-
-            #@inject
-            #def provide(self, service: INTERFACE = injection.provider) -> INTERFACE:
-            #    if not injection.injectable.is_resolved:
-            #        raise DeclarationError(f"Component {cls.__name__} injectable was not resolved")
-            #    return service
-
-        return WrapComponent(
-            interface_cls=interface,
-            injection=injection,
-        )
+        return cls
     return wrap

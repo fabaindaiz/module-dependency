@@ -54,7 +54,7 @@ class TInstance2(TInterface):
 
 def test_exceptions():
     container = Container.from_json("example/config.json")
-    providers = TPlugin.resolve_providers() # type: ignore
+    providers = TPlugin.resolve_providers()
     loader = InjectionResolver(container, providers)
     assert "TInstance1" not in BOOTSTRAPED
 

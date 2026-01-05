@@ -1,6 +1,5 @@
 from dependency.core.agrupation.module import Module as Module
 from dependency.core.exceptions import ResolutionError as ResolutionError
-from dependency.core.injection.injectable import Injectable as Injectable
 from dependency.core.resolution.container import Container as Container
 from pydantic import BaseModel
 
@@ -19,7 +18,8 @@ class Plugin(Module):
     """
     meta: PluginMeta
     config: BaseModel
-    def resolve_container(self, container: Container) -> None:
+    @classmethod
+    def resolve_container(cls, container: Container) -> None:
         """Resolve the plugin configuration.
 
         Args:

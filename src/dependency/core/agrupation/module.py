@@ -1,37 +1,38 @@
+import logging
 from typing import Callable, Optional, TypeVar
-from dependency.core.agrupation.base import ABCModule
 from dependency.core.injection.base import ContainerInjection
 from dependency.core.injection.injectable import Injectable
 from dependency.core.resolution.container import Container
+_logger = logging.getLogger("DependencyLoader")
 
 MODULE = TypeVar('MODULE', bound='Module')
 
-class Module(ABCModule):
+class Module:
     """Module Base Class
     """
-    def __init__(self, name: str, injection: ContainerInjection) -> None:
-        super().__init__(name)
-        self.injection: ContainerInjection = injection
+    injection: ContainerInjection
 
-    def inject_container(self, container: Container) -> None:
+    @classmethod
+    def inject_container(cls, container: Container) -> None:
         """Inject the module into the application container.
 
         Args:
             container (Container): The application container.
         """
-        setattr(container, self.injection.name, self.injection.inject_cls())
+        setattr(container, cls.injection.name, cls.injection.inject_cls())
 
-    def resolve_providers(self) -> list[Injectable]:
+    @classmethod
+    def resolve_providers(cls) -> list[Injectable]:
         """Resolve provider injections for the plugin.
 
         Returns:
             list[Injectable]: A list of injectable providers.
         """
-        return [provider for provider in self.injection.resolve_providers()]
+        return [provider for provider in cls.injection.resolve_providers()]
 
 def module(
-    module: Optional[Module] = None
-) -> Callable[[type[MODULE]], MODULE]:
+    module: Optional[type[Module]] = None
+) -> Callable[[type[MODULE]], type[MODULE]]:
     """Decorator for Module class
 
     Args:
@@ -43,7 +44,7 @@ def module(
     Returns:
         Callable[[type[MODULE]], MODULE]: Decorator function that wraps the module class.
     """
-    def wrap(cls: type[MODULE]) -> MODULE:
+    def wrap(cls: type[MODULE]) -> type[MODULE]:
         if not issubclass(cls, Module):
             raise TypeError(f"Class {cls} is not a subclass of Module")
 
@@ -51,9 +52,7 @@ def module(
             name=cls.__name__,
             parent=module.injection if module else None,
         )
+        cls.injection = injection
 
-        return cls(
-            name=cls.__name__,
-            injection=injection,
-        )
+        return cls
     return wrap
