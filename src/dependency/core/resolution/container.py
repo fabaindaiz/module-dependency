@@ -24,7 +24,10 @@ class Container(containers.DynamicContainer):
             Container: A new Container instance configured with the provided dictionary.
         """
         container: Container = Container()
-        container.config.from_dict(config, required)
+        container.config.from_dict(
+            options=config,
+            required=required
+        )
         return container
 
     @staticmethod
@@ -44,10 +47,9 @@ class Container(containers.DynamicContainer):
             Container: A new Container instance configured with the provided JSON file.
         """
         container: Container = Container()
-        container.config.from_json(file, required, envs_required)
+        container.config.from_json(
+            filepath=file,
+            required=required,
+            envs_required=envs_required
+        )
         return container
-
-    def initialize(self) -> None:
-        """Initialize the container by checking dependencies and initializing resources."""
-        self.check_dependencies()
-        self.init_resources()

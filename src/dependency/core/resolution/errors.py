@@ -1,7 +1,7 @@
 import logging
 from dependency.core.injection.injectable import Injectable
-from dependency.core.resolution.utils import find_cycles
 from dependency.core.exceptions import ResolutionError
+from dependency.core.utils.cycle import find_cycles
 _logger = logging.getLogger("dependency.loader")
 
 def raise_circular_error(

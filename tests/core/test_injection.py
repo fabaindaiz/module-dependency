@@ -13,7 +13,7 @@ class Interface:
     def test(self, service: Instance = Provide[TEST_REFERENCE]) -> str:
         return f"Injected service: {service.test()}"
 
-def test_injection1():
+def test_injection1() -> None:
     container1 = ContainerInjection(name="container1")
     container2 = ContainerInjection(name="container2", parent=container1)
     provider1 = ProviderInjection(

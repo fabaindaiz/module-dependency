@@ -3,7 +3,7 @@ from typing import Any, Generator, Optional, override
 from dependency_injector import providers
 from dependency.core.injection.base import BaseInjection, ContainerInjection
 from dependency.core.injection.injectable import Injectable
-from dependency.core.injection.utils import LazyProvide
+from dependency.core.injection.wiring import LazyProvide
 from dependency.core.exceptions import DeclarationError
 _logger = logging.getLogger("dependency.loader")
 

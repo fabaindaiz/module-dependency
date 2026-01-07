@@ -1,7 +1,7 @@
 import pytest
 from dependency.core.agrupation import Plugin, PluginMeta, module
 from dependency.core.declaration import Component, component, Product, product, instance
-from dependency.core.resolution import Container, InjectionConfig, InjectionResolver
+from dependency.core.resolution import Container, ResolutionConfig, ResolutionStrategy
 from dependency.core.exceptions import DeclarationError
 
 @module()
@@ -41,19 +41,14 @@ class TProduct1(Product):
 class TInstance1(TInterface):
     pass
 
-def test_products():
+def test_products() -> None:
     container = Container()
     TPlugin.resolve_container(container)
     providers = list(TPlugin.resolve_providers())
 
     with pytest.raises(DeclarationError):
-        InjectionResolver.injection(providers)
+        ResolutionStrategy.injection(providers)
 
-    config = InjectionConfig(
-        resolve_products=False
-    )
-    injectables = InjectionResolver.injection(
-        providers,
-        config=config,
-    )
+    ResolutionStrategy.config.resolve_products = False
+    injectables = ResolutionStrategy.injection(providers)
     assert injectables == [TComponent1.injection.injectable]

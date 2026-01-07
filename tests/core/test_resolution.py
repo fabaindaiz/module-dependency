@@ -52,7 +52,7 @@ class TInstance2(TInterface):
         BOOTSTRAPED.append("TInstance2")
         raise CancelInitialization("Failed to initialize TInstance2")
 
-def test_exceptions():
+def test_exceptions() -> None:
     container = Container.from_json("example/config.json")
     providers = TPlugin.resolve_providers()
     assert "TInstance1" not in BOOTSTRAPED

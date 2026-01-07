@@ -11,7 +11,7 @@ class TPlugin(Plugin):
     meta = PluginMeta(name="test_plugin", version="0.1.0")
     config: TPluginConfig
 
-def test_agrupation():
+def test_agrupation() -> None:
     container = Container.from_dict({
         "field1": "value",
         "field2": 100

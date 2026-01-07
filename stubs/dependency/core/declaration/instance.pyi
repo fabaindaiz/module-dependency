@@ -2,9 +2,11 @@ from dependency.core.declaration.component import Component as Component
 from dependency.core.declaration.product import Product as Product
 from dependency.core.injection.injectable import Injectable as Injectable
 from dependency_injector import providers
-from typing import Any, Callable, Iterable
+from typing import Any, Callable, Iterable, TypeVar
 
-def instance(component: type[Component], imports: Iterable[type[Component]] = [], products: Iterable[type[Product]] = [], provider: type[providers.Provider[Any]] = ..., bootstrap: bool = False) -> Callable[[type], type]:
+T = TypeVar('T')
+
+def instance(component: type[Component], imports: Iterable[type[Component]] = [], products: Iterable[type[Product]] = [], provider: type[providers.Provider[Any]] = ..., bootstrap: bool = False) -> Callable[[type[T]], type[T]]:
     """Decorator for instance class
 
     Args:

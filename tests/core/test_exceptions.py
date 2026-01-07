@@ -1,7 +1,7 @@
 import pytest
 from dependency.core.agrupation import Plugin, PluginMeta, module
 from dependency.core.declaration import Component, component, Product, product, instance
-from dependency.core.resolution import Container, InjectionResolver
+from dependency.core.resolution import Container, ResolutionStrategy
 from dependency.core.exceptions import DeclarationError, ResolutionError
 
 @module()
@@ -46,14 +46,12 @@ class TInstance1(TInterface):
 class TInstance2(TInterface):
     pass
 
-def test_exceptions():
+def test_exceptions() -> None:
     container = Container()
     TPlugin.resolve_container(container)
     providers = list(TPlugin.resolve_providers())
 
     with pytest.raises(DeclarationError):
-        print(TComponent1.provider())
-    with pytest.raises(DeclarationError):
         print(TComponent1.provide())
     with pytest.raises(ResolutionError):
-        InjectionResolver.injection(providers)
+        ResolutionStrategy.injection(providers)

@@ -19,10 +19,7 @@ class Component:
     def reference(cls) -> str:
         """Return the reference name of the component."""
     @classmethod
-    def provider(cls) -> providers.Provider[Any]:
-        """Provide the provider instance"""
-    @classmethod
-    def provide(cls, **kwargs: Any) -> Any:
+    def provide(cls, *args: Any, **kwargs: Any) -> Any:
         """Provide an instance of the interface class"""
 
 def component(interface: type, module: type[Module] | None = None) -> Callable[[type[COMPONENT]], type[COMPONENT]]:

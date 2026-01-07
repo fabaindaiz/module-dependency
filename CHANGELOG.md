@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [v0.5.0] - 2026-01-
 
+### Added
+
+- Resolution Strategy configuration for customizable resolution behavior
+
 ### Changed
 
 - Updated docstrings for utility classes and methods in core modules

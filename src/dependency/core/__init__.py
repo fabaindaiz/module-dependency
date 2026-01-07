@@ -15,8 +15,9 @@ from dependency.core.declaration import (
 )
 from dependency.core.resolution import (
     Container,
-    InjectionConfig,
     InjectionResolver,
+    ResolutionConfig,
+    ResolutionStrategy,
 )
 from dependency.core.exceptions import (
     DependencyError,
@@ -36,8 +37,9 @@ __all__ = [
     "product",
     "providers",
     "Container",
-    "InjectionConfig",
     "InjectionResolver",
+    "ResolutionConfig",
+    "ResolutionStrategy",
     "DependencyError",
     "CancelInitialization",
 ]

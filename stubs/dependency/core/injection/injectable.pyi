@@ -1,5 +1,5 @@
 from dependency.core.exceptions import CancelInitialization as CancelInitialization, InitializationError as InitializationError
-from dependency.core.injection.utils import LazyList as LazyList
+from dependency.core.utils.lazy import LazyList as LazyList
 from dependency_injector import containers as containers, providers
 from typing import Any, Callable, Iterable
 
@@ -22,7 +22,7 @@ class Injectable:
         """Return an instance from the provider."""
     @property
     def import_resolved(self) -> bool: ...
-    def do_resolve(self) -> Injectable:
+    def do_injection(self) -> Injectable:
         """Mark the injectable as resolved."""
     def do_wiring(self, container: containers.DynamicContainer) -> None:
         """Wire the provider with the given container.

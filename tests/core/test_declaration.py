@@ -28,11 +28,11 @@ class TInstance(TInterface):
     def method(self) -> str:
         return "Hello, World!"
 
-def test_declaration():
+def test_declaration() -> None:
     container = containers.DynamicContainer()
     setattr(container, TModule.injection.name, TModule.injection.inject_cls())
     for provider in TModule.injection.resolve_providers():
-        provider.do_resolve()
+        provider.do_injection()
 
     assert TModule.__name__ == "TModule"
     assert TComponent.interface_cls.__name__ == "TInterface"

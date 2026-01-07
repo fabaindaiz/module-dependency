@@ -13,10 +13,18 @@ class Product:
     """
     injectable: Injectable
 
+    @classmethod
+    def provide(cls, *args: Any, **kwargs: Any) -> Any:
+        """Provide an instance of the product"""
+        if not cls.injectable.is_resolved:
+            raise RuntimeError(f"Product {cls.__name__} injectable was not resolved")
+        return cls.injectable.provider(*args, **kwargs)
+
 def product(
     imports: Iterable[type[Component]] = [],
     products: Iterable[type[Product]] = [],
     provider: type[providers.Provider[Any]] = providers.Singleton,
+    bootstrap: bool = False,
 ) -> Callable[[type[PRODUCT]], type[PRODUCT]]:
     """Decorator for Product class
 
@@ -47,6 +55,7 @@ def product(
                 product.injectable
                 for product in products
             ),
+            bootstrap=cls.provide if bootstrap else None,
         )
 
         return cls

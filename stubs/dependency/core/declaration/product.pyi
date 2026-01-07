@@ -12,8 +12,11 @@ class Product:
         injectable (Injectable): Injectable instance for the product
     """
     injectable: Injectable
+    @classmethod
+    def provide(cls, *args: Any, **kwargs: Any) -> Any:
+        """Provide an instance of the product"""
 
-def product(imports: Iterable[type[Component]] = [], products: Iterable[type[Product]] = [], provider: type[providers.Provider[Any]] = ...) -> Callable[[type[PRODUCT]], type[PRODUCT]]:
+def product(imports: Iterable[type[Component]] = [], products: Iterable[type[Product]] = [], provider: type[providers.Provider[Any]] = ..., bootstrap: bool = False) -> Callable[[type[PRODUCT]], type[PRODUCT]]:
     """Decorator for Product class
 
     Args:

@@ -1,11 +1,11 @@
 import logging
 from typing import Any, Callable, Iterable, Optional
 from dependency_injector import containers, providers
-from dependency.core.injection.utils import LazyList
 from dependency.core.exceptions import InitializationError, CancelInitialization
+from dependency.core.utils.lazy import LazyList
 _logger = logging.getLogger("dependency.loader")
 
-# TODO: Añadir soporte para más tipos de providers
+# TODO: Añadir soporte para otros providers (Abstract Factory, Aggregate, Selector)
 class Injectable:
     """Injectable Class representing a injectable dependency.
     """
@@ -37,6 +37,7 @@ class Injectable:
         return self._products()
 
     @property
+    # TODO: Necesito extraer esta definición de provider
     def provider(self) -> providers.Provider[Any]:
         """Return an instance from the provider."""
         if self._provider is None:
@@ -50,7 +51,7 @@ class Injectable:
             for implementation in self.imports
         )
 
-    def do_resolve(self) -> "Injectable":
+    def do_injection(self) -> "Injectable":
         """Mark the injectable as resolved."""
         self.is_resolved = True
         return self
@@ -73,8 +74,8 @@ class Injectable:
         if self.bootstrap is not None:
             try:
                 self.bootstrap()
-            except CancelInitialization:
-                _logger.warning(f"Initialization of Component {self.component_cls.__name__} was cancelled.")
+            except CancelInitialization as e:
+                _logger.warning(f"Initialization of Component {self.component_cls.__name__} was cancelled: {e}")
             except Exception as e:
                 raise InitializationError(f"Failed to initialize Component {self.component_cls.__name__}") from e
 

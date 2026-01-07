@@ -1,8 +1,10 @@
-from typing import Any, Callable, Iterable
+from typing import Any, Callable, Iterable, TypeVar
 from dependency_injector import providers
 from dependency.core.declaration.component import Component
 from dependency.core.declaration.product import Product
 from dependency.core.injection.injectable import Injectable
+
+T = TypeVar('T')
 
 def instance(
     component: type[Component],
@@ -10,7 +12,7 @@ def instance(
     products: Iterable[type[Product]] = [],
     provider: type[providers.Provider[Any]] = providers.Singleton,
     bootstrap: bool = False,
-) -> Callable[[type], type]:
+) -> Callable[[type[T]], type[T]]:
     """Decorator for instance class
 
     Args:
@@ -26,7 +28,7 @@ def instance(
     Returns:
         Callable[[type], Instance]: Decorator function that wraps the instance class and returns an Instance object.
     """
-    def wrap(cls: type) -> type:
+    def wrap(cls: type[T]) -> type[T]:
         if not issubclass(cls, component.interface_cls):
             raise TypeError(f"Class {cls} is not a subclass of {component.interface_cls}")
 
@@ -47,5 +49,5 @@ def instance(
             )
         )
 
-        return cls
+        return cls # type: ignore
     return wrap
