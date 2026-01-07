@@ -3,7 +3,7 @@ from typing import Any, Callable, Iterable, Optional
 from dependency_injector import containers, providers
 from dependency.core.injection.utils import LazyList
 from dependency.core.exceptions import InitializationError, CancelInitialization
-_logger = logging.getLogger("DependencyLoader")
+_logger = logging.getLogger("dependency.loader")
 
 # TODO: Añadir soporte para más tipos de providers
 class Injectable:
@@ -50,21 +50,21 @@ class Injectable:
             for implementation in self.imports
         )
 
-    def do_wiring(self, container: containers.DynamicContainer) -> "Injectable":
+    def do_resolve(self) -> "Injectable":
+        """Mark the injectable as resolved."""
+        self.is_resolved = True
+        return self
+
+    def do_wiring(self, container: containers.DynamicContainer) -> None:
         """Wire the provider with the given container.
 
         Args:
             container (containers.DynamicContainer): Container to wire the provider with.
-
-        Returns:
-            Injectable: The current injectable instance.
         """
         container.wire(
             modules=self.modules_cls,
             warn_unresolved=True
         )
-        self.is_resolved = True
-        return self
 
     def do_bootstrap(self) -> None:
         """Execute the bootstrap function if it exists."""

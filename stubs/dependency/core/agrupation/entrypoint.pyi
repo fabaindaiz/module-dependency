@@ -6,8 +6,12 @@ from typing import Iterable
 
 class Entrypoint:
     """Entrypoint for the application.
+
+    Attributes:
+        init_time (float): Time when the entrypoint was initialized.
     """
     init_time: float
     resolver: InjectionResolver
     def __init__(self, container: Container, plugins: Iterable[type[Plugin]]) -> None: ...
-    def main_loop(self) -> None: ...
+    def main_loop(self) -> None:
+        """Main loop for the application. Waits indefinitely."""

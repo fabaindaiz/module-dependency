@@ -8,9 +8,13 @@ COMPONENT = TypeVar('COMPONENT', bound='Component')
 
 class Component:
     """Component Base Class
+
+    Attributes:
+        injection (ProviderInjection): Injection handler for the component
+        interface_cls (type): Interface class for the component
     """
-    interface_cls: type
     injection: ProviderInjection
+    interface_cls: type
     @classmethod
     def reference(cls) -> str:
         """Return the reference name of the component."""
@@ -25,8 +29,8 @@ def component(interface: type, module: type[Module] | None = None) -> Callable[[
     """Decorator for Component class
 
     Args:
-        module (Module): Module instance to register the component.
-        interface (type[T]): Interface class to be used as a base class for the component.
+        interface (type): Interface class to be used as a base class for the component.
+        module (type[Module], optional): Module where the component is registered. Defaults to None.
 
     Raises:
         TypeError: If the wrapped class is not a subclass of Component.

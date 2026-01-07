@@ -7,6 +7,9 @@ PRODUCT = TypeVar('PRODUCT', bound='Product')
 
 class Product:
     """Product Base Class
+
+    Attributes:
+        injectable (Injectable): Injectable instance for the product
     """
     injectable: Injectable
 
@@ -14,8 +17,8 @@ def product(imports: Iterable[type[Component]] = [], products: Iterable[type[Pro
     """Decorator for Product class
 
     Args:
-        imports (Sequence[type[Component]], optional): List of components to be imported by the product. Defaults to [].
-        products (Sequence[type[Product]], optional): List of products to be declared by the product. Defaults to [].
+        imports (Iterable[type[Component]], optional): List of components to be imported by the product. Defaults to [].
+        products (Iterable[type[Product]], optional): List of products to be declared by the product. Defaults to [].
         provider (type[providers.Provider[Any]], optional): Provider class to be used. Defaults to providers.Singleton.
 
     Raises:

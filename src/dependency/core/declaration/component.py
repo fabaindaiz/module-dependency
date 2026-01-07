@@ -4,15 +4,20 @@ from dependency_injector import providers
 from dependency.core.agrupation.module import Module
 from dependency.core.injection.provider import ProviderInjection
 from dependency.core.exceptions import DeclarationError
-_logger = logging.getLogger("DependencyLoader")
+_logger = logging.getLogger("dependency.loader")
 
 COMPONENT = TypeVar('COMPONENT', bound='Component')
 
 class Component:
     """Component Base Class
+
+    Attributes:
+        injection (ProviderInjection): Injection handler for the component
+        interface_cls (type): Interface class for the component
     """
-    interface_cls: type
+
     injection: ProviderInjection
+    interface_cls: type
 
     @classmethod
     def reference(cls) -> str:
@@ -40,8 +45,8 @@ def component(
     """Decorator for Component class
 
     Args:
-        module (Module): Module instance to register the component.
-        interface (type[T]): Interface class to be used as a base class for the component.
+        interface (type): Interface class to be used as a base class for the component.
+        module (type[Module], optional): Module where the component is registered. Defaults to None.
 
     Raises:
         TypeError: If the wrapped class is not a subclass of Component.
@@ -54,14 +59,13 @@ def component(
             raise TypeError(f"Class {cls} is not a subclass of Component")
 
         if module is None:
-            # TODO: Warnings should be configurable (declaration/injection, warning/exception)
             _logger.warning(f"Component {cls.__name__} is not registered to any module")
 
-        cls.interface_cls = interface
         cls.injection = ProviderInjection(
             name=cls.__name__,
             parent=module.injection if module else None,
         )
+        cls.interface_cls = interface
 
         return cls
     return wrap

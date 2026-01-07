@@ -22,14 +22,13 @@ class Injectable:
         """Return an instance from the provider."""
     @property
     def import_resolved(self) -> bool: ...
-    def do_wiring(self, container: containers.DynamicContainer) -> Injectable:
+    def do_resolve(self) -> Injectable:
+        """Mark the injectable as resolved."""
+    def do_wiring(self, container: containers.DynamicContainer) -> None:
         """Wire the provider with the given container.
 
         Args:
             container (containers.DynamicContainer): Container to wire the provider with.
-
-        Returns:
-            Injectable: The current injectable instance.
         """
     def do_bootstrap(self) -> None:
         """Execute the bootstrap function if it exists."""

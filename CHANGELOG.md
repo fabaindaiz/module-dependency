@@ -7,8 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.5.0] - 2026-01-
+
 ### Changed
 
+- Updated docstrings for utility classes and methods in core modules
+- Separated initialization logic into separate methods for better clarity
 - Component & Module classes now use class attributes and methods directly
 - Decorators refactored to use classes directly without instantiating or casting
 

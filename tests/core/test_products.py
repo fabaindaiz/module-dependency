@@ -1,8 +1,8 @@
 import pytest
 from dependency.core.agrupation import Plugin, PluginMeta, module
 from dependency.core.declaration import Component, component, Product, product, instance
-from dependency.core.resolution import Container, InjectionResolver
-from dependency.core.exceptions import DeclarationError, ResolutionError
+from dependency.core.resolution import Container, InjectionConfig, InjectionResolver
+from dependency.core.exceptions import DeclarationError
 
 @module()
 class TPlugin(Plugin):
@@ -44,9 +44,16 @@ class TInstance1(TInterface):
 def test_products():
     container = Container()
     TPlugin.resolve_container(container)
-    providers = TPlugin.resolve_providers()
-    loader = InjectionResolver(container, providers)
+    providers = list(TPlugin.resolve_providers())
 
-    # TODO: Implement unresolved products policy
     with pytest.raises(DeclarationError):
-        loader.resolve_injectables()
+        InjectionResolver.injection(providers)
+
+    config = InjectionConfig(
+        resolve_products=False
+    )
+    injectables = InjectionResolver.injection(
+        providers,
+        config=config,
+    )
+    assert injectables == [TComponent1.injection.injectable]

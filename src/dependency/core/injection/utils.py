@@ -5,6 +5,8 @@ from dependency_injector.wiring import Modifier, Provide, Provider, Closing
 T = TypeVar('T')
 
 class LazyList(Generic[T]):
+    """Lazy List Class for deferred list evaluation.
+    """
     def __init__(self, iterable: Iterable[T]) -> None:
         super().__init__()
         self._iterable = iterable
@@ -35,7 +37,7 @@ class LazyProvide(LazyWiring, Provide): # type: ignore
     pass
 
 class LazyProvider(LazyWiring, Provider): # type: ignore
-    """Lazy Provide Class for deferred provider resolution.
+    """Lazy Provider Class for deferred provider resolution.
     """
     pass
 

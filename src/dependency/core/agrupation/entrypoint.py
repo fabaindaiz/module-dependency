@@ -6,11 +6,13 @@ from dependency.core.agrupation.plugin import Plugin
 from dependency.core.injection.injectable import Injectable
 from dependency.core.resolution.container import Container
 from dependency.core.resolution.resolver import InjectionResolver
-_logger = logging.getLogger("DependencyLoader")
+_logger = logging.getLogger("dependency.loader")
 
-# TODO: Permitir configurar el comportamiento del framework desde el entrypoint
 class Entrypoint:
     """Entrypoint for the application.
+
+    Attributes:
+        init_time (float): Time when the entrypoint was initialized.
     """
     init_time: float = time.time()
 
@@ -28,8 +30,10 @@ class Entrypoint:
             container=container,
             injectables=injectables
         )
+
         self.resolver.resolve_dependencies()
         _logger.info(f"Application started in {time.time() - self.init_time} seconds")
 
     def main_loop(self) -> None:
+        """Main loop for the application. Waits indefinitely."""
         Event().wait()

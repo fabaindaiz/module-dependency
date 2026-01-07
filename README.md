@@ -245,7 +245,6 @@ Some of the areas that will be explored in the future include:
 - Improve testing and validation for projects using this framework
 
 Pending issues that eventually will be addressed:
-- Class Decorator are not being properly type checked by mypy and other type checkers
 - Migration guide from previous versions (some breaking changes were introduced)
 
 ## Aknowledgements

@@ -5,7 +5,7 @@ from dependency.core.injection.base import BaseInjection, ContainerInjection
 from dependency.core.injection.injectable import Injectable
 from dependency.core.injection.utils import LazyProvide
 from dependency.core.exceptions import DeclarationError
-_logger = logging.getLogger("DependencyLoader")
+_logger = logging.getLogger("dependency.loader")
 
 class ProviderInjection(BaseInjection):
     """Provider Injection Class
@@ -46,5 +46,4 @@ class ProviderInjection(BaseInjection):
     @override
     def resolve_providers(self) -> Generator[Injectable, None, None]:
         """Inject all imports into the current injectable."""
-        _logger.debug(f"Component {self.name} added to the injection context")
         yield self.injectable

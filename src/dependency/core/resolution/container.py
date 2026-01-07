@@ -3,6 +3,9 @@ from dependency_injector import containers, providers
 
 class Container(containers.DynamicContainer):
     """Container Class extending DynamicContainer with additional methods.
+
+    Attributes:
+        config (providers.Configuration): Configuration provider for the container.
     """
     config: providers.Configuration = providers.Configuration()
 
@@ -43,3 +46,8 @@ class Container(containers.DynamicContainer):
         container: Container = Container()
         container.config.from_json(file, required, envs_required)
         return container
+
+    def initialize(self) -> None:
+        """Initialize the container by checking dependencies and initializing resources."""
+        self.check_dependencies()
+        self.init_resources()

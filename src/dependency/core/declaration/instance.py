@@ -14,9 +14,9 @@ def instance(
     """Decorator for instance class
 
     Args:
-        component (Component): Component class to be used as a base class for the provider.
-        imports (list[Component], optional): List of components to be imported by the provider. Defaults to [].
-        products (list[type], optional): List of products to be declared by the provider. Defaults to [].
+        component (type[Component]): Component class to be used as a base class for the provider.
+        imports (Iterable[type[Component]], optional): List of components to be imported by the provider. Defaults to ().
+        products (Iterable[type[Product]], optional): List of products to be declared by the provider. Defaults to ().
         provider (type[providers.Provider[Any]], optional): Provider class to be used. Defaults to providers.Singleton.
         bootstrap (bool, optional): Whether the provider should be bootstrapped. Defaults to False.
 

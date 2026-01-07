@@ -1,14 +1,15 @@
-import logging
-from typing import Callable, Optional, TypeVar
+from typing import Callable, Generator, Optional, TypeVar
 from dependency.core.injection.base import ContainerInjection
 from dependency.core.injection.injectable import Injectable
 from dependency.core.resolution.container import Container
-_logger = logging.getLogger("DependencyLoader")
 
 MODULE = TypeVar('MODULE', bound='Module')
 
 class Module:
     """Module Base Class
+
+    Attributes:
+        injection (ContainerInjection): Injection handler for the module
     """
     injection: ContainerInjection
 
@@ -22,13 +23,13 @@ class Module:
         setattr(container, cls.injection.name, cls.injection.inject_cls())
 
     @classmethod
-    def resolve_providers(cls) -> list[Injectable]:
+    def resolve_providers(cls) -> Generator[Injectable, None, None]:
         """Resolve provider injections for the plugin.
 
         Returns:
-            list[Injectable]: A list of injectable providers.
+            Generator[Injectable, None, None]: A generator of injectable providers.
         """
-        return [provider for provider in cls.injection.resolve_providers()]
+        return (provider for provider in cls.injection.resolve_providers())
 
 def module(
     module: Optional[type[Module]] = None
@@ -36,7 +37,7 @@ def module(
     """Decorator for Module class
 
     Args:
-        module (Optional[Module]): Parent module class which this module belongs to.
+        module (type[Module], optional): Parent module class which this module belongs to. Defaults to None.
 
     Raises:
         TypeError: If the wrapped class is not a subclass of Module.
@@ -48,11 +49,10 @@ def module(
         if not issubclass(cls, Module):
             raise TypeError(f"Class {cls} is not a subclass of Module")
 
-        injection = ContainerInjection(
+        cls.injection = ContainerInjection(
             name=cls.__name__,
             parent=module.injection if module else None,
         )
-        cls.injection = injection
 
         return cls
     return wrap

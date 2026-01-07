@@ -31,8 +31,8 @@ class TInstance(TInterface):
 def test_declaration():
     container = containers.DynamicContainer()
     setattr(container, TModule.injection.name, TModule.injection.inject_cls())
-    for provider in list(TModule.injection.resolve_providers()):
-        provider.do_wiring(container)
+    for provider in TModule.injection.resolve_providers():
+        provider.do_resolve()
 
     assert TModule.__name__ == "TModule"
     assert TComponent.interface_cls.__name__ == "TInterface"

@@ -3,6 +3,9 @@ from typing import Any
 
 class Container(containers.DynamicContainer):
     """Container Class extending DynamicContainer with additional methods.
+
+    Attributes:
+        config (providers.Configuration): Configuration provider for the container.
     """
     config: providers.Configuration
     @staticmethod
@@ -28,3 +31,5 @@ class Container(containers.DynamicContainer):
         Returns:
             Container: A new Container instance configured with the provided JSON file.
         """
+    def initialize(self) -> None:
+        """Initialize the container by checking dependencies and initializing resources."""

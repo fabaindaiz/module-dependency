@@ -49,12 +49,11 @@ class TInstance2(TInterface):
 def test_exceptions():
     container = Container()
     TPlugin.resolve_container(container)
-    providers = TPlugin.resolve_providers()
-    loader = InjectionResolver(container, providers)
+    providers = list(TPlugin.resolve_providers())
 
     with pytest.raises(DeclarationError):
         print(TComponent1.provider())
     with pytest.raises(DeclarationError):
         print(TComponent1.provide())
     with pytest.raises(ResolutionError):
-        loader.resolve_injectables()
+        InjectionResolver.injection(providers)
