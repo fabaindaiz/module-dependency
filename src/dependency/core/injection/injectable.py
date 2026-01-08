@@ -2,9 +2,10 @@ import logging
 from typing import Any, Callable, Iterable, Optional
 from dependency_injector import containers, providers
 from dependency.core.exceptions import InitializationError, CancelInitialization
-_logger = logging.getLogger("DependencyLoader")
+from dependency.core.utils.lazy import LazyList
+_logger = logging.getLogger("dependency.loader")
 
-# TODO: Añadir soporte para más tipos de providers
+# TODO: Añadir soporte para otros providers (Abstract Factory, Aggregate, Selector)
 class Injectable:
     """Injectable Class representing a injectable dependency.
     """
@@ -20,26 +21,28 @@ class Injectable:
         self.provided_cls: type = provided_cls
         self.provider_cls: type[providers.Provider[Any]] = provider_cls
         self.modules_cls: set[type] = {component_cls, provided_cls}
-        self.imports_gen: Iterable['Injectable'] = imports
-        self.products_gen: Iterable['Injectable'] = products
         self.bootstrap: Optional[Callable[[], Any]] = bootstrap
 
-        self._imports: Optional[list['Injectable']] = None
-        self._products: Optional[list['Injectable']] = None
+        self._imports: LazyList['Injectable'] = LazyList(imports)
+        self._products: LazyList['Injectable'] = LazyList(products)
         self._provider: Optional[providers.Provider[Any]] = None
         self.is_resolved: bool = False
 
     @property
     def imports(self) -> list['Injectable']:
-        if self._imports is None:
-            self._imports = list(self.imports_gen)
-        return self._imports
+        return self._imports()
 
     @property
     def products(self) -> list['Injectable']:
-        if self._products is None:
-            self._products = list(self.products_gen)
-        return self._products
+        return self._products()
+
+    @property
+    # TODO: Necesito extraer esta definición de provider
+    def provider(self) -> providers.Provider[Any]:
+        """Return an instance from the provider."""
+        if self._provider is None:
+            self._provider = self.provider_cls(self.provided_cls) # type: ignore
+        return self._provider
 
     @property
     def import_resolved(self) -> bool:
@@ -48,28 +51,21 @@ class Injectable:
             for implementation in self.imports
         )
 
-    @property
-    def provider(self) -> providers.Provider[Any]:
-        """Return an instance from the provider."""
-        if self._provider is None:
-            self._provider = self.provider_cls(self.provided_cls) # type: ignore
-        return self._provider
+    def do_injection(self) -> "Injectable":
+        """Mark the injectable as resolved."""
+        self.is_resolved = True
+        return self
 
-    def do_wiring(self, container: containers.DynamicContainer) -> "Injectable":
+    def do_wiring(self, container: containers.DynamicContainer) -> None:
         """Wire the provider with the given container.
 
         Args:
             container (containers.DynamicContainer): Container to wire the provider with.
-
-        Returns:
-            Injectable: The current injectable instance.
         """
         container.wire(
             modules=self.modules_cls,
             warn_unresolved=True
         )
-        self.is_resolved = True
-        return self
 
     def do_bootstrap(self) -> None:
         """Execute the bootstrap function if it exists."""
@@ -78,8 +74,8 @@ class Injectable:
         if self.bootstrap is not None:
             try:
                 self.bootstrap()
-            except CancelInitialization:
-                _logger.warning(f"Initialization of Component {self.component_cls.__name__} was cancelled.")
+            except CancelInitialization as e:
+                _logger.warning(f"Initialization of Component {self.component_cls.__name__} was cancelled: {e}")
             except Exception as e:
                 raise InitializationError(f"Failed to initialize Component {self.component_cls.__name__}") from e
 

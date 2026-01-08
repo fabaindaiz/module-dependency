@@ -8,7 +8,6 @@ from dependency.core.agrupation import (
 from dependency.core.declaration import (
     Component,
     component,
-    Instance,
     instance,
     Product,
     product,
@@ -17,6 +16,8 @@ from dependency.core.declaration import (
 from dependency.core.resolution import (
     Container,
     InjectionResolver,
+    ResolutionConfig,
+    ResolutionStrategy,
 )
 from dependency.core.exceptions import (
     DependencyError,
@@ -31,13 +32,14 @@ __all__ = [
     "PluginMeta",
     "Component",
     "component",
-    "Instance",
     "instance",
     "Product",
     "product",
     "providers",
     "Container",
     "InjectionResolver",
+    "ResolutionConfig",
+    "ResolutionStrategy",
     "DependencyError",
     "CancelInitialization",
 ]

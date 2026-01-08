@@ -82,7 +82,7 @@ from ...plugin...........product import SomeProduct
     component=SomeServiceComponent, # Declares the component to be provided
     imports=[OtherService, ...],    # List of dependencies (components) that are needed
     products=[SomeProduct, ...],    # List of products that this instance will create
-    provider=providers.Singleton,   # Provider type (Singleton, Factory)
+    provider=providers.Singleton,   # Provider type (Singleton, Factory, Resource)
     bootstrap=False,                # Whether to bootstrap on application start
 )
 class ImplementedSomeService(SomeService):
@@ -189,7 +189,7 @@ from ...plugin.....other_product import OtherProduct
 @product(
     imports=[SomeServiceComponent, ...], # List of dependencies (components) that are needed
     products=[OtherProduct, ...],        # List of products that this product will create
-    provider=providers.Singleton,        # Provider type (Singleton, Factory)
+    provider=providers.Singleton,        # Provider type (Singleton, Factory, Resource)
 )
 class SomeProduct(Interface, Product):
     """This is the product class. This class will check for its dependencies.
@@ -245,7 +245,6 @@ Some of the areas that will be explored in the future include:
 - Improve testing and validation for projects using this framework
 
 Pending issues that eventually will be addressed:
-- Class Decorator are not being properly type checked by mypy and other type checkers
 - Migration guide from previous versions (some breaking changes were introduced)
 
 ## Aknowledgements

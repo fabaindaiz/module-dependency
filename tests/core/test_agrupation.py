@@ -11,10 +11,11 @@ class TPlugin(Plugin):
     meta = PluginMeta(name="test_plugin", version="0.1.0")
     config: TPluginConfig
 
-def test_agrupation():
+def test_agrupation() -> None:
     container = Container.from_dict({
         "field1": "value",
         "field2": 100
     })
-    TPlugin.resolve_providers(container) # type: ignore
+
+    TPlugin.resolve_container(container)
     assert TPlugin.config.field1 == "value" and TPlugin.config.field2 == 100

@@ -52,16 +52,15 @@ class TInstance2(TInterface):
         BOOTSTRAPED.append("TInstance2")
         raise CancelInitialization("Failed to initialize TInstance2")
 
-def test_exceptions():
+def test_exceptions() -> None:
     container = Container.from_json("example/config.json")
-    providers = TPlugin.resolve_providers(container) # type: ignore
+    providers = TPlugin.resolve_providers()
+    assert "TInstance1" not in BOOTSTRAPED
+
     loader = InjectionResolver(container, providers)
     assert "TInstance1" not in BOOTSTRAPED
 
-    layers = loader.resolve_injectables()
-    assert "TInstance1" not in BOOTSTRAPED
-
-    loader.start_injectables(layers)
+    loader.resolve_dependencies()
     assert "TInstance1" in BOOTSTRAPED
     assert "TInstance2" in BOOTSTRAPED
 

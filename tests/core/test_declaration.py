@@ -8,9 +8,7 @@ class TInterface(ABC):
     def method(self) -> str:
         pass
 
-@module(
-    module=None,
-)
+@module()
 class TModule(Module):
     pass
 
@@ -30,15 +28,15 @@ class TInstance(TInterface):
     def method(self) -> str:
         return "Hello, World!"
 
-def test_declaration():
+def test_declaration() -> None:
     container = containers.DynamicContainer()
-    setattr(container, TModule.injection.name, TModule.injection.inject_cls()) # type: ignore
-    for provider in list(TModule.injection.resolve_providers()): # type: ignore
-        provider.do_wiring(container)
+    setattr(container, TModule.injection.name, TModule.injection.inject_cls())
+    for provider in TModule.injection.resolve_providers():
+        provider.do_injection()
 
-    assert str(TModule) == "TModule"
-    assert str(TComponent) == "TInterface"
-    assert str(TInstance) == "TInstance"
+    assert TModule.__name__ == "TModule"
+    assert TComponent.interface_cls.__name__ == "TInterface"
+    assert TInstance.__name__ == "TInstance"
 
     component: TInterface = TComponent.provide()
     assert isinstance(component, TInterface)

@@ -22,13 +22,14 @@ def test_change_parent_and_resolve():
     assert HardwareFactoryComponent.injection.reference == "TestingModule.HardwareFactoryComponent"
 
     container = Container()
-    resolver = InjectionResolver(
+    TestingModule.inject_container(container)
+    loader = InjectionResolver(
         container=container,
-        injectables=TestingModule.resolve_providers(container),
+        injectables=TestingModule.resolve_providers(),
     )
-    resolver.resolve_dependencies()
+    injectables = loader.resolve_dependencies()
 
-    assert HardwareFactoryComponent.injection.injectable in resolver.injectables
+    assert HardwareFactoryComponent.injection.injectable in injectables
     assert HardwareFactoryComponent.injection.injectable.is_resolved
 
     hardware_factory: HardwareFactory = HardwareFactoryComponent.provide()

@@ -1,7 +1,7 @@
 from dependency.core.exceptions import DeclarationError as DeclarationError
 from dependency.core.injection.base import BaseInjection as BaseInjection, ContainerInjection as ContainerInjection
 from dependency.core.injection.injectable import Injectable as Injectable
-from dependency.core.injection.utils import LazyProvide as LazyProvide
+from dependency.core.injection.wiring import LazyProvide as LazyProvide
 from dependency_injector import providers as providers
 from typing import Any, Generator, override
 

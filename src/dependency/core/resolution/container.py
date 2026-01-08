@@ -3,6 +3,9 @@ from dependency_injector import containers, providers
 
 class Container(containers.DynamicContainer):
     """Container Class extending DynamicContainer with additional methods.
+
+    Attributes:
+        config (providers.Configuration): Configuration provider for the container.
     """
     config: providers.Configuration = providers.Configuration()
 
@@ -21,7 +24,10 @@ class Container(containers.DynamicContainer):
             Container: A new Container instance configured with the provided dictionary.
         """
         container: Container = Container()
-        container.config.from_dict(config, required)
+        container.config.from_dict(
+            options=config,
+            required=required
+        )
         return container
 
     @staticmethod
@@ -41,5 +47,9 @@ class Container(containers.DynamicContainer):
             Container: A new Container instance configured with the provided JSON file.
         """
         container: Container = Container()
-        container.config.from_json(file, required, envs_required)
+        container.config.from_json(
+            filepath=file,
+            required=required,
+            envs_required=envs_required
+        )
         return container

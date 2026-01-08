@@ -1,6 +1,6 @@
 from dependency.core.exceptions import ResolutionError as ResolutionError
 from dependency.core.injection.injectable import Injectable as Injectable
-from dependency.core.resolution.utils import find_cycles as find_cycles
+from dependency.core.utils.cycle import find_cycles as find_cycles
 
 def raise_circular_error(injectables: list[Injectable]) -> bool:
     """Raise an error if circular dependencies are detected.

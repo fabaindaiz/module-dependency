@@ -3,6 +3,9 @@ from typing import Any
 
 class Container(containers.DynamicContainer):
     """Container Class extending DynamicContainer with additional methods.
+
+    Attributes:
+        config (providers.Configuration): Configuration provider for the container.
     """
     config: providers.Configuration
     @staticmethod

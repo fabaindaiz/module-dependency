@@ -1,8 +1,8 @@
 import logging
 from dependency.core.injection.injectable import Injectable
-from dependency.core.resolution.utils import find_cycles
 from dependency.core.exceptions import ResolutionError
-_logger = logging.getLogger("DependencyLoader")
+from dependency.core.utils.cycle import find_cycles
+_logger = logging.getLogger("dependency.loader")
 
 def raise_circular_error(
     injectables: list[Injectable]
@@ -33,7 +33,7 @@ def raise_dependency_error(
     """
     for injectable in unresolved:
         unresolved_imports = filter(lambda d: not d.is_resolved, injectable.imports)
-        _logger.error(f"Provider {injectable} has unresolved dependencies: {unresolved_imports}")
+        _logger.error(f"Provider {injectable} has unresolved dependencies: {list(unresolved_imports)}")
     return len(unresolved) > 0
 
 def raise_resolution_error(

@@ -30,6 +30,7 @@ PYTHONPATH = "src"
 coverage = "pytest --cov src/dependency --cov-report html -n auto --dist=loadfile"
 example = "python src/main.py"
 stubs = "stubgen src/dependency -o stubs --include-docstrings"
+tests = "pytest -n auto --dist=loadfile"
 typecheck = "mypy --strict src/dependency"
 
 [tool.mypy]
@@ -49,7 +50,7 @@ testpaths = ["tests"]
 
 [project]
 name = "module_dependency"
-version = "0.4.9"
+version = "0.5.0"
 dependencies = [
   "dependency_injector",
   "jinja2",
