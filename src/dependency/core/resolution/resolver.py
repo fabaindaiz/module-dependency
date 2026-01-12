@@ -17,7 +17,7 @@ class InjectionResolver:
         self._injectables: list[Injectable] = list(injectables)
 
     def resolve_dependencies(self,
-        strategy: ResolutionStrategy = ResolutionStrategy()
+        strategy: type[ResolutionStrategy] = ResolutionStrategy
     ) -> list[Injectable]:
         """Resolve all dependencies and initialize them.
 

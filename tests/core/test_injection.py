@@ -1,4 +1,4 @@
-from dependency_injector import containers
+from dependency_injector import containers, providers
 from dependency_injector.wiring import Provide, inject
 from dependency.core.injection import ContainerInjection, ProviderInjection, Injectable
 
@@ -24,6 +24,7 @@ def test_injection1() -> None:
         injectable=Injectable(
             component_cls=Interface,
             provided_cls=Instance,
+            provider=providers.Singleton(Instance),
         )
     )
     assert provider1.reference == TEST_REFERENCE
@@ -31,5 +32,5 @@ def test_injection1() -> None:
     container = containers.DynamicContainer()
     setattr(container, container1.name, container1.inject_cls())
     for provider in list(container1.resolve_providers()):
-        provider.do_wiring(container=container)
+        provider.wire(container=container)
     assert Interface().test() == "Injected service: Test method called"

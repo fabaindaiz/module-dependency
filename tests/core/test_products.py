@@ -1,7 +1,7 @@
 import pytest
 from dependency.core.agrupation import Plugin, PluginMeta, module
 from dependency.core.declaration import Component, component, Product, product, instance
-from dependency.core.resolution import Container, ResolutionConfig, ResolutionStrategy
+from dependency.core.resolution import Container, ResolutionStrategy
 from dependency.core.exceptions import DeclarationError
 
 @module()

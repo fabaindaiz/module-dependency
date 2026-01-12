@@ -33,7 +33,7 @@ class ProviderInjection(BaseInjection):
         injectable: Injectable,
     ) -> None:
         """Set the injectable instance and its imports."""
-        _logger.debug(f"Component {self.name} implementation set: {injectable.provided_cls.__name__}")
+        _logger.debug(f"Component {self.name} implementation set: {injectable}")
         self.__injectable = injectable
         if self.parent:
             self.parent.childs.add(self)

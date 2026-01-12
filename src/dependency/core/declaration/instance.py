@@ -36,7 +36,7 @@ def instance(
             injectable = Injectable(
                 component_cls=component,
                 provided_cls=cls,
-                provider_cls=provider,
+                provider=provider(cls),
                 imports=(
                     component.injection.injectable
                     for component in imports
@@ -49,5 +49,5 @@ def instance(
             )
         )
 
-        return cls # type: ignore
+        return cls
     return wrap

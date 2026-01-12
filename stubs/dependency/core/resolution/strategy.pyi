@@ -13,7 +13,6 @@ class ResolutionStrategy:
     """Defines the strategy for resolving dependencies.
     """
     config: ResolutionConfig
-    def __init__(self, config: ResolutionConfig = ...) -> None: ...
     @classmethod
     def resolution(cls, container: Container, injectables: list[Injectable]) -> list[Injectable]:
         """Resolve all dependencies and initialize them.
@@ -31,7 +30,6 @@ class ResolutionStrategy:
         """Resolve all injectables in layers.
 
         Args:
-            container (Container): The container to wire the injectables with.
             injectables (list[Injectable]): List of injectables to resolve.
 
         Returns:
@@ -46,8 +44,8 @@ class ResolutionStrategy:
             injectables (list[Injectable]): List of injectables to wire.
         """
     @classmethod
-    def bootstrap(cls, injectables: list[Injectable]) -> None:
-        """Start all implementations by executing their bootstrap functions.
+    def initialize(cls, injectables: list[Injectable]) -> None:
+        """Start all implementations by executing their init functions.
 
         Args:
             injectables (list[Injectable]): List of injectables to start.

@@ -46,7 +46,7 @@ def product(
         cls.injectable = Injectable(
             component_cls=cls,
             provided_cls=cls,
-            provider_cls=provider,
+            provider=provider(cls),
             imports=(
                 component.injection.injectable
                 for component in imports

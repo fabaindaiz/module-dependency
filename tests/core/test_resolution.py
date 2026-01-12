@@ -65,6 +65,5 @@ def test_exceptions() -> None:
     assert "TInstance2" in BOOTSTRAPED
 
     assert TComponent1.provide() is not None
-
     with pytest.raises(CancelInitialization):
         TComponent2.provide()

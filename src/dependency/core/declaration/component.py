@@ -25,6 +25,13 @@ class Component:
         return cls.injection.reference
 
     @classmethod
+    def provider(cls) -> providers.Provider[Any]:
+        """Return the provider instance of the component."""
+        if not cls.injection.injectable.is_resolved:
+            raise DeclarationError(f"Component {cls.__name__} injectable was not resolved")
+        return cls.injection.injectable.provider
+
+    @classmethod
     def provide(cls, *args: Any, **kwargs: Any) -> Any:
         """Provide an instance of the interface class"""
         if not cls.injection.injectable.is_resolved:
