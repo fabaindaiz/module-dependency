@@ -6,7 +6,7 @@ from typing import Any, Callable, Iterable, TypeVar
 
 T = TypeVar('T')
 
-def instance(component: type[Component], imports: Iterable[type[Component]] = [], products: Iterable[type[Product]] = [], provider: type[providers.Provider[Any]] = ..., bootstrap: bool = False) -> Callable[[type[T]], type[T]]:
+def instance(component: type[Component] | None, imports: Iterable[type[Component]] = [], products: Iterable[type[Product]] = [], provider: type[providers.Provider[Any]] = ..., bootstrap: bool = False) -> Callable[[type[T]], type[T]]:
     """Decorator for instance class
 
     Args:

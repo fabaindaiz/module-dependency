@@ -8,9 +8,9 @@ class Injectable:
     """
     modules_cls: set[type]
     component_cls: type
-    provided_cls: type
+    provided_cls: list[type]
     is_resolved: bool
-    def __init__(self, component_cls: type, provided_cls: type, provider: providers.Provider[Any], imports: Iterable['Injectable'] = (), products: Iterable['Injectable'] = (), bootstrap: Callable[[], Any] | None = None) -> None: ...
+    def __init__(self, component_cls: type, provided_cls: list[type], provider: providers.Provider[Any], imports: Iterable['Injectable'] = (), products: Iterable['Injectable'] = (), bootstrap: Callable[[], Any] | None = None) -> None: ...
     @property
     def imports(self) -> list['Injectable']: ...
     @property

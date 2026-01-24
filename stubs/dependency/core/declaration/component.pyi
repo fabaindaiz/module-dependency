@@ -1,10 +1,12 @@
 from dependency.core.agrupation.module import Module as Module
 from dependency.core.exceptions import DeclarationError as DeclarationError
+from dependency.core.injection.injectable import Injectable as Injectable
 from dependency.core.injection.provider import ProviderInjection as ProviderInjection
 from dependency_injector import providers as providers
 from typing import Any, Callable, TypeVar
 
 COMPONENT = TypeVar('COMPONENT', bound='Component')
+INTERFACE = TypeVar('INTERFACE')
 
 class Component:
     """Component Base Class
@@ -25,7 +27,7 @@ class Component:
     def provide(cls, *args: Any, **kwargs: Any) -> Any:
         """Provide an instance of the interface class"""
 
-def component(interface: type, module: type[Module] | None = None) -> Callable[[type[COMPONENT]], type[COMPONENT]]:
+def component(interface: type[INTERFACE], module: type[Module] | None = None, provided: list[type] = [], provider: providers.Provider[INTERFACE] | None = None) -> Callable[[type[COMPONENT]], type[COMPONENT]]:
     """Decorator for Component class
 
     Args:

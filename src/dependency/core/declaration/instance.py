@@ -1,4 +1,4 @@
-from typing import Any, Callable, Iterable, TypeVar
+from typing import Any, Callable, Iterable, Optional, TypeVar
 from dependency_injector import providers
 from dependency.core.declaration.component import Component
 from dependency.core.declaration.product import Product
@@ -35,7 +35,7 @@ def instance(
         component.injection.set_instance(
             injectable = Injectable(
                 component_cls=component,
-                provided_cls=cls,
+                provided_cls=[cls],
                 provider=provider(cls),
                 imports=(
                     component.injection.injectable

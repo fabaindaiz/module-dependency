@@ -11,16 +11,16 @@ class Injectable:
     """
     def __init__(self,
         component_cls: type,
-        provided_cls: type,
+        provided_cls: list[type],
         #provider_cls: type[providers.Provider[Any]] = providers.Singleton,
         provider: providers.Provider[Any],
         imports: Iterable['Injectable'] = (),
         products: Iterable['Injectable'] = (),
         bootstrap: Optional[Callable[[], Any]] = None
     ) -> None:
-        self.modules_cls: set[type] = {component_cls, provided_cls}
+        self.modules_cls: set[type] = {component_cls, *provided_cls}
         self.component_cls: type = component_cls
-        self.provided_cls: type = provided_cls
+        self.provided_cls: list[type] = provided_cls
         #self.provider_cls: type[providers.Provider[Any]] = provider_cls
         self._provider: providers.Provider[Any] = provider
         self._bootstrap: Optional[Callable[[], Any]] = bootstrap
@@ -78,4 +78,4 @@ class Injectable:
                 raise InitializationError(f"Failed to initialize Component {self.component_cls.__name__}") from e
 
     def __repr__(self) -> str:
-        return f"{self.provided_cls.__name__}"
+        return f"{(cls.__name__ for cls in self.provided_cls)}"

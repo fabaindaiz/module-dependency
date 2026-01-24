@@ -2,11 +2,13 @@ import logging
 from typing import Any, Callable, Optional, TypeVar
 from dependency_injector import providers
 from dependency.core.agrupation.module import Module
+from dependency.core.injection.injectable import Injectable
 from dependency.core.injection.provider import ProviderInjection
 from dependency.core.exceptions import DeclarationError
 _logger = logging.getLogger("dependency.loader")
 
 COMPONENT = TypeVar('COMPONENT', bound='Component')
+INTERFACE = TypeVar('INTERFACE')
 
 class Component:
     """Component Base Class
@@ -39,8 +41,10 @@ class Component:
         return cls.injection.injectable.provider(*args, **kwargs)
 
 def component(
-    interface: type,
+    interface: type[INTERFACE],
     module: Optional[type[Module]] = None,
+    provided: list[type] = [],
+    provider: Optional[providers.Provider[INTERFACE]] = None,
 ) -> Callable[[type[COMPONENT]], type[COMPONENT]]:
     """Decorator for Component class
 
@@ -66,6 +70,17 @@ def component(
             parent=module.injection if module else None,
         )
         cls.interface_cls = interface
+
+        if provider is not None:
+            cls.injection.set_instance(
+                injectable = Injectable(
+                    component_cls=cls,
+                    provided_cls=provided,
+                    provider=provider,
+                    imports=(),
+                    products=(),
+                )
+            )
 
         return cls
     return wrap
