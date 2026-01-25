@@ -1,11 +1,8 @@
-import logging
 from typing import Iterable
 from dependency.core.injection.injectable import Injectable
 from dependency.core.resolution.container import Container
 from dependency.core.resolution.strategy import ResolutionStrategy
-_logger = logging.getLogger("dependency.loader")
 
-# TODO: añadir API meta con acceso al framework
 class InjectionResolver:
     """Injection Resolver Class
     """

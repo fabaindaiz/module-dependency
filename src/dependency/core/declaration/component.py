@@ -1,44 +1,19 @@
 import logging
-from typing import Any, Callable, Optional, TypeVar
+from typing import Callable, Optional, TypeVar
 from dependency_injector import providers
 from dependency.core.agrupation.module import Module
 from dependency.core.injection.injectable import Injectable
 from dependency.core.injection.provider import ProviderInjection
-from dependency.core.exceptions import DeclarationError
+from dependency.core.injection.mixin import ProviderMixin
+
 _logger = logging.getLogger("dependency.loader")
 
 COMPONENT = TypeVar('COMPONENT', bound='Component')
 INTERFACE = TypeVar('INTERFACE')
 
-class Component:
+class Component(ProviderMixin):
     """Component Base Class
-
-    Attributes:
-        injection (ProviderInjection): Injection handler for the component
-        interface_cls (type): Interface class for the component
     """
-
-    injection: ProviderInjection
-    interface_cls: type
-
-    @classmethod
-    def reference(cls) -> str:
-        """Return the reference name of the component."""
-        return cls.injection.reference
-
-    @classmethod
-    def provider(cls) -> providers.Provider[Any]:
-        """Return the provider instance of the component."""
-        if not cls.injection.injectable.is_resolved:
-            raise DeclarationError(f"Component {cls.__name__} injectable was not resolved")
-        return cls.injection.injectable.provider
-
-    @classmethod
-    def provide(cls, *args: Any, **kwargs: Any) -> Any:
-        """Provide an instance of the interface class"""
-        if not cls.injection.injectable.is_resolved:
-            raise DeclarationError(f"Component {cls.__name__} injectable was not resolved")
-        return cls.injection.injectable.provider(*args, **kwargs)
 
 def component(
     interface: type[INTERFACE],
@@ -67,10 +42,11 @@ def component(
 
         cls.injection = ProviderInjection(
             name=cls.__name__,
+            interface_cls=interface,
             parent=module.injection if module else None,
         )
-        cls.interface_cls = interface
 
+        # TODO: Complete this
         if provider is not None:
             cls.injection.set_instance(
                 injectable = Injectable(

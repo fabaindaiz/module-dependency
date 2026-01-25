@@ -1,5 +1,6 @@
 from dependency.core.declaration.component import Component as Component
 from dependency.core.injection.injectable import Injectable as Injectable
+from dependency.core.injection.provider import ProviderInjection as ProviderInjection
 from dependency_injector import providers
 from typing import Any, Callable, Iterable, TypeVar
 
@@ -11,7 +12,7 @@ class Product:
     Attributes:
         injectable (Injectable): Injectable instance for the product
     """
-    injectable: Injectable
+    injection: ProviderInjection
     @classmethod
     def provide(cls, *args: Any, **kwargs: Any) -> Any:
         """Provide an instance of the product"""

@@ -1,4 +1,4 @@
-from typing import Any, Callable, Iterable, Optional, TypeVar
+from typing import Any, Callable, Iterable, TypeVar
 from dependency_injector import providers
 from dependency.core.declaration.component import Component
 from dependency.core.declaration.product import Product
@@ -29,8 +29,9 @@ def instance(
         Callable[[type], Instance]: Decorator function that wraps the instance class and returns an Instance object.
     """
     def wrap(cls: type[T]) -> type[T]:
-        if not issubclass(cls, component.interface_cls):
-            raise TypeError(f"Class {cls} is not a subclass of {component.interface_cls}")
+        interface_cls: type = component.injection.interface_cls
+        if not issubclass(cls, interface_cls):
+            raise TypeError(f"Class {cls} is not a subclass of {interface_cls}")
 
         component.injection.set_instance(
             injectable = Injectable(
@@ -42,7 +43,7 @@ def instance(
                     for component in imports
                 ),
                 products=(
-                    product.injectable
+                    product.injection.injectable
                     for product in products
                 ),
                 bootstrap=component.provide if bootstrap else None,
