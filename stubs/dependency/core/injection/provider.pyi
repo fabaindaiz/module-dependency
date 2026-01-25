@@ -5,25 +5,6 @@ from dependency.core.injection.wiring import LazyProvide as LazyProvide
 from dependency_injector import providers as providers
 from typing import Any, Generator, override
 
-class ProviderMixin:
-    """Component Base Class
-
-    Attributes:
-        injection (ProviderInjection): Injection handler for the component
-        interface_cls (type): Interface class for the component
-    """
-    injection: ProviderInjection
-    interface_cls: type
-    @classmethod
-    def reference(cls) -> str:
-        """Return the reference name of the component."""
-    @classmethod
-    def provider(cls) -> providers.Provider[Any]:
-        """Return the provider instance of the component."""
-    @classmethod
-    def provide(cls, *args: Any, **kwargs: Any) -> Any:
-        """Provide an instance of the interface class"""
-
 class ProviderInjection(BaseInjection):
     """Provider Injection Class
     """
