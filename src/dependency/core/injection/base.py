@@ -20,6 +20,7 @@ class BaseInjection(ABC):
             return self.name
         return f"{self.parent.reference}.{self.name}"
 
+    # TODO: Modification might need rewiring (?)
     def change_parent(self, parent: 'ContainerInjection') -> None:
         """Change the parent injection of this injection.
 

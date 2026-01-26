@@ -2,24 +2,16 @@ from typing import Any, Callable, Iterable, TypeVar
 from dependency_injector import providers
 from dependency.core.declaration.component import Component
 from dependency.core.injection.injectable import Injectable
+from dependency.core.injection.provider import ProviderInjection
+from dependency.core.injection.mixin import ProviderMixin
 
 PRODUCT = TypeVar('PRODUCT', bound='Product')
 
-class Product:
+class Product(ProviderMixin):
     """Product Base Class
-
-    Attributes:
-        injectable (Injectable): Injectable instance for the product
     """
-    injectable: Injectable
 
-    @classmethod
-    def provide(cls, *args: Any, **kwargs: Any) -> Any:
-        """Provide an instance of the product"""
-        if not cls.injectable.is_resolved:
-            raise RuntimeError(f"Product {cls.__name__} injectable was not resolved")
-        return cls.injectable.provider(*args, **kwargs)
-
+# TODO: Providable is Lazy, allowing interception
 def product(
     imports: Iterable[type[Component]] = [],
     products: Iterable[type[Product]] = [],
@@ -43,19 +35,25 @@ def product(
         if not issubclass(cls, Product):
             raise TypeError(f"Class {cls} is not a subclass of Product")
 
-        cls.injectable = Injectable(
-            component_cls=cls,
-            provided_cls=cls,
-            provider_cls=provider,
-            imports=(
-                component.injection.injectable
-                for component in imports
-            ),
-            products=(
-                product.injectable
-                for product in products
-            ),
-            bootstrap=cls.provide if bootstrap else None,
+        cls.injection = ProviderInjection(
+            name=cls.__name__,
+            interface_cls=cls,
+        )
+        cls.injection.set_instance(
+            injectable = Injectable(
+                component_cls=cls,
+                provided_cls=[cls],
+                provider=provider(cls),
+                imports=(
+                    component.injection.injectable
+                    for component in imports
+                ),
+                products=(
+                    product.injection.injectable
+                    for product in products
+                ),
+                bootstrap=cls.provide if bootstrap else None,
+            )
         )
 
         return cls

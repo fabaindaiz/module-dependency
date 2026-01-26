@@ -32,10 +32,10 @@ def test_declaration() -> None:
     container = containers.DynamicContainer()
     setattr(container, TModule.injection.name, TModule.injection.inject_cls())
     for provider in TModule.injection.resolve_providers():
-        provider.do_injection()
+        provider.inject()
 
     assert TModule.__name__ == "TModule"
-    assert TComponent.interface_cls.__name__ == "TInterface"
+    assert TComponent.injection.interface_cls.__name__ == "TInterface"
     assert TInstance.__name__ == "TInstance"
 
     component: TInterface = TComponent.provide()

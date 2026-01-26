@@ -29,25 +29,26 @@ def instance(
         Callable[[type], Instance]: Decorator function that wraps the instance class and returns an Instance object.
     """
     def wrap(cls: type[T]) -> type[T]:
-        if not issubclass(cls, component.interface_cls):
-            raise TypeError(f"Class {cls} is not a subclass of {component.interface_cls}")
+        interface_cls: type = component.injection.interface_cls
+        if not issubclass(cls, interface_cls):
+            raise TypeError(f"Class {cls} is not a subclass of {interface_cls}")
 
         component.injection.set_instance(
             injectable = Injectable(
                 component_cls=component,
-                provided_cls=cls,
-                provider_cls=provider,
+                provided_cls=[cls],
+                provider=provider(cls),
                 imports=(
                     component.injection.injectable
                     for component in imports
                 ),
                 products=(
-                    product.injectable
+                    product.injection.injectable
                     for product in products
                 ),
                 bootstrap=component.provide if bootstrap else None,
             )
         )
 
-        return cls # type: ignore
+        return cls
     return wrap

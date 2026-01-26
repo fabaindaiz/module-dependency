@@ -29,7 +29,7 @@ class EventPublisher():
             self.__targets.setdefault(value, []).append(subscriber(func))
             return func
         return wrapper
-    
+
     def update(self, context: EventContext) -> None:
         subscribers = self.__targets.get(type(context), [])
         for subscriber in subscribers:
@@ -52,11 +52,11 @@ if __name__ == '__main__':
             @self.publisher.subscribe(EventSubscriber)
             def listen_event_a(context1: EventA) -> None:
                 print(f"Event A triggered with parameter: {context1.parameterA}")
-            
+
             @self.publisher.subscribe(EventSubscriber)
             def listen_event_b(context2: EventB) -> None:
                 print(f"Event B triggered with parameter: {context2.parameterB}")
-        
+
     instance = Observer()
     instance.publisher.update(EventA("Hello World!"))
     instance.publisher.update(EventB("Goodbye World!"))

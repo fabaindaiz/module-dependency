@@ -8,7 +8,7 @@ class InjectionResolver:
     """
     container: Container
     def __init__(self, container: Container, injectables: Iterable[Injectable]) -> None: ...
-    def resolve_dependencies(self, strategy: ResolutionStrategy = ...) -> list[Injectable]:
+    def resolve_dependencies(self, strategy: type[ResolutionStrategy] = ...) -> list[Injectable]:
         """Resolve all dependencies and initialize them.
 
         Args:

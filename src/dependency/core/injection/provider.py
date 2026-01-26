@@ -12,9 +12,11 @@ class ProviderInjection(BaseInjection):
     """
     def __init__(self,
         name: str,
+        interface_cls: type,
         parent: Optional['ContainerInjection'] = None
     ) -> None:
         super().__init__(name=name, parent=parent)
+        self.interface_cls: type = interface_cls
         self.__injectable: Optional[Injectable] = None
 
     @property
@@ -33,7 +35,7 @@ class ProviderInjection(BaseInjection):
         injectable: Injectable,
     ) -> None:
         """Set the injectable instance and its imports."""
-        _logger.debug(f"Component {self.name} implementation set: {injectable.provided_cls.__name__}")
+        _logger.debug(f"Component {self.name} implementation set: {injectable}")
         self.__injectable = injectable
         if self.parent:
             self.parent.childs.add(self)

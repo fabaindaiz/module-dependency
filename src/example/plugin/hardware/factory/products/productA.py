@@ -4,7 +4,6 @@ from dependency.core.injection import LazyProvide
 from example.plugin.hardware.factory.interfaces import Hardware
 from example.plugin.base.number import NumberService, NumberServiceComponent
 
-
 @product(
     imports=[
         NumberServiceComponent,

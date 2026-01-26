@@ -16,11 +16,6 @@ class ResolutionStrategy:
     """
     config: ResolutionConfig = ResolutionConfig()
 
-    def __init__(self,
-        config: ResolutionConfig = ResolutionConfig()
-    ) -> None:
-        self.config = config
-
     @classmethod
     def resolution(cls,
         container: Container,
@@ -43,7 +38,7 @@ class ResolutionStrategy:
             container=container,
             injectables=injectables,
         )
-        cls.bootstrap(
+        cls.initialize(
             injectables=injectables
         )
         return injectables
@@ -55,7 +50,6 @@ class ResolutionStrategy:
         """Resolve all injectables in layers.
 
         Args:
-            container (Container): The container to wire the injectables with.
             injectables (list[Injectable]): List of injectables to resolve.
 
         Returns:
@@ -67,7 +61,7 @@ class ResolutionStrategy:
 
         while unresolved:
             new_layer = [
-                injectable.do_injection()
+                injectable.inject()
                 for injectable in unresolved
                 if injectable.import_resolved
             ]
@@ -104,20 +98,20 @@ class ResolutionStrategy:
         """
         _logger.info("Wiring injectables...")
         for injectable in injectables:
-            injectable.do_wiring(container=container)
+            injectable.wire(container=container)
         if cls.config.init_container:
             container.check_dependencies()
             container.init_resources()
 
     @classmethod
-    def bootstrap(cls,
+    def initialize(cls,
         injectables: list[Injectable],
     ) -> None:
-        """Start all implementations by executing their bootstrap functions.
+        """Start all implementations by executing their init functions.
 
         Args:
             injectables (list[Injectable]): List of injectables to start.
         """
         _logger.info("Starting injectables...")
         for injectable in injectables:
-            injectable.do_bootstrap()
+            injectable.init()

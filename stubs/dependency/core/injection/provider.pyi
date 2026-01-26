@@ -8,7 +8,8 @@ from typing import Any, Generator, override
 class ProviderInjection(BaseInjection):
     """Provider Injection Class
     """
-    def __init__(self, name: str, parent: ContainerInjection | None = None) -> None: ...
+    interface_cls: type
+    def __init__(self, name: str, interface_cls: type, parent: ContainerInjection | None = None) -> None: ...
     @property
     def provider(self) -> providers.Provider[Any]:
         """Return the provider instance."""
