@@ -1,16 +1,24 @@
-from abc import ABC, abstractmethod
-from dependency.core import Component, component
+from dependency.core import Product, product, providers
 from example.plugin.reporter import ReporterPlugin
-from example.plugin.reporter.factory.interfaces import Reporter
+from example.plugin.reporter.interfaces import Reporter
+from example.plugin.reporter.factory.productA import ReporterA
 
-class ReporterFactory(ABC):
-    @abstractmethod
-    def createProduct(self, product: str) -> Reporter:
-        pass
-
-@component(
+@product(
     module=ReporterPlugin,
-    interface=ReporterFactory,
+    products=[
+        ReporterA,
+    ],
+    provider=providers.Singleton,
 )
-class ReporterFactoryComponent(Component):
-    pass
+class ReporterFactory(Product):
+    def __init__(self):
+        print("Factory initialized")
+
+    def createProduct(self, product: str) -> Reporter:
+        instance: Reporter
+        match product:
+            case "A":
+                instance = ReporterA()
+                return instance
+            case _:
+                raise ValueError(f"Unknown product type: {product}")

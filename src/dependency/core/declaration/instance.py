@@ -3,12 +3,19 @@ from dependency_injector import providers
 from dependency.core.declaration.component import Component
 from dependency.core.declaration.product import Product
 from dependency.core.injection.injectable import Injectable
+from dependency.core.injection.mixin import ProviderMixin
+
+_PROVIDERS = (
+    providers.BaseSingleton,
+    providers.Factory,
+    providers.Resource
+)
 
 T = TypeVar('T')
 
 def instance(
     component: type[Component],
-    imports: Iterable[type[Component]] = [],
+    imports: Iterable[type[ProviderMixin]] = [],
     products: Iterable[type[Product]] = [],
     provider: type[providers.Provider[Any]] = providers.Singleton,
     bootstrap: bool = False,
@@ -31,7 +38,10 @@ def instance(
     def wrap(cls: type[T]) -> type[T]:
         interface_cls: type = component.injection.interface_cls
         if not issubclass(cls, interface_cls):
-            raise TypeError(f"Class {cls} is not a subclass of {interface_cls}")
+            raise TypeError(f"Class {cls.__name__} must be a subclass of {interface_cls.__name__} to be used as an instance of component {component.__name__}")
+
+        if not issubclass(provider, _PROVIDERS):
+            raise TypeError(f"Instance {cls.__name__} has an invalid provider {provider.__name__} (allowed: {[p.__name__ for p in _PROVIDERS]})")
 
         component.injection.set_instance(
             injectable = Injectable(

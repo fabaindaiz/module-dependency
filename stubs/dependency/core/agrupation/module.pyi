@@ -1,4 +1,4 @@
-from dependency.core.injection.base import ContainerInjection as ContainerInjection
+from dependency.core.injection.injection import ContainerInjection as ContainerInjection
 from dependency.core.injection.mixin import ContainerMixin as ContainerMixin
 from typing import Callable, TypeVar
 

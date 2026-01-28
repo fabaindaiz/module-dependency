@@ -1,19 +1,29 @@
-from typing import Any, Callable, Iterable, TypeVar
+import logging
+from typing import Any, Callable, Iterable, Optional, TypeVar
 from dependency_injector import providers
-from dependency.core.declaration.component import Component
+from dependency.core.agrupation.module import Module
 from dependency.core.injection.injectable import Injectable
-from dependency.core.injection.provider import ProviderInjection
+from dependency.core.injection.injection import ProviderInjection
 from dependency.core.injection.mixin import ProviderMixin
+_logger = logging.getLogger("dependency.loader")
+
+_PROVIDERS = (
+    providers.BaseSingleton,
+    providers.Factory,
+    providers.Resource,
+)
 
 PRODUCT = TypeVar('PRODUCT', bound='Product')
 
 class Product(ProviderMixin):
     """Product Base Class
     """
+    implicit_component: Optional[type[ProviderMixin]] = None
 
-# TODO: Providable is Lazy, allowing interception
+# TODO: Products can be provided in components too
 def product(
-    imports: Iterable[type[Component]] = [],
+    module: Optional[type[Module]] = None,
+    imports: Iterable[type[ProviderMixin]] = [],
     products: Iterable[type[Product]] = [],
     provider: type[providers.Provider[Any]] = providers.Singleton,
     bootstrap: bool = False,
@@ -33,11 +43,19 @@ def product(
     """
     def wrap(cls: type[PRODUCT]) -> type[PRODUCT]:
         if not issubclass(cls, Product):
-            raise TypeError(f"Class {cls} is not a subclass of Product")
+            raise TypeError(f"Class {cls} has decorator @product but is not a subclass of Product")
+
+        if cls.implicit_component is not None:
+            _logger.debug(f"Product {cls.__name__} implicit component assigned: {cls.implicit_component.__name__}")
+            return cls
+
+        if not issubclass(provider, _PROVIDERS):
+            raise TypeError(f"Product {cls.__name__} has an invalid provider {provider.__name__} (allowed: {[p.__name__ for p in _PROVIDERS]})")
 
         cls.injection = ProviderInjection(
             name=cls.__name__,
             interface_cls=cls,
+            parent=module.injection if module else None,
         )
         cls.injection.set_instance(
             injectable = Injectable(

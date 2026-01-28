@@ -1,9 +1,9 @@
 from dependency.core import instance, providers
 from example.plugin.hardware import HardwarePlugin
+from example.plugin.hardware.events import EventHardwareOperation
 from example.plugin.hardware.bridge import HardwareAbstraction, HardwareAbstractionComponent
 from example.plugin.hardware.factory import HardwareFactory, HardwareFactoryComponent
 from example.plugin.hardware.observer import HardwareObserver, HardwareObserverComponent
-from example.plugin.hardware.observer.interfaces import EventHardwareOperation
 
 @instance(
     component=HardwareAbstractionComponent,

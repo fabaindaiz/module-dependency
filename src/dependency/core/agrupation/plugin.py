@@ -1,5 +1,5 @@
 import logging
-from pydantic import BaseModel
+from pydantic import BaseModel, ValidationError
 from typing import get_type_hints
 from dependency.core.agrupation.module import Module
 from dependency.core.resolution.container import Container
@@ -38,8 +38,10 @@ class Plugin(Module):
             cls.inject_container(container)
             config_cls = get_type_hints(cls).get("config", object)
             if issubclass(config_cls, BaseModel):
-                setattr(cls, "config", config_cls(**container.config()))
+                setattr(cls, "config", config_cls.model_validate(container.config()))
             else:
-                _logger.warning(f"Plugin {cls.meta} has no valid config class")
+                _logger.warning(f"Plugin {cls.meta} configuration class is not a subclass of BaseModel")
+        except ValidationError as e:
+            raise ResolutionError(f"Plugin {cls.meta} configuration validation failed") from e
         except Exception as e:
-            raise ResolutionError(f"Failed to resolve plugin config for {cls.meta}") from e
+            raise ResolutionError(f"Plugin {cls.meta} configuration resolution failed with unexpected error") from e

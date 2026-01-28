@@ -22,9 +22,10 @@ class EventPublisher():
         def wrapper(func: Callable[[EventContext], None]) -> Callable[[EventContext], None]:
             for name, value in func.__annotations__.items():
                 if name == "return":
-                    raise TypeError(f"Subscribe must wrap a function with an argument subtype EventContext, but '{func.__name__}' has a return type annotation.")
+                    raise TypeError(f"Function '{func.__name__}' must have at least one parameter with a type annotation that is a subclass of EventContext.")
+
                 if not issubclass(value, EventContext):
-                    raise TypeError(f"Subscribe must wrap a function with an argument subtype EventContext, but '{func.__name__}' parameter '{name}' is of type '{value.__name__}'.")
+                    raise TypeError(f"Parameter '{name}' in '{func.__name__}' must be a subclass of EventContext, got {value.__name__}.")
                 break
             self.__targets.setdefault(value, []).append(subscriber(func))
             return func

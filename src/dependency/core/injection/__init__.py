@@ -1,6 +1,5 @@
-from dependency.core.injection.base import ContainerInjection
-from dependency.core.injection.provider import ProviderInjection
 from dependency.core.injection.injectable import Injectable
+from dependency.core.injection.injection import ContainerInjection, ProviderInjection
 from dependency.core.injection.wiring import LazyProvide, LazyProvider, LazyClosing
 
 __all__ = [

@@ -1,18 +1,20 @@
 import logging
 from typing import Any, Callable, Iterable, Optional
 from dependency_injector import containers, providers
-from dependency.core.exceptions import InitializationError, CancelInitialization
 from dependency.core.utils.lazy import LazyList
+from dependency.core.exceptions import (
+    DeclarationError,
+    InitializationError,
+    CancelInitialization,
+)
 _logger = logging.getLogger("dependency.loader")
 
-# TODO: Encapsulate provider logic in this class
 class Injectable:
     """Injectable Class representing a injectable dependency.
     """
     def __init__(self,
         component_cls: type,
         provided_cls: list[type],
-        #provider_cls: type[providers.Provider[Any]] = providers.Singleton,
         provider: providers.Provider[Any],
         imports: Iterable['Injectable'] = (),
         products: Iterable['Injectable'] = (),
@@ -21,8 +23,7 @@ class Injectable:
         self.modules_cls: set[type] = {component_cls, *provided_cls}
         self.component_cls: type = component_cls
         self.provided_cls: list[type] = provided_cls
-        #self.provider_cls: type[providers.Provider[Any]] = provider_cls
-        self._provider: providers.Provider[Any] = provider
+        self.provider_cls: providers.Provider[Any] = provider
         self._bootstrap: Optional[Callable[[], Any]] = bootstrap
 
         self._imports: LazyList['Injectable'] = LazyList(imports)
@@ -40,7 +41,12 @@ class Injectable:
     @property
     def provider(self) -> providers.Provider[Any]:
         """Return an instance from the provider."""
-        return self._provider
+        if not self.is_resolved:
+            raise DeclarationError(
+                f"Injectable {self.component_cls.__name__} accessed before being resolved. "
+                f"Ensure it is declared as a dependency (imports or products) where it is being used"
+            )
+        return self.provider_cls
 
     @property
     def import_resolved(self) -> bool:
@@ -68,14 +74,18 @@ class Injectable:
     def init(self) -> None:
         """Execute the bootstrap function if it exists."""
         if not self.is_resolved:
-            raise InitializationError(f"Component {self.component_cls.__name__} cannot be initialized before being resolved.")
+            raise DeclarationError(
+                f"Injectable {self.component_cls.__name__} must be resolved before initialization. "
+                f"Ensure it is declared as a dependency (imports or products) where it is being used"
+            )
+
         if self._bootstrap is not None:
             try:
                 self._bootstrap()
             except CancelInitialization as e:
-                _logger.warning(f"Initialization of Component {self.component_cls.__name__} was cancelled: {e}")
+                _logger.warning(f"Injectable {self.component_cls.__name__} initialization skipped (cancelled by user): {e}")
             except Exception as e:
-                raise InitializationError(f"Failed to initialize Component {self.component_cls.__name__}") from e
+                raise InitializationError(f"Injectable {self.component_cls.__name__} initialization failed") from e
 
     def __repr__(self) -> str:
         return f"{(cls.__name__ for cls in self.provided_cls)}"

@@ -1,7 +1,7 @@
 from dependency.core import Product, product
-from example.plugin.reporter.factory.interfaces import Reporter
+from example.plugin.reporter.interfaces import Reporter
+from example.plugin.hardware.events import EventSubscriber, EventHardwareCreated, EventHardwareOperation
 from example.plugin.hardware.observer import HardwareObserver, HardwareObserverComponent
-from example.plugin.hardware.observer.interfaces import EventSubscriber, EventHardwareCreated, EventHardwareOperation
 
 @product(
     imports=[

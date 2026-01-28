@@ -1,7 +1,5 @@
-from dependency.core.exceptions import DeclarationError as DeclarationError
-from dependency.core.injection.base import ContainerInjection as ContainerInjection
 from dependency.core.injection.injectable import Injectable as Injectable
-from dependency.core.injection.provider import ProviderInjection as ProviderInjection
+from dependency.core.injection.injection import ContainerInjection as ContainerInjection, ProviderInjection as ProviderInjection
 from dependency.core.resolution.container import Container as Container
 from dependency_injector import providers as providers
 from typing import Any, Generator
@@ -32,15 +30,15 @@ class ProviderMixin:
     """Providable Base Class
 
     Attributes:
-        injection (ProviderInjection): Injection handler for the component
+        injection (ProviderInjection): Injection handler for the provider
     """
     injection: ProviderInjection
     @classmethod
     def reference(cls) -> str:
-        """Return the reference name of the component."""
+        """Return the reference name of the Injectable."""
     @classmethod
     def provider(cls) -> providers.Provider[Any]:
-        """Return the provider instance of the component."""
+        """Return the provider instance of the Injectable."""
     @classmethod
     def provide(cls, *args: Any, **kwargs: Any) -> Any:
-        """Provide an instance of the interface class"""
+        """Provide an instance of the Injectable."""

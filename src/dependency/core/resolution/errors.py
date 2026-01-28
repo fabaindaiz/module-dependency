@@ -17,7 +17,7 @@ def raise_circular_error(
     """
     cycles = find_cycles(lambda i: i.imports, injectables)
     for cycle in cycles:
-        _logger.error(f"Circular import: {cycle}")
+        _logger.error(f"Circular dependency detected: {cycle}")
     return len(cycles) > 0
 
 def raise_dependency_error(
@@ -33,7 +33,7 @@ def raise_dependency_error(
     """
     for injectable in unresolved:
         unresolved_imports = filter(lambda d: not d.is_resolved, injectable.imports)
-        _logger.error(f"Provider {injectable} has unresolved dependencies: {list(unresolved_imports)}")
+        _logger.error(f"Injectable {injectable} has unresolved dependencies: {list(unresolved_imports)}")
     return len(unresolved) > 0
 
 def raise_resolution_error(
@@ -52,4 +52,4 @@ def raise_resolution_error(
     circular_error = raise_circular_error(injectables)
     dependency_error = raise_dependency_error(unresolved)
     if circular_error or dependency_error:
-        raise ResolutionError("Errors detected during provider resolution.")
+        raise ResolutionError("Provider resolution failed due to dependency errors")

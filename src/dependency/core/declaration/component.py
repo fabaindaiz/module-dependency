@@ -1,11 +1,11 @@
 import logging
-from typing import Callable, Optional, TypeVar
+from typing import Callable, Iterable, Optional, TypeVar
 from dependency_injector import providers
 from dependency.core.agrupation.module import Module
+from dependency.core.declaration.product import Product
 from dependency.core.injection.injectable import Injectable
-from dependency.core.injection.provider import ProviderInjection
+from dependency.core.injection.injection import ProviderInjection
 from dependency.core.injection.mixin import ProviderMixin
-
 _logger = logging.getLogger("dependency.loader")
 
 COMPONENT = TypeVar('COMPONENT', bound='Component')
@@ -18,7 +18,7 @@ class Component(ProviderMixin):
 def component(
     interface: type[INTERFACE],
     module: Optional[type[Module]] = None,
-    provided: list[type] = [],
+    products: Iterable[type[Product]] = (),
     provider: Optional[providers.Provider[INTERFACE]] = None,
 ) -> Callable[[type[COMPONENT]], type[COMPONENT]]:
     """Decorator for Component class
@@ -35,10 +35,10 @@ def component(
     """
     def wrap(cls: type[COMPONENT]) -> type[COMPONENT]:
         if not issubclass(cls, Component):
-            raise TypeError(f"Class {cls} is not a subclass of Component")
+            raise TypeError(f"Class {cls} has decorator @component but is not a subclass of Component")
 
         if module is None:
-            _logger.warning(f"Component {cls.__name__} is not registered to any module")
+            _logger.warning(f"Component {cls.__name__} has no parent module (consider registering)")
 
         cls.injection = ProviderInjection(
             name=cls.__name__,
@@ -46,15 +46,20 @@ def component(
             parent=module.injection if module else None,
         )
 
-        # TODO: Complete this
         if provider is not None:
+            products_list: list[type[Product]] = list(products)
+            if len(products_list) == 0:
+                _logger.warning(f"Component {cls.__name__} has a provider but no provided classes")
+
             cls.injection.set_instance(
                 injectable = Injectable(
                     component_cls=cls,
-                    provided_cls=provided,
+                    provided_cls=products_list,
                     provider=provider,
-                    imports=(),
-                    products=(),
+                    products=(
+                        product.injection.injectable
+                        for product in products_list
+                    ),
                 )
             )
 

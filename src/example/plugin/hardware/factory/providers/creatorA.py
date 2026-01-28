@@ -1,10 +1,10 @@
 from dependency.core import instance, providers
+from example.plugin.hardware.interfaces import Hardware
 from example.plugin.hardware.factory import HardwareFactory, HardwareFactoryComponent
-from example.plugin.hardware.factory.interfaces import Hardware
 from example.plugin.hardware.factory.products.productA import HardwareA
 from example.plugin.hardware.factory.products.productB import HardwareB
 from example.plugin.hardware.observer import HardwareObserver, HardwareObserverComponent
-from example.plugin.hardware.observer.interfaces import EventHardwareCreated
+from example.plugin.hardware.events import EventHardwareCreated
 
 @instance(
     component=HardwareFactoryComponent,

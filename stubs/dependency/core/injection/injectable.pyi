@@ -1,4 +1,4 @@
-from dependency.core.exceptions import CancelInitialization as CancelInitialization, InitializationError as InitializationError
+from dependency.core.exceptions import CancelInitialization as CancelInitialization, DeclarationError as DeclarationError, InitializationError as InitializationError
 from dependency.core.utils.lazy import LazyList as LazyList
 from dependency_injector import containers as containers, providers as providers
 from typing import Any, Callable, Iterable
@@ -9,6 +9,7 @@ class Injectable:
     modules_cls: set[type]
     component_cls: type
     provided_cls: list[type]
+    provider_cls: providers.Provider[Any]
     is_resolved: bool
     def __init__(self, component_cls: type, provided_cls: list[type], provider: providers.Provider[Any], imports: Iterable['Injectable'] = (), products: Iterable['Injectable'] = (), bootstrap: Callable[[], Any] | None = None) -> None: ...
     @property

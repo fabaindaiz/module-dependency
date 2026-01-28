@@ -1,10 +1,8 @@
 from typing import Any, Generator
 from dependency_injector import providers
-from dependency.core.injection.base import ContainerInjection
-from dependency.core.injection.provider import ProviderInjection
 from dependency.core.injection.injectable import Injectable
+from dependency.core.injection.injection import ContainerInjection, ProviderInjection
 from dependency.core.resolution.container import Container
-from dependency.core.exceptions import DeclarationError
 
 class ContainerMixin:
     """Container Mixin Class
@@ -36,26 +34,21 @@ class ProviderMixin:
     """Providable Base Class
 
     Attributes:
-        injection (ProviderInjection): Injection handler for the component
+        injection (ProviderInjection): Injection handler for the provider
     """
-
     injection: ProviderInjection
 
     @classmethod
     def reference(cls) -> str:
-        """Return the reference name of the component."""
+        """Return the reference name of the Injectable."""
         return cls.injection.reference
 
     @classmethod
     def provider(cls) -> providers.Provider[Any]:
-        """Return the provider instance of the component."""
-        if not cls.injection.injectable.is_resolved:
-            raise DeclarationError(f"Component {cls.__name__} injectable was not resolved")
+        """Return the provider instance of the Injectable."""
         return cls.injection.injectable.provider
 
     @classmethod
     def provide(cls, *args: Any, **kwargs: Any) -> Any:
-        """Provide an instance of the interface class"""
-        if not cls.injection.injectable.is_resolved:
-            raise DeclarationError(f"Component {cls.__name__} injectable was not resolved")
+        """Provide an instance of the Injectable."""
         return cls.injection.injectable.provider(*args, **kwargs)

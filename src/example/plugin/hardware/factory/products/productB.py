@@ -1,7 +1,7 @@
 from dependency_injector.wiring import inject
 from dependency.core import Product, product
 from dependency.core.injection import LazyProvide
-from example.plugin.hardware.factory.interfaces import Hardware
+from example.plugin.hardware.interfaces import Hardware
 from example.plugin.base.string import StringService, StringServiceComponent
 
 @product(

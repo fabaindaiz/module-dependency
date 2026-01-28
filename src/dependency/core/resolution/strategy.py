@@ -55,9 +55,10 @@ class ResolutionStrategy:
         Returns:
             list[Injectable]: List of resolved injectables.
         """
-        _logger.info("Resolving injectables...")
+        _logger.info("Resolving dependencies...")
         unresolved: list[Injectable] = injectables.copy()
         resolved: list[Injectable] = []
+        layer_count: int = 0
 
         while unresolved:
             new_layer = [
@@ -72,7 +73,8 @@ class ResolutionStrategy:
                     unresolved=unresolved
                 )
             resolved.extend(new_layer)
-            _logger.debug(f"Layer: {new_layer}")
+            _logger.debug(f"Layer {layer_count}: {new_layer}")
+            layer_count += 1
 
             if cls.config.resolve_products:
                 for injectable in new_layer:
@@ -96,7 +98,7 @@ class ResolutionStrategy:
             container (Container): The container to wire the injectables with.
             injectables (list[Injectable]): List of injectables to wire.
         """
-        _logger.info("Wiring injectables...")
+        _logger.info("Wiring dependencies...")
         for injectable in injectables:
             injectable.wire(container=container)
         if cls.config.init_container:
@@ -112,6 +114,6 @@ class ResolutionStrategy:
         Args:
             injectables (list[Injectable]): List of injectables to start.
         """
-        _logger.info("Starting injectables...")
+        _logger.info("Initializing dependencies...")
         for injectable in injectables:
             injectable.init()

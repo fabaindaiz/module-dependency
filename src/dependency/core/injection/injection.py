@@ -1,7 +1,11 @@
+import logging
 from abc import ABC, abstractmethod
 from typing import Any, Generator, Optional, override
-from dependency_injector import containers
+from dependency_injector import containers, providers
 from dependency.core.injection.injectable import Injectable
+from dependency.core.injection.wiring import LazyProvide
+from dependency.core.exceptions import DeclarationError, ProvisionError
+_logger = logging.getLogger("dependency.loader")
 
 class BaseInjection(ABC):
     """Base Injection Class
@@ -20,7 +24,6 @@ class BaseInjection(ABC):
             return self.name
         return f"{self.parent.reference}.{self.name}"
 
-    # TODO: Modification might need rewiring (?)
     def change_parent(self, parent: 'ContainerInjection') -> None:
         """Change the parent injection of this injection.
 
@@ -72,3 +75,57 @@ class ContainerInjection(BaseInjection):
         for child in self.childs:
             setattr(self.container, child.name, child.inject_cls())
             yield from child.resolve_providers()
+
+class ProviderInjection(BaseInjection):
+    """Provider Injection Class
+    """
+    def __init__(self,
+        name: str,
+        interface_cls: type,
+        parent: Optional['ContainerInjection'] = None
+    ) -> None:
+        super().__init__(name=name, parent=parent)
+        self.interface_cls: type = interface_cls
+        self.__injectable: Optional[Injectable] = None
+
+    @property
+    @override
+    def reference(self) -> str:
+        """Return the reference for dependency injection."""
+        if not self.parent:
+            raise ProvisionError(f"Provider {self.name} requires a parent container for reference-based injection")
+        return f"{self.parent.reference}.{self.name}"
+
+    @property
+    def provider(self) -> providers.Provider[Any]:
+        """Return the provider instance."""
+        return LazyProvide(lambda: self.reference)
+
+    @property
+    def injectable(self) -> Injectable:
+        """Return the injectable instance."""
+        if not self.__injectable:
+            raise DeclarationError(f"Provider {self.name} has no implementation assigned")
+        return self.__injectable
+
+    def set_instance(self,
+        injectable: Injectable,
+    ) -> None:
+        """Set the injectable instance and its imports."""
+        if self.__injectable is None:
+            _logger.debug(f"Provider {self.name} implementation assigned: {injectable}")
+        else:
+            _logger.warning(f"Provider {self.name} implementation reassigned: {self.__injectable} -> {injectable}")
+        self.__injectable = injectable
+        if self.parent:
+            self.parent.childs.add(self)
+
+    @override
+    def inject_cls(self) -> providers.Provider[Any]:
+        """Return the provider instance."""
+        return self.injectable.provider_cls
+
+    @override
+    def resolve_providers(self) -> Generator[Injectable, None, None]:
+        """Inject all imports into the current injectable."""
+        yield self.injectable

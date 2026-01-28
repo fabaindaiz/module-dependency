@@ -7,15 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [v0.5.0] - 2026-01-
+## [v0.5.0] - 2026-02-
 
 ### Added
 
+- Components can now implicitly provide products without explicit declaration
+- New warning log with helpful message when a non-standard configuration is detected
 - Mixin definition for container and provider class parameter and methods
 - Resolution Strategy configuration for customizable resolution behavior
 
 ### Changed
 
+- Update examples and documentation to reflect recent changes
+- Update error messages in logging and exceptions for better clarity
 - Updated docstrings for utility classes and methods in core modules
 - Separated initialization logic into separate methods for better clarity
 - Component & Module classes now use class attributes and methods directly

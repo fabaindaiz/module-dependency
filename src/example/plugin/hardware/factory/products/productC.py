@@ -1,5 +1,5 @@
 from dependency.core import Product, product
-from example.plugin.hardware.factory.interfaces import Hardware
+from example.plugin.hardware.interfaces import Hardware
 
 @product()
 class HardwareC(Hardware, Product):

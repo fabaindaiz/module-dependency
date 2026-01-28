@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from dependency.core import Component, component
-from example.plugin.hardware.factory.interfaces import Hardware
 from example.plugin.hardware import HardwarePlugin
+from example.plugin.hardware.interfaces import Hardware
 
 class HardwareFactory(ABC):
     @abstractmethod

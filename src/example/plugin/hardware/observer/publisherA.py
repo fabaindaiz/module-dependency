@@ -1,7 +1,7 @@
 from typing import Callable
 from dependency.core import instance, providers
+from example.plugin.hardware.events import EventSubscriber, HardwareEventContext
 from example.plugin.hardware.observer import HardwareObserver, HardwareObserverComponent
-from example.plugin.hardware.observer.interfaces import EventSubscriber, HardwareEventContext
 from library.mixin.observer import EventPublisher
 
 @instance(
