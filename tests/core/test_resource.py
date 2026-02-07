@@ -7,21 +7,17 @@ from dependency.core.resolution import Container, ResolutionStrategy
 class TPlugin(Plugin):
     meta = PluginMeta(name="test_plugin", version="0.1.0")
 
-class TInterface:
-    initialized: bool = False
-
 @component(
     module=TPlugin,
-    interface=TInterface,
 )
 class TComponent(Component):
-    pass
+    initialized: bool = False
 
 @instance(
     component=TComponent,
     provider=providers.Resource,
 )
-class TInstance(TInterface):
+class TInstance(TComponent):
     def __enter__(self) -> 'TInstance':
         self.initialized = True
         return self
@@ -37,7 +33,7 @@ def test_resource() -> None:
     assert TInstance.initialized == False
 
     ResolutionStrategy.resolution(container, providers)
-    component: TInterface = TComponent.provide()
+    component: TComponent = TComponent.provide()
     assert component.initialized == True
 
     # TODO: Esto no está funcionando correctamente

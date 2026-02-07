@@ -1,6 +1,6 @@
 import pytest
 from dependency.core.agrupation import Plugin, PluginMeta, module
-from dependency.core.declaration import Component, component, Product, product, instance
+from dependency.core.declaration import Component, component, instance
 from dependency.core.resolution import Container, ResolutionStrategy
 from dependency.core.exceptions import DeclarationError
 
@@ -8,29 +8,24 @@ from dependency.core.exceptions import DeclarationError
 class TPlugin(Plugin):
     meta = PluginMeta(name="test_plugin", version="0.1.0")
 
-class TInterface:
-    pass
-
 @component(
     module=TPlugin,
-    interface=TInterface,
 )
 class TComponent1(Component):
     pass
 
 @component(
-    interface=TInterface,
 )
 class TComponent2(Component):
     pass
 
-@product(
+@component(
     imports=[
         TComponent1,
         TComponent2,
     ],
 )
-class TProduct1(Product):
+class TProduct1(Component):
     pass
 
 @instance(
@@ -38,7 +33,7 @@ class TProduct1(Product):
     imports=[TComponent2],
     products=[TProduct1],
 )
-class TInstance1(TInterface):
+class TInstance1(TComponent1):
     pass
 
 def test_products() -> None:

@@ -1,21 +1,21 @@
 from dependency.core import instance, providers
 from example.plugin.hardware import HardwarePlugin
 from example.plugin.hardware.events import EventHardwareOperation
-from example.plugin.hardware.bridge import HardwareAbstraction, HardwareAbstractionComponent
-from example.plugin.hardware.factory import HardwareFactory, HardwareFactoryComponent
-from example.plugin.hardware.observer import HardwareObserver, HardwareObserverComponent
+from example.plugin.hardware.bridge import HardwareAbstraction
+from example.plugin.hardware.factory import HardwareFactory
+from example.plugin.hardware.observer import HardwareObserver
 
 @instance(
-    component=HardwareAbstractionComponent,
+    component=HardwareAbstraction,
     imports=[
-        HardwareFactoryComponent,
+        HardwareFactory,
     ],
     provider=providers.Singleton,
 )
 class HardwareAbstractionBridgeA(HardwareAbstraction):
     def __init__(self) -> None:
-        self.__factory: HardwareFactory = HardwareFactoryComponent.provide()
-        self.__observer: HardwareObserver = HardwareObserverComponent.provide()
+        self.__factory: HardwareFactory = HardwareFactory.provide()
+        self.__observer: HardwareObserver = HardwareObserver.provide()
         assert HardwarePlugin.config.config == True
         print("AbstractionBridgeA initialized")
 

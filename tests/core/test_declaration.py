@@ -3,28 +3,24 @@ from dependency_injector import containers, providers
 from dependency.core.agrupation import Module, module
 from dependency.core.declaration import Component, component, instance
 
-class TInterface(ABC):
-    @abstractmethod
-    def method(self) -> str:
-        pass
-
 @module()
 class TModule(Module):
     pass
 
 @component(
     module=TModule,
-    interface=TInterface,
 )
-class TComponent(Component):
-    pass
+class TComponent(ABC, Component):
+    @abstractmethod
+    def method(self) -> str:
+        pass
 
 @instance(
     component=TComponent,
     imports=[],
     provider=providers.Singleton,
 )
-class TInstance(TInterface):
+class TInstance(TComponent):
     def method(self) -> str:
         return "Hello, World!"
 
@@ -35,9 +31,9 @@ def test_declaration() -> None:
         provider.inject()
 
     assert TModule.__name__ == "TModule"
-    assert TComponent.injection.interface_cls.__name__ == "TInterface"
+    assert TComponent.injection.interface_cls.__name__ == "TComponent"
     assert TInstance.__name__ == "TInstance"
 
-    component: TInterface = TComponent.provide()
-    assert isinstance(component, TInterface)
+    component: TComponent = TComponent.provide()
+    assert isinstance(component, TComponent)
     assert component.method() == "Hello, World!"

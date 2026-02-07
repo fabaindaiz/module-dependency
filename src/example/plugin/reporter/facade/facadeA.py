@@ -3,13 +3,13 @@ from dependency.core import instance, providers
 from dependency.core.injection import LazyProvide
 from example.plugin.reporter import ReporterPlugin
 from example.plugin.reporter.factory import ReporterFactory
-from example.plugin.reporter.facade import ReportFacade, ReportFacadeComponent
-from example.plugin.hardware.bridge import HardwareAbstraction, HardwareAbstractionComponent
+from example.plugin.reporter.facade import ReportFacade
+from example.plugin.hardware.bridge import HardwareAbstraction
 
 @instance(
-    component=ReportFacadeComponent,
+    component=ReportFacade,
     imports=[
-        HardwareAbstractionComponent,
+        HardwareAbstraction,
     ],
     products=[
         ReporterFactory,
@@ -26,7 +26,7 @@ class ReporterFacadeA(ReportFacade):
     @inject
     def startModule(self,
             factory: ReporterFactory = LazyProvide(ReporterFactory.reference),
-            bridge: HardwareAbstraction = LazyProvide(HardwareAbstractionComponent.reference),
+            bridge: HardwareAbstraction = LazyProvide(HardwareAbstraction.reference),
         ) -> None:
         reporter = factory.createProduct(product="A")
         bridge.someOperation(product="A")

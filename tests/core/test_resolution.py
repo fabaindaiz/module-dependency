@@ -1,6 +1,6 @@
 import pytest
 from dependency.core.agrupation import Plugin, PluginMeta, module
-from dependency.core.declaration import Component, component, Product, product, instance
+from dependency.core.declaration import Component, component, instance, providers
 from dependency.core.resolution import Container, InjectionResolver
 from dependency.core.exceptions import CancelInitialization
 
@@ -10,27 +10,23 @@ BOOTSTRAPED: list[str] = []
 class TPlugin(Plugin):
     meta = PluginMeta(name="test_plugin", version="0.1.0")
 
-class TInterface:
-    pass
-
 @component(
     module=TPlugin,
-    interface=TInterface,
 )
 class TComponent1(Component):
     pass
 
 @component(
     module=TPlugin,
-    interface=TInterface,
 )
 class TComponent2(Component):
     pass
 
-@product(
+@component(
     imports=[TComponent1],
+    provider=providers.Factory,
 )
-class TProduct1(Product):
+class TProduct1(Component):
     pass
 
 @instance(
@@ -38,7 +34,7 @@ class TProduct1(Product):
     products=[TProduct1],
     bootstrap=True,
 )
-class TInstance1(TInterface):
+class TInstance1(TComponent1):
     def __init__(self) -> None:
         BOOTSTRAPED.append("TInstance1")
 
@@ -47,7 +43,7 @@ class TInstance1(TInterface):
     imports=[TComponent1],
     bootstrap=True,
 )
-class TInstance2(TInterface):
+class TInstance2(TComponent2):
     def __init__(self) -> None:
         BOOTSTRAPED.append("TInstance2")
         raise CancelInitialization("Failed to initialize TInstance2")

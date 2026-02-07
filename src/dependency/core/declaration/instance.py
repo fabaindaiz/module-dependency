@@ -1,7 +1,6 @@
 from typing import Any, Callable, Iterable, TypeVar
 from dependency_injector import providers
 from dependency.core.declaration.component import Component
-from dependency.core.declaration.product import Product
 from dependency.core.injection.injectable import Injectable
 from dependency.core.injection.mixin import ProviderMixin
 
@@ -15,18 +14,18 @@ T = TypeVar('T')
 
 def instance(
     component: type[Component],
-    imports: Iterable[type[ProviderMixin]] = [],
-    products: Iterable[type[Product]] = [],
     provider: type[providers.Provider[Any]] = providers.Singleton,
+    imports: Iterable[type[ProviderMixin]] = (),
+    products: Iterable[type[ProviderMixin]] = (),
     bootstrap: bool = False,
 ) -> Callable[[type[T]], type[T]]:
     """Decorator for instance class
 
     Args:
         component (type[Component]): Component class to be used as a base class for the provider.
-        imports (Iterable[type[Component]], optional): List of components to be imported by the provider. Defaults to ().
-        products (Iterable[type[Product]], optional): List of products to be declared by the provider. Defaults to ().
-        provider (type[providers.Provider[Any]], optional): Provider class to be used. Defaults to providers.Singleton.
+        imports (Iterable[type[ProviderMixin]], optional): List of components to be imported by the provider. Defaults to ().
+        products (Iterable[type[ProviderMixin]], optional): List of products to be declared by the provider. Defaults to ().
+        provider (type[providers.Provider[Any]], optional): Provider to be used. Defaults to providers.Singleton.
         bootstrap (bool, optional): Whether the provider should be bootstrapped. Defaults to False.
 
     Raises:
@@ -46,15 +45,15 @@ def instance(
         component.injection.set_instance(
             injectable = Injectable(
                 component_cls=component,
-                provided_cls=[cls],
+                provided_cls=[cls, *products],
                 provider=provider(cls),
                 imports=(
-                    component.injection.injectable
-                    for component in imports
+                    provider.injection.injectable
+                    for provider in imports
                 ),
                 products=(
-                    product.injection.injectable
-                    for product in products
+                    provider.injection.injectable
+                    for provider in products
                 ),
                 bootstrap=component.provide if bootstrap else None,
             )

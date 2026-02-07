@@ -1,16 +1,16 @@
-from dependency.core import Product, product, providers
+from dependency.core import Component, component, providers
 from example.plugin.reporter import ReporterPlugin
 from example.plugin.reporter.interfaces import Reporter
 from example.plugin.reporter.factory.productA import ReporterA
 
-@product(
+@component(
     module=ReporterPlugin,
     products=[
         ReporterA,
     ],
     provider=providers.Singleton,
 )
-class ReporterFactory(Product):
+class ReporterFactory(Component):
     def __init__(self):
         print("Factory initialized")
 

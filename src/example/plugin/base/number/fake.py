@@ -1,8 +1,8 @@
 from dependency.core import instance, providers
-from example.plugin.base.number import NumberService, NumberServiceComponent
+from example.plugin.base.number import NumberService
 
 @instance(
-    component=NumberServiceComponent,
+    component=NumberService,
     provider=providers.Singleton
 )
 class FakeNumberService(NumberService):

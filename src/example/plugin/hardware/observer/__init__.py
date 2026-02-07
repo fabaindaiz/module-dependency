@@ -4,7 +4,10 @@ from dependency.core import Component, component
 from example.plugin.hardware import HardwarePlugin
 from example.plugin.hardware.events import EventSubscriber, HardwareEventContext
 
-class HardwareObserver(ABC):
+@component(
+    module=HardwarePlugin,
+)
+class HardwareObserver(ABC, Component):
     @abstractmethod
     def subscribe(self, listener: type[EventSubscriber]) -> Callable:
         pass
@@ -12,10 +15,3 @@ class HardwareObserver(ABC):
     @abstractmethod
     def update(self, context: HardwareEventContext) -> None:
         pass
-
-@component(
-    module=HardwarePlugin,
-    interface=HardwareObserver,
-)
-class HardwareObserverComponent(Component):
-    pass

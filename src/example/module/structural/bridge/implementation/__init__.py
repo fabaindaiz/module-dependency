@@ -1,7 +1,8 @@
 from abc import ABC, abstractmethod
 from dependency.core import Component, component
 
-class Implementation(ABC):
+@component()
+class Implementation(ABC, Component):
     @abstractmethod
     def method1(self):
         pass
@@ -13,9 +14,3 @@ class Implementation(ABC):
     @abstractmethod
     def method3(self):
         pass
-
-@component(
-    interface=Implementation
-)
-class ImplementationComponent(Component):
-    pass

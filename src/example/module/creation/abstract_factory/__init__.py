@@ -11,7 +11,8 @@ class AbtractProductB(ABC):
     def doStuff(self) -> None:
         pass
 
-class AbtractFactory(ABC):
+@component()
+class AbtractFactory(ABC, Component):
     def work(self) -> None:
         instance1 = self.createProductA()
         instance2 = self.createProductB()
@@ -25,9 +26,3 @@ class AbtractFactory(ABC):
     @abstractmethod
     def createProductB(self) -> AbtractProductB:
         pass
-
-@component(
-    interface=AbtractFactory
-)
-class AbtractFactoryComponent(Component):
-    pass

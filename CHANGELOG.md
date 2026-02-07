@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [v0.5.0] - 2026-02-
+## [v1.0.0] - 2026-02-
 
 ### Added
 
@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Update examples and documentation to reflect recent changes
+- Components now can be standalone be implemented by other classes
 - Update error messages in logging and exceptions for better clarity
 - Updated docstrings for utility classes and methods in core modules
 - Separated initialization logic into separate methods for better clarity
@@ -27,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
+- Remove Product class for simplicity, now all providable classes are Components
 - Removed abstract base classes for Module, Component & Instance due to refactoring
 - Removed Instance class and redundant type hint casts in decorators
 
