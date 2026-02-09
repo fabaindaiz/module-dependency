@@ -30,7 +30,6 @@ class TProduct1(Component):
     pass
 
 @instance(
-    component=TComponent1,
     products=[TProduct1],
     bootstrap=True,
 )
@@ -39,7 +38,6 @@ class TInstance1(TComponent1):
         BOOTSTRAPED.append("TInstance1")
 
 @instance(
-    component=TComponent2,
     imports=[TComponent1],
     bootstrap=True,
 )

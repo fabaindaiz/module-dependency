@@ -1,8 +1,10 @@
+import logging
 from typing import Any, Callable, Generator, Iterable, Optional
 from dependency_injector import providers
 from dependency.core.injection.injectable import Injectable
 from dependency.core.injection.injection import ContainerInjection, ProviderInjection
 from dependency.core.resolution.container import Container
+_logger = logging.getLogger("dependency.loader")
 
 class ContainerMixin:
     """Container Mixin Class
@@ -11,6 +13,24 @@ class ContainerMixin:
         injection (ContainerInjection): Injection handler for the container
     """
     injection: ContainerInjection
+    is_root: bool = False
+
+    @classmethod
+    def init_injection(cls,
+        parent: Optional[ContainerInjection],
+    ) -> None:
+        """Initialize the injection for the container.
+
+        Args:
+            parent (Optional[ContainerInjection]): Parent container injection instance.
+        """
+        if parent is None and not cls.is_root:
+            _logger.warning(f"Container {cls.__name__} has no parent module (consider registering)")
+
+        cls.injection = ContainerInjection(
+            name=cls.__name__,
+            parent=parent,
+        )
 
     @classmethod
     def inject_container(cls, container: Container) -> None:
@@ -40,8 +60,16 @@ class ProviderMixin:
 
     @classmethod
     def init_injection(cls,
-        parent: Optional[ContainerInjection]
+        parent: Optional[ContainerInjection],
     ) -> None:
+        """Initialize the injection for the provider.
+
+        Args:
+            parent (Optional[ContainerInjection]): Parent container injection instance.
+        """
+        if parent is None:
+            _logger.warning(f"Provider {cls.__name__} has no parent module (consider registering)")
+
         cls.injection = ProviderInjection(
             name=cls.__name__,
             interface_cls=cls,
@@ -50,29 +78,65 @@ class ProviderMixin:
 
     @classmethod
     def init_injectable(cls,
-        wire_cls: Iterable[type],
+        modules_cls: Iterable[type],
+        provider: providers.Provider[Any],
         imports: Iterable[type["ProviderMixin"]],
         products: Iterable[type["ProviderMixin"]],
-        provider: providers.Provider[Any],
         bootstrap: Optional[Callable[[], Any]]
     ) -> None:
+        """Initialize the injectable for the provider.
 
-        cls.injection.set_instance(
+        Args:
+            modules_cls (Iterable[type]): List of modules that need to be wired for the provider.
+            provider (providers.Provider[Any]): Provider instance to be used for the injectable.
+            imports (Iterable[type["ProviderMixin"]]): List of components to be imported by the provider.
+            products (Iterable[type["ProviderMixin"]]): List of products to be declared by the provider.
+            bootstrap (Optional[Callable[[], Any]]): Whether the provider should be bootstrapped.
+
+        Raises:
+            TypeError: _description_
+        """
+        interface_cls: type = cls.injection.interface_cls
+        if not issubclass(cls, interface_cls):
+            raise TypeError(f"Class {cls.__name__} must be a subclass of {interface_cls.__name__} to be used as an instance of component {cls.__name__}")
+
+        cls.injection.set_injectable(
             injectable=Injectable(
                 component_cls=cls,
-                provided_cls=[cls, *wire_cls],
+                modules_cls={cls, *modules_cls},
                 provider=provider,
                 imports=(
-                    provider.injection.injectable
+                    provider.as_import()
                     for provider in imports
                 ),
                 products=(
-                    provider.injection.injectable
+                    provider.as_product()
                     for provider in products
                 ),
                 bootstrap=bootstrap,
              )
         )
+
+    @classmethod
+    def as_import(cls) -> Injectable:
+        """Return the provider class as an import.
+
+        Returns:
+            type: The provider class.
+        """
+        injectable = cls.injection.injectable
+        injectable.needs_full_resolution = True
+        return injectable
+
+    @classmethod
+    def as_product(cls) -> Injectable:
+        """Return the provider class as a product.
+
+        Returns:
+            type: The provider class.
+        """
+        injectable = cls.injection.injectable
+        return injectable
 
     @classmethod
     def reference(cls) -> str:

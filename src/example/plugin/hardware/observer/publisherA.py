@@ -5,7 +5,6 @@ from example.plugin.hardware.observer import HardwareObserver, HardwareObserver
 from library.mixin.observer import EventPublisher
 
 @instance(
-    component=HardwareObserver,
     provider=providers.Singleton,
 )
 class HardwareObserverA(HardwareObserver):

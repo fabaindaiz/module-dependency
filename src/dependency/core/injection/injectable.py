@@ -14,20 +14,20 @@ class Injectable:
     """
     def __init__(self,
         component_cls: type,
-        provided_cls: list[type],
+        modules_cls: set[type],
         provider: providers.Provider[Any],
         imports: Iterable['Injectable'] = (),
         products: Iterable['Injectable'] = (),
         bootstrap: Optional[Callable[[], Any]] = None
     ) -> None:
-        self.modules_cls: set[type] = {component_cls, *provided_cls}
-        self.component_cls: type = component_cls
-        self.provided_cls: list[type] = provided_cls
-        self.provider_cls: providers.Provider[Any] = provider
-        self._bootstrap: Optional[Callable[[], Any]] = bootstrap
+        self.needs_full_resolution: bool = False
 
+        self.component_cls: type = component_cls
+        self.modules_cls: set[type] = {component_cls, *modules_cls}
+        self.provider_cls: providers.Provider[Any] = provider
         self._imports: LazyList['Injectable'] = LazyList(imports)
         self._products: LazyList['Injectable'] = LazyList(products)
+        self._bootstrap: Optional[Callable[[], Any]] = bootstrap
         self.is_resolved: bool = False
 
     @property
@@ -39,6 +39,18 @@ class Injectable:
         return self._products()
 
     @property
+    def import_resolved(self) -> bool:
+        full_resolution: bool = all(
+            implementation.is_resolved
+            for implementation in self.imports
+        )
+        if full_resolution:
+            return True
+        if not self.needs_full_resolution:
+            _logger.warning(f"Injectable {self.component_cls.__name__} is being resolved with unresolved imports: {[impl.component_cls.__name__ for impl in self.imports if not impl.is_resolved]}. This may lead to runtime errors if the provider relies on those imports. Consider declaring the dependencies as products or setting needs_full_resolution to True.")
+        return False
+
+    @property
     def provider(self) -> providers.Provider[Any]:
         """Return an instance from the provider."""
         if not self.is_resolved:
@@ -47,13 +59,6 @@ class Injectable:
                 f"Ensure it is declared as a dependency (imports or products) where it is being used"
             )
         return self.provider_cls
-
-    @property
-    def import_resolved(self) -> bool:
-        return all(
-            implementation.is_resolved
-            for implementation in self.imports
-        )
 
     def inject(self) -> "Injectable":
         """Mark the injectable as resolved."""
@@ -68,7 +73,7 @@ class Injectable:
         """
         container.wire(
             modules=self.modules_cls,
-            warn_unresolved=True
+            warn_unresolved=True,
         )
 
     def init(self) -> None:
@@ -88,4 +93,4 @@ class Injectable:
                 raise InitializationError(f"Injectable {self.component_cls.__name__} initialization failed") from e
 
     def __repr__(self) -> str:
-        return f"{(cls.__name__ for cls in self.provided_cls)}"
+        return f"{self.component_cls.__name__}"

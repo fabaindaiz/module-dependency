@@ -1,16 +1,16 @@
-from dependency.core import provider, providers
-from example.module.structural.bridge.abstraction import Abstraction, AbstractionComponent
-from example.module.structural.bridge.implementation import Implementation, ImplementationComponent
+from dependency.core import instance, providers
+from example.module.structural.bridge.abstraction import Abstraction
+from example.module.structural.bridge.implementation import Implementation
 
-@provider(
-    component=AbstractionComponent,
-    dependencies=[
-        ImplementationComponent
-    ]
+@instance(
+    imports=[
+        Implementation
+    ],
+    provider=providers.Singleton,
 )
 class AbstractionImplementation(Abstraction):
     def __init__(self):
-        self.implementation: Implementation = ImplementationComponent.provide()
+        self.implementation: Implementation = Implementation.provide()
 
     def feature1(self):
         self.implementation.method1()

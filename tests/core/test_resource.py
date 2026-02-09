@@ -13,7 +13,6 @@ class TComponent(Component):
     initialized: bool = False
 
 @instance(
-    component=TComponent,
     provider=providers.Resource,
 )
 class TInstance(TComponent):

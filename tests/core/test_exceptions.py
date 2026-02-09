@@ -27,7 +27,6 @@ class TProduct1(Component):
     pass
 
 @instance(
-    component=TComponent1,
     imports=[TComponent2],
     products=[TProduct1],
 )
@@ -35,7 +34,6 @@ class TInstance1(TComponent1):
     pass
 
 @instance(
-    component=TComponent2,
     imports=[TComponent1],
 )
 class TInstance2(TComponent2):

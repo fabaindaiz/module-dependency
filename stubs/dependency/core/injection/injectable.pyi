@@ -6,21 +6,21 @@ from typing import Any, Callable, Iterable
 class Injectable:
     """Injectable Class representing a injectable dependency.
     """
-    modules_cls: set[type]
+    needs_full_resolution: bool
     component_cls: type
-    provided_cls: list[type]
+    modules_cls: set[type]
     provider_cls: providers.Provider[Any]
     is_resolved: bool
-    def __init__(self, component_cls: type, provided_cls: list[type], provider: providers.Provider[Any], imports: Iterable['Injectable'] = (), products: Iterable['Injectable'] = (), bootstrap: Callable[[], Any] | None = None) -> None: ...
+    def __init__(self, component_cls: type, modules_cls: set[type], provider: providers.Provider[Any], imports: Iterable['Injectable'] = (), products: Iterable['Injectable'] = (), bootstrap: Callable[[], Any] | None = None) -> None: ...
     @property
     def imports(self) -> list['Injectable']: ...
     @property
     def products(self) -> list['Injectable']: ...
     @property
+    def import_resolved(self) -> bool: ...
+    @property
     def provider(self) -> providers.Provider[Any]:
         """Return an instance from the provider."""
-    @property
-    def import_resolved(self) -> bool: ...
     def inject(self) -> Injectable:
         """Mark the injectable as resolved."""
     def wire(self, container: containers.DynamicContainer) -> None:

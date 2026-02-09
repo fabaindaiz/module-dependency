@@ -1,9 +1,8 @@
-from dependency.core import provider, providers
-from example.module.structural.bridge.implementation import Implementation, ImplementationComponent
+from dependency.core import instance, providers
+from example.module.structural.bridge.implementation import Implementation
 
-@provider(
+@instance(
     provider=providers.Singleton,
-    component=ImplementationComponent
 )
 class ConcreteImplementation(Implementation):
     def method1(self):

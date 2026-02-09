@@ -6,7 +6,6 @@ from example.plugin.hardware.factory import HardwareFactory
 from example.plugin.hardware.observer import HardwareObserver
 
 @instance(
-    component=HardwareAbstraction,
     imports=[
         HardwareFactory,
     ],

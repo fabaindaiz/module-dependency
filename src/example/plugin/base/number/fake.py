@@ -2,7 +2,6 @@ from dependency.core import instance, providers
 from example.plugin.base.number import NumberService
 
 @instance(
-    component=NumberService,
     provider=providers.Singleton
 )
 class FakeNumberService(NumberService):

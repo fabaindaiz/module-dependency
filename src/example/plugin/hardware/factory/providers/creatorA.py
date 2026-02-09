@@ -7,7 +7,6 @@ from example.plugin.hardware.observer import HardwareObserver
 from example.plugin.hardware.events import EventHardwareCreated
 
 @instance(
-    component=HardwareFactory,
     imports=[
         HardwareObserver,
     ],

@@ -1,20 +1,20 @@
-from dependency.core import provider, providers
-from example.module.creation.builder import Builder, BuilderComponent, Product
+from dependency.core import instance, providers
+from example.module.creation.builder import Builder, Product
 
 class Product2(Product):
     def __init__(self):
-        self.__steps = set()
-    
+        self.__steps: set[str] = set()
+
     def setStep(self, step: str) -> None:
         self.__steps.add(step)
-    
+
     def doStuff(self) -> None:
         print(self.__steps)
 
-@provider(
-    component=BuilderComponent
+@instance(
+    provider=providers.Factory,
 )
-class ConcreteBuilder1(Builder):
+class ConcreteBuilder2(Builder):
     def __init__(self):
         self.reset()
 
@@ -23,7 +23,7 @@ class ConcreteBuilder1(Builder):
 
     def buildStepA(self) -> None:
         self.__product.setStep('A2')
-    
+
     def buildStepB(self) -> None:
         self.__product.setStep('B2')
 

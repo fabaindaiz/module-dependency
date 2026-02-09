@@ -1,6 +1,7 @@
 from dependency.core.agrupation.module import Module as Module
+from dependency.core.declaration.validation import InstanceOrClass as InstanceOrClass, validate_provider as validate_provider
 from dependency.core.injection.mixin import ProviderMixin as ProviderMixin
-from dependency_injector import providers
+from dependency_injector import providers as providers
 from typing import Any, Callable, Iterable, TypeVar
 
 COMPONENT = TypeVar('COMPONENT', bound='Component')
@@ -9,7 +10,7 @@ class Component(ProviderMixin):
     """Component Base Class
     """
 
-def component(module: type[Module] | None = None, imports: Iterable[type[ProviderMixin]] = (), products: Iterable[type[ProviderMixin]] = (), provider: providers.Provider[Any] | type[providers.Provider[Any]] | None = None, bootstrap: bool = False) -> Callable[[type[COMPONENT]], type[COMPONENT]]:
+def component(module: type[Module] | None = None, provider: InstanceOrClass[providers.Provider[Any]] | None = None, imports: Iterable[type[ProviderMixin]] = (), products: Iterable[type[ProviderMixin]] = (), bootstrap: bool = False) -> Callable[[type[COMPONENT]], type[COMPONENT]]:
     """Decorator for Component class
 
     Args:

@@ -1,5 +1,4 @@
 from typing import Callable, Optional, TypeVar
-from dependency.core.injection.injection import ContainerInjection
 from dependency.core.injection.mixin import ContainerMixin
 
 MODULE = TypeVar('MODULE', bound='Module')
@@ -26,9 +25,8 @@ def module(
         if not issubclass(cls, Module):
             raise TypeError(f"Class {cls} has decorator @module but is not a subclass of Module")
 
-        cls.injection = ContainerInjection(
-            name=cls.__name__,
-            parent=module.injection if module else None,
+        cls.init_injection(
+            parent=module.injection if module else None
         )
 
         return cls

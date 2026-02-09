@@ -8,6 +8,10 @@ _logger = logging.getLogger("dependency.loader")
 
 class PluginMeta(BaseModel):
     """Metadata for the plugin.
+
+    Attributes:
+        name (str): Name of the plugin
+        version (str): Version of the plugin
     """
     name: str
     version: str
@@ -22,6 +26,7 @@ class Plugin(Module):
         meta (PluginMeta): Metadata for the plugin
         config (BaseModel): Configuration model for the plugin
     """
+    is_root: bool = True
     meta: PluginMeta
 
     @classmethod

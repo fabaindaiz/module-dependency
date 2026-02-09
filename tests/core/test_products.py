@@ -29,7 +29,6 @@ class TProduct1(Component):
     pass
 
 @instance(
-    component=TComponent1,
     imports=[TComponent2],
     products=[TProduct1],
 )

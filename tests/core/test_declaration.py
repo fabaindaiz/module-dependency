@@ -16,8 +16,6 @@ class TComponent(ABC, Component):
         pass
 
 @instance(
-    component=TComponent,
-    imports=[],
     provider=providers.Singleton,
 )
 class TInstance(TComponent):

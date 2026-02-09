@@ -7,7 +7,6 @@ from example.plugin.hardware.factory.products.productC import HardwareC
 from example.plugin.hardware.observer import HardwareObserver
 
 @instance(
-    component=HardwareFactory,
     imports=[
         HardwareObserver,
     ],

@@ -3,7 +3,7 @@ from dependency.core import Component, component
 
 
 @component()
-class AbstractionComponent(ABC, Component):
+class Abstraction(ABC, Component):
     @abstractmethod
     def feature1(self):
         pass

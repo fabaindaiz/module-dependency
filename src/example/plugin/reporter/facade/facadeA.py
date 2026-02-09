@@ -7,7 +7,6 @@ from example.plugin.reporter.facade import ReportFacade
 from example.plugin.hardware.bridge import HardwareAbstraction
 
 @instance(
-    component=ReportFacade,
     imports=[
         HardwareAbstraction,
     ],

@@ -1,15 +1,8 @@
-import logging
-from typing import Any, Callable, Iterable, Optional, Union, TypeVar
+from typing import Any, Callable, Iterable, Optional, TypeVar
 from dependency_injector import providers
 from dependency.core.agrupation.module import Module
+from dependency.core.declaration.validation import InstanceOrClass, validate_provider
 from dependency.core.injection.mixin import ProviderMixin
-_logger = logging.getLogger("dependency.loader")
-
-_PROVIDERS = (
-    providers.BaseSingleton,
-    providers.Factory,
-    providers.Resource,
-)
 
 COMPONENT = TypeVar('COMPONENT', bound='Component')
 
@@ -19,12 +12,9 @@ class Component(ProviderMixin):
 
 def component(
     module: Optional[type[Module]] = None,
+    provider: Optional[InstanceOrClass[providers.Provider[Any]]] = None,
     imports: Iterable[type[ProviderMixin]] = (),
     products: Iterable[type[ProviderMixin]] = (),
-    provider: Optional[Union[
-        providers.Provider[Any],
-        type[providers.Provider[Any]],
-    ]] = None,
     bootstrap: bool = False,
 ) -> Callable[[type[COMPONENT]], type[COMPONENT]]:
     """Decorator for Component class
@@ -46,32 +36,16 @@ def component(
         if not issubclass(cls, Component):
             raise TypeError(f"Class {cls} has decorator @component but is not a subclass of Component")
 
-        if module is None:
-            _logger.warning(f"Component {cls.__name__} has no parent module (consider registering)")
-
         cls.init_injection(
             parent=module.injection if module else None
         )
 
         if provider is not None:
-            _products: list[type[ProviderMixin]] = list(products)
-            _provider: providers.Provider[Any]
-
-            if isinstance(provider, type):
-                if not issubclass(provider, _PROVIDERS):
-                    raise TypeError(f"Product {cls.__name__} has an invalid provider {provider.__name__} (allowed: {[p.__name__ for p in _PROVIDERS]})")
-                _provider = provider(cls)
-
-            else:
-                if len(_products) == 0:
-                    _logger.warning(f"Component {cls.__name__} has a provider but no provided classes")
-                _provider = provider
-
             cls.init_injectable(
-                wire_cls=[cls],
+                modules_cls=(cls,),
+                provider=validate_provider(cls, provider),
                 imports=imports,
-                products=_products,
-                provider=_provider,
+                products=products,
                 bootstrap=cls.provide if bootstrap else None,
             )
 

@@ -108,7 +108,7 @@ class ProviderInjection(BaseInjection):
             raise DeclarationError(f"Provider {self.name} has no implementation assigned")
         return self.__injectable
 
-    def set_instance(self,
+    def set_injectable(self,
         injectable: Injectable,
     ) -> None:
         """Set the injectable instance and its imports."""
