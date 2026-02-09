@@ -1,17 +1,17 @@
 from typing import Any, Callable, Iterable, TypeVar
 from dependency_injector import providers
 from dependency.core.declaration.component import Component
-from dependency.core.injection.injectable import Injectable
 from dependency.core.injection.mixin import ProviderMixin
 
 _PROVIDERS = (
     providers.BaseSingleton,
     providers.Factory,
-    providers.Resource
+    providers.Resource,
 )
 
 T = TypeVar('T')
 
+# TODO: review instance, what about other kinds of providers?
 def instance(
     component: type[Component],
     provider: type[providers.Provider[Any]] = providers.Singleton,
@@ -42,21 +42,12 @@ def instance(
         if not issubclass(provider, _PROVIDERS):
             raise TypeError(f"Instance {cls.__name__} has an invalid provider {provider.__name__} (allowed: {[p.__name__ for p in _PROVIDERS]})")
 
-        component.injection.set_instance(
-            injectable = Injectable(
-                component_cls=component,
-                provided_cls=[cls, *products],
-                provider=provider(cls),
-                imports=(
-                    provider.injection.injectable
-                    for provider in imports
-                ),
-                products=(
-                    provider.injection.injectable
-                    for provider in products
-                ),
-                bootstrap=component.provide if bootstrap else None,
-            )
+        component.init_injectable(
+            wire_cls=[cls],
+            imports=imports,
+            products=products,
+            provider=provider(cls),
+            bootstrap=component.provide if bootstrap else None,
         )
 
         return cls

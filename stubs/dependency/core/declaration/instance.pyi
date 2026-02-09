@@ -1,5 +1,4 @@
 from dependency.core.declaration.component import Component as Component
-from dependency.core.injection.injectable import Injectable as Injectable
 from dependency.core.injection.mixin import ProviderMixin as ProviderMixin
 from dependency_injector import providers
 from typing import Any, Callable, Iterable, TypeVar

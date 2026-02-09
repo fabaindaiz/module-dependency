@@ -1,4 +1,3 @@
-import pytest
 from dependency.core.agrupation import Plugin, PluginMeta, module
 from dependency.core.declaration import Component, component, instance, providers
 from dependency.core.resolution import Container, ResolutionStrategy

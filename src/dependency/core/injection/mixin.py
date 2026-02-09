@@ -1,4 +1,4 @@
-from typing import Any, Generator
+from typing import Any, Callable, Generator, Iterable, Optional
 from dependency_injector import providers
 from dependency.core.injection.injectable import Injectable
 from dependency.core.injection.injection import ContainerInjection, ProviderInjection
@@ -37,6 +37,42 @@ class ProviderMixin:
         injection (ProviderInjection): Injection handler for the provider
     """
     injection: ProviderInjection
+
+    @classmethod
+    def init_injection(cls,
+        parent: Optional[ContainerInjection]
+    ) -> None:
+        cls.injection = ProviderInjection(
+            name=cls.__name__,
+            interface_cls=cls,
+            parent=parent,
+        )
+
+    @classmethod
+    def init_injectable(cls,
+        wire_cls: Iterable[type],
+        imports: Iterable[type["ProviderMixin"]],
+        products: Iterable[type["ProviderMixin"]],
+        provider: providers.Provider[Any],
+        bootstrap: Optional[Callable[[], Any]]
+    ) -> None:
+
+        cls.injection.set_instance(
+            injectable=Injectable(
+                component_cls=cls,
+                provided_cls=[cls, *wire_cls],
+                provider=provider,
+                imports=(
+                    provider.injection.injectable
+                    for provider in imports
+                ),
+                products=(
+                    provider.injection.injectable
+                    for provider in products
+                ),
+                bootstrap=bootstrap,
+             )
+        )
 
     @classmethod
     def reference(cls) -> str:

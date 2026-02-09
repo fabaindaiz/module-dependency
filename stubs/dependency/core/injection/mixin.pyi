@@ -2,7 +2,7 @@ from dependency.core.injection.injectable import Injectable as Injectable
 from dependency.core.injection.injection import ContainerInjection as ContainerInjection, ProviderInjection as ProviderInjection
 from dependency.core.resolution.container import Container as Container
 from dependency_injector import providers as providers
-from typing import Any, Generator
+from typing import Any, Callable, Generator, Iterable
 
 class ContainerMixin:
     """Container Mixin Class
@@ -33,6 +33,10 @@ class ProviderMixin:
         injection (ProviderInjection): Injection handler for the provider
     """
     injection: ProviderInjection
+    @classmethod
+    def init_injection(cls, parent: ContainerInjection | None) -> None: ...
+    @classmethod
+    def init_injectable(cls, wire_cls: Iterable[type], imports: Iterable[type['ProviderMixin']], products: Iterable[type['ProviderMixin']], provider: providers.Provider[Any], bootstrap: Callable[[], Any] | None) -> None: ...
     @classmethod
     def reference(cls) -> str:
         """Return the reference name of the Injectable."""

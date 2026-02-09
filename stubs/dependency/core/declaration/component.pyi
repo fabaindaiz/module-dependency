@@ -1,6 +1,4 @@
 from dependency.core.agrupation.module import Module as Module
-from dependency.core.injection.injectable import Injectable as Injectable
-from dependency.core.injection.injection import ProviderInjection as ProviderInjection
 from dependency.core.injection.mixin import ProviderMixin as ProviderMixin
 from dependency_injector import providers
 from typing import Any, Callable, Iterable, TypeVar

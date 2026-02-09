@@ -2,8 +2,6 @@ import logging
 from typing import Any, Callable, Iterable, Optional, Union, TypeVar
 from dependency_injector import providers
 from dependency.core.agrupation.module import Module
-from dependency.core.injection.injectable import Injectable
-from dependency.core.injection.injection import ProviderInjection
 from dependency.core.injection.mixin import ProviderMixin
 _logger = logging.getLogger("dependency.loader")
 
@@ -51,14 +49,12 @@ def component(
         if module is None:
             _logger.warning(f"Component {cls.__name__} has no parent module (consider registering)")
 
-        cls.injection = ProviderInjection(
-            name=cls.__name__,
-            interface_cls=cls,
-            parent=module.injection if module else None,
+        cls.init_injection(
+            parent=module.injection if module else None
         )
 
         if provider is not None:
-            _produces: list[type[ProviderMixin]] = list(products)
+            _products: list[type[ProviderMixin]] = list(products)
             _provider: providers.Provider[Any]
 
             if isinstance(provider, type):
@@ -67,25 +63,16 @@ def component(
                 _provider = provider(cls)
 
             else:
-                if len(_produces) == 0:
+                if len(_products) == 0:
                     _logger.warning(f"Component {cls.__name__} has a provider but no provided classes")
                 _provider = provider
 
-            cls.injection.set_instance(
-                injectable = Injectable(
-                    component_cls=cls,
-                    provided_cls=_produces,
-                    provider=_provider,
-                    imports=(
-                        provider.injection.injectable
-                        for provider in imports
-                    ),
-                    products=(
-                        provider.injection.injectable
-                        for provider in products
-                    ),
-                    bootstrap=cls.provide if bootstrap else None,
-                )
+            cls.init_injectable(
+                wire_cls=[cls],
+                imports=imports,
+                products=_products,
+                provider=_provider,
+                bootstrap=cls.provide if bootstrap else None,
             )
 
         return cls
