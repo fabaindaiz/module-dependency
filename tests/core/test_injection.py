@@ -24,7 +24,7 @@ def test_injection1() -> None:
     )
     provider1.set_injectable(
         injectable=Injectable(
-            component_cls=Instance,
+            interface_cls=Instance,
             modules_cls={Instance},
             provider=providers.Singleton(Instance),
         )

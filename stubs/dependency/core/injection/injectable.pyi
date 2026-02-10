@@ -4,14 +4,19 @@ from dependency_injector import containers as containers, providers as providers
 from typing import Any, Callable, Iterable
 
 class Injectable:
-    """Injectable Class representing a injectable dependency.
+    """Injectable Class represents a implementation of some kind that can be injected as a dependency.
+
+    Attributes:
+        interface_cls (T): The interface class that this injectable implements.
+
+        imports (Iterable[Injectable]): List of injectables that this injectable depends on.
+        products (Iterable[Injectable]): List of injectables that depend on this injectable.
     """
-    needs_full_resolution: bool
-    component_cls: type
+    interface_cls: type
     modules_cls: set[type]
     provider_cls: providers.Provider[Any]
     is_resolved: bool
-    def __init__(self, component_cls: type, modules_cls: set[type], provider: providers.Provider[Any], imports: Iterable['Injectable'] = (), products: Iterable['Injectable'] = (), bootstrap: Callable[[], Any] | None = None) -> None: ...
+    def __init__(self, interface_cls: type, modules_cls: set[type], provider: providers.Provider[Any], imports: Iterable['Injectable'] = (), products: Iterable['Injectable'] = (), bootstrap: Callable[[], Any] | None = None) -> None: ...
     @property
     def imports(self) -> list['Injectable']: ...
     @property

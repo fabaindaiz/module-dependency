@@ -10,20 +10,24 @@ from dependency.core.exceptions import (
 _logger = logging.getLogger("dependency.loader")
 
 class Injectable:
-    """Injectable Class representing a injectable dependency.
+    """Injectable Class represents a implementation of some kind that can be injected as a dependency.
+
+    Attributes:
+        interface_cls (T): The interface class that this injectable implements.
+
+        imports (Iterable[Injectable]): List of injectables that this injectable depends on.
+        products (Iterable[Injectable]): List of injectables that depend on this injectable.
     """
     def __init__(self,
-        component_cls: type,
+        interface_cls: type,
         modules_cls: set[type],
         provider: providers.Provider[Any],
         imports: Iterable['Injectable'] = (),
         products: Iterable['Injectable'] = (),
         bootstrap: Optional[Callable[[], Any]] = None
     ) -> None:
-        self.needs_full_resolution: bool = False
-
-        self.component_cls: type = component_cls
-        self.modules_cls: set[type] = {component_cls, *modules_cls}
+        self.interface_cls: type = interface_cls
+        self.modules_cls: set[type] = {interface_cls, *modules_cls}
         self.provider_cls: providers.Provider[Any] = provider
         self._imports: LazyList['Injectable'] = LazyList(imports)
         self._products: LazyList['Injectable'] = LazyList(products)
@@ -40,22 +44,17 @@ class Injectable:
 
     @property
     def import_resolved(self) -> bool:
-        full_resolution: bool = all(
+        return all(
             implementation.is_resolved
             for implementation in self.imports
         )
-        if full_resolution:
-            return True
-        if not self.needs_full_resolution:
-            _logger.warning(f"Injectable {self.component_cls.__name__} is being resolved with unresolved imports: {[impl.component_cls.__name__ for impl in self.imports if not impl.is_resolved]}. This may lead to runtime errors if the provider relies on those imports. Consider declaring the dependencies as products or setting needs_full_resolution to True.")
-        return False
 
     @property
     def provider(self) -> providers.Provider[Any]:
         """Return an instance from the provider."""
         if not self.is_resolved:
             raise DeclarationError(
-                f"Injectable {self.component_cls.__name__} accessed before being resolved. "
+                f"Injectable {self.interface_cls.__name__} accessed before being resolved. "
                 f"Ensure it is declared as a dependency (imports or products) where it is being used"
             )
         return self.provider_cls
@@ -80,7 +79,7 @@ class Injectable:
         """Execute the bootstrap function if it exists."""
         if not self.is_resolved:
             raise DeclarationError(
-                f"Injectable {self.component_cls.__name__} must be resolved before initialization. "
+                f"Injectable {self.interface_cls.__name__} must be resolved before initialization. "
                 f"Ensure it is declared as a dependency (imports or products) where it is being used"
             )
 
@@ -88,9 +87,9 @@ class Injectable:
             try:
                 self._bootstrap()
             except CancelInitialization as e:
-                _logger.warning(f"Injectable {self.component_cls.__name__} initialization skipped (cancelled by user): {e}")
+                _logger.warning(f"Injectable {self.interface_cls.__name__} initialization skipped (cancelled by user): {e}")
             except Exception as e:
-                raise InitializationError(f"Injectable {self.component_cls.__name__} initialization failed") from e
+                raise InitializationError(f"Injectable {self.interface_cls.__name__} initialization failed") from e
 
     def __repr__(self) -> str:
-        return f"{self.component_cls.__name__}"
+        return f"{self.interface_cls.__name__}"

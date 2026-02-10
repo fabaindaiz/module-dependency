@@ -102,7 +102,7 @@ class ProviderMixin:
 
         cls.injection.set_injectable(
             injectable=Injectable(
-                component_cls=cls,
+                interface_cls=cls,
                 modules_cls={cls, *modules_cls},
                 provider=provider,
                 imports=(
@@ -125,7 +125,6 @@ class ProviderMixin:
             type: The provider class.
         """
         injectable = cls.injection.injectable
-        injectable.needs_full_resolution = True
         return injectable
 
     @classmethod
