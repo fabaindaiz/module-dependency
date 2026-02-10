@@ -1,7 +1,6 @@
 from abc import ABC, abstractmethod
 from dependency.core import Component, component
 
-
 @component()
 class Abstraction(ABC, Component):
     @abstractmethod
