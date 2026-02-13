@@ -48,22 +48,17 @@ from abc import ABC, abstractmethod
 from dependency.core import Component, component
 from ...plugin.........module import SomeModule
 
-class SomeService(ABC):
-    """This is the interface for a new component.
+@component(
+    module=SomeModule,     # Declares the module or plugin this component belongs to
+)
+class SomeService(ABC, Component):
+    """This is the component class. A instance will be injected here.
+       Components are only started when provided or bootstrapped.
+       Components also defines the interface for all instances.
     """
     @abstractmethod
     def method(self, ...) -> ...:
         pass
-
-@component(
-    module=SomeModule,     # Declares the module or plugin this component belongs to
-    interface=SomeService, # Declares the interface used by the component
-)
-class SomeServiceComponent(Component):
-    """This is the component class. A instance will be injected here.
-       Components are only started when provided or bootstrapped.
-    """
-    pass
 ```
 
 ### 3. Instance
@@ -74,12 +69,11 @@ class SomeServiceComponent(Component):
 from dependency_injector.wiring import inject
 from dependency.core import instance, providers
 from dependency.core.injection import LazyProvide
-from ...plugin.........component import SomeService, SomeServiceComponent
-from ...plugin...other_component import OtherService, OtherServiceComponent
+from ...plugin.........component import SomeService
+from ...plugin...other_component import OtherService
 from ...plugin...........product import SomeProduct
 
 @instance(
-    component=SomeServiceComponent, # Declares the component to be provided
     imports=[OtherService, ...],    # List of dependencies (components) that are needed
     products=[SomeProduct, ...],    # List of products that this instance will create
     provider=providers.Singleton,   # Provider type (Singleton, Factory, Resource)
@@ -88,19 +82,20 @@ from ...plugin...........product import SomeProduct
 class ImplementedSomeService(SomeService):
     """This is a instance class. Here the component is implemented.
        Instances are injected into the respective components when provided.
+       Instances must inherit from the component class and implement all its methods.
     """
     def __init__(self) -> None:
         """Init method will be called when the instance is started.
            This will happen once for singleton and every time for factories.
         """
         # Once declared, i can use the dependencies for the class
-        self.dependency: OtherService = OtherServiceComponent.provide()
+        self.dependency: OtherService = OtherService.provide()
 
     @inject
     def method(self,
         # Dependencies also can be provided using @inject decorator with LazyProvide
         # With @inject always use LazyProvide, to avoid deferred evaluation issues.
-        dependency: OtherService = LazyProvide(OtherServiceComponent.reference),
+        dependency: OtherService = LazyProvide(OtherService.reference),
     ...) -> ...:
         """Methods declared in the interface must be implemented.
         """
@@ -183,13 +178,14 @@ class SomePlugin(Plugin):
 ```python
 from dependency.core import Product, product, providers
 from dependency.core.injection import LazyProvide, inject
-from ...plugin.........component import SomeService, SomeServiceComponent
+from ...plugin.........component import SomeService
 from ...plugin.....other_product import OtherProduct
 
 @product(
-    imports=[SomeServiceComponent, ...], # List of dependencies (components) that are needed
-    products=[OtherProduct, ...],        # List of products that this product will create
-    provider=providers.Singleton,        # Provider type (Singleton, Factory, Resource)
+    module=SomeModule,              # Declares the module or plugin this component belongs to
+    imports=[SomeService, ...],     # List of dependencies (components) that are needed
+    products=[OtherProduct, ...],   # List of products that this product will create
+    provider=providers.Singleton,   # Provider type (Singleton, Factory, Resource)
 )
 class SomeProduct(Interface, Product):
     """This is the product class. This class will check for its dependencies.
@@ -197,13 +193,13 @@ class SomeProduct(Interface, Product):
     """
     def __init__(self, ...) -> None:
         # Dependencies can be used in the same way as before
-        self.dependency: SomeService = SomeServiceComponent.provide()
+        self.dependency: SomeService = SomeService.provide()
 
     @inject
     def method(self,
         # Dependencies also can be provided using @inject decorator with LazyProvide
         # With @inject always use LazyProvide, to avoid deferred evaluation issues.
-        dependency: SomeService = LazyProvide(SomeServiceComponent.reference),
+        dependency: SomeService = LazyProvide(SomeService.reference),
     ...) -> ...:
         """Product interface can be defined using normal inheritance.
         """
