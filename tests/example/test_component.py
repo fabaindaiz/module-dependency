@@ -1,8 +1,7 @@
 import pytest
 from dependency.core import Container, Entrypoint
 from example.plugin.base import BasePlugin
-from example.plugin.base.number import NumberService, NumberServiceComponent
-from example.plugin.base.number.providers.fake import FakeNumberService
+from example.plugin.base.number.fake import NumberService
 
 @pytest.fixture
 def setup():
@@ -15,8 +14,8 @@ def setup():
     return ExampleApp()
 
 def test_component(setup: object):
-    numberService1: NumberService = NumberServiceComponent.provide()
-    numberService2: NumberService = NumberServiceComponent.provide()
+    numberService1: NumberService = NumberService.provide()
+    numberService2: NumberService = NumberService.provide()
     assert numberService1 == numberService2
     assert isinstance(numberService1, NumberService)
     assert numberService1.getRandomNumber() == 42

@@ -1,4 +1,3 @@
-import pytest
 from dependency.core.agrupation import Plugin, PluginMeta, module
 from dependency.core.declaration import Component, component, instance, providers
 from dependency.core.resolution import Container, ResolutionStrategy
@@ -7,21 +6,16 @@ from dependency.core.resolution import Container, ResolutionStrategy
 class TPlugin(Plugin):
     meta = PluginMeta(name="test_plugin", version="0.1.0")
 
-class TInterface:
-    initialized: bool = False
-
 @component(
     module=TPlugin,
-    interface=TInterface,
 )
 class TComponent(Component):
-    pass
+    initialized: bool = False
 
 @instance(
-    component=TComponent,
     provider=providers.Resource,
 )
-class TInstance(TInterface):
+class TInstance(TComponent):
     def __enter__(self) -> 'TInstance':
         self.initialized = True
         return self
@@ -32,16 +26,16 @@ class TInstance(TInterface):
 def test_resource() -> None:
     container = Container()
     TPlugin.resolve_container(container)
-    providers = list(TPlugin.resolve_providers())
+    injectables = list(TPlugin.resolve_providers())
 
     assert TInstance.initialized == False
 
-    ResolutionStrategy.resolution(container, providers)
-    component: TInterface = TComponent.provide()
+    ResolutionStrategy.resolution(container, injectables)
+    component: TComponent = TComponent.provide()
     assert component.initialized == True
 
     # TODO: Esto no está funcionando correctamente
     #container.shutdown_resources()
-    TComponent.injection.injectable.provider.shutdown() # type: ignore
+    TComponent.provider().shutdown() # type: ignore
     assert component.initialized == False
-    assert providers == [TComponent.injection.injectable]
+    assert injectables == [TComponent.injection.injectable]

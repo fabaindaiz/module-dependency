@@ -20,15 +20,15 @@ class Entrypoint:
         container: Container,
         plugins: Iterable[type[Plugin]]
     ) -> None:
-        injectables: list[Injectable] = []
+        providers: list[Injectable] = []
 
         for plugin in plugins:
             plugin.resolve_container(container=container)
-            injectables.extend(plugin.resolve_providers())
+            providers.extend(plugin.resolve_providers())
 
         self.resolver: InjectionResolver = InjectionResolver(
             container=container,
-            injectables=injectables
+            providers=providers
         )
 
         self.resolver.resolve_dependencies()
@@ -36,4 +36,4 @@ class Entrypoint:
 
     def main_loop(self) -> None:
         """Main loop for the application. Waits indefinitely."""
-        Event().wait()
+        Event().wait() # pragma: no cover

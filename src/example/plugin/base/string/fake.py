@@ -1,8 +1,7 @@
 from dependency.core import instance, providers
-from example.plugin.base.string import StringService, StringServiceComponent
+from example.plugin.base.string import StringService
 
 @instance(
-    component=StringServiceComponent,
     provider=providers.Singleton,
 )
 class FakeStringService(StringService):

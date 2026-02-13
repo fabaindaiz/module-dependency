@@ -9,85 +9,79 @@ class ResolutionConfig(BaseModel):
     """Configuration for the Resolution Strategy.
     """
     init_container: bool = True
-    resolve_products: bool = True
 
 class ResolutionStrategy:
     """Defines the strategy for resolving dependencies.
     """
     config: ResolutionConfig = ResolutionConfig()
 
-    def __init__(self,
-        config: ResolutionConfig = ResolutionConfig()
-    ) -> None:
-        self.config = config
-
     @classmethod
     def resolution(cls,
         container: Container,
-        injectables: list[Injectable],
+        providers: list[Injectable],
     ) -> list[Injectable]:
         """Resolve all dependencies and initialize them.
 
         Args:
             container (Container): The container to wire the injectables with.
-            injectables (list[Injectable]): List of injectables to resolve.
+            providers (list[ProviderInjection]): List of provider injections to resolve.
             config (ResolutionConfig): Configuration for the resolution strategy.
 
         Returns:
             list[Injectable]: List of resolved injectables.
         """
-        injectables = cls.injection(
-            injectables=injectables,
+        injectables: list[Injectable] = cls.injection(
+            providers=providers,
         )
         cls.wiring(
             container=container,
             injectables=injectables,
         )
-        cls.bootstrap(
+        cls.initialize(
             injectables=injectables
         )
         return injectables
 
     @classmethod
     def injection(cls,
-        injectables: list[Injectable],
+        providers: list[Injectable],
     ) -> list[Injectable]:
         """Resolve all injectables in layers.
 
         Args:
-            container (Container): The container to wire the injectables with.
-            injectables (list[Injectable]): List of injectables to resolve.
+            providers (list[Injectable]): List of injectables to resolve.
 
         Returns:
             list[Injectable]: List of resolved injectables.
         """
-        _logger.info("Resolving injectables...")
-        unresolved: list[Injectable] = injectables.copy()
+        _logger.info("Resolving dependencies...")
+        unresolved: list[Injectable] = providers.copy()
         resolved: list[Injectable] = []
+        layer_count: int = 0
 
         while unresolved:
-            new_layer = [
-                injectable.do_injection()
-                for injectable in unresolved
-                if injectable.import_resolved
-            ]
+            new_layer: set[Injectable] = {
+                provider.inject()
+                for provider in unresolved
+                if provider.import_resolved
+            }
 
-            if len(new_layer) == 0:
+            if not new_layer:
                 raise_resolution_error(
-                    injectables=injectables,
+                    providers=providers,
                     unresolved=unresolved
                 )
             resolved.extend(new_layer)
-            _logger.debug(f"Layer: {new_layer}")
+            _logger.debug(f"Layer {layer_count}: {new_layer}")
+            layer_count += 1
 
-            if cls.config.resolve_products:
-                for injectable in new_layer:
-                    unresolved.extend(injectable.products)
+            for provider in new_layer:
+                unresolved.extend(provider.products)
 
             unresolved = [
-                injectable
-                for injectable in unresolved
-                if not injectable.is_resolved
+                provider
+                for provider in unresolved
+                if provider not in new_layer
             ]
         return resolved
 
@@ -102,22 +96,22 @@ class ResolutionStrategy:
             container (Container): The container to wire the injectables with.
             injectables (list[Injectable]): List of injectables to wire.
         """
-        _logger.info("Wiring injectables...")
+        _logger.info("Wiring dependencies...")
         for injectable in injectables:
-            injectable.do_wiring(container=container)
+            injectable.wire(container=container)
         if cls.config.init_container:
             container.check_dependencies()
             container.init_resources()
 
     @classmethod
-    def bootstrap(cls,
+    def initialize(cls,
         injectables: list[Injectable],
     ) -> None:
-        """Start all implementations by executing their bootstrap functions.
+        """Start all implementations by executing their init functions.
 
         Args:
             injectables (list[Injectable]): List of injectables to start.
         """
-        _logger.info("Starting injectables...")
+        _logger.info("Initializing dependencies...")
         for injectable in injectables:
-            injectable.do_bootstrap()
+            injectable.init()

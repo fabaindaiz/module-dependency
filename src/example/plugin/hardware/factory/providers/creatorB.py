@@ -1,15 +1,14 @@
 from dependency.core import instance, providers
-from example.plugin.hardware.factory import HardwareFactory, HardwareFactoryComponent
-from example.plugin.hardware.factory.interfaces import Hardware
+from example.plugin.hardware.interfaces import Hardware
+from example.plugin.hardware.events import EventHardwareCreated
+from example.plugin.hardware.factory import HardwareFactory
 from example.plugin.hardware.factory.products.productB import HardwareB
 from example.plugin.hardware.factory.products.productC import HardwareC
-from example.plugin.hardware.observer import HardwareObserver, HardwareObserverComponent
-from example.plugin.hardware.observer.interfaces import EventHardwareCreated
+from example.plugin.hardware.observer import HardwareObserver
 
 @instance(
-    component=HardwareFactoryComponent,
     imports=[
-        HardwareObserverComponent,
+        HardwareObserver,
     ],
     products=[
         HardwareB,
@@ -19,7 +18,7 @@ from example.plugin.hardware.observer.interfaces import EventHardwareCreated
 )
 class HardwareFactoryCreatorB(HardwareFactory):
     def __init__(self):
-        self.__observer: HardwareObserver = HardwareObserverComponent.provide()
+        self.__observer: HardwareObserver = HardwareObserver.provide()
         print("FactoryCreatorB initialized")
 
     def createProduct(self, product: str) -> Hardware:

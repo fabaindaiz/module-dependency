@@ -1,4 +1,5 @@
-from dependency_injector import containers
+import pytest
+from dependency_injector import containers, providers
 from dependency_injector.wiring import Provide, inject
 from dependency.core.injection import ContainerInjection, ProviderInjection, Injectable
 
@@ -18,18 +19,25 @@ def test_injection1() -> None:
     container2 = ContainerInjection(name="container2", parent=container1)
     provider1 = ProviderInjection(
         name="provider1",
+        interface_cls=Interface,
         parent=container2
     )
-    provider1.set_instance(
-        injectable=Injectable(
-            component_cls=Interface,
-            provided_cls=Instance,
-        )
+    provider1.injectable.add_implementation(
+        implementation=Instance,
+        modules_cls={Interface},
+        provider=providers.Singleton(Instance),
     )
     assert provider1.reference == TEST_REFERENCE
 
     container = containers.DynamicContainer()
     setattr(container, container1.name, container1.inject_cls())
+
+    container.wire((Interface,))
+    with pytest.raises(AttributeError):
+        Interface().test()
+
     for provider in list(container1.resolve_providers()):
-        provider.do_wiring(container=container)
+        provider.wire(container=container)
+
+    container.wire((Interface,))
     assert Interface().test() == "Injected service: Test method called"

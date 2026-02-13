@@ -6,7 +6,8 @@ class Product(ABC):
     def doStuff(self) -> None:
         pass
 
-class Creator(ABC):
+@component()
+class Creator(ABC, Component):
     def someOperation(self) -> None:
         instance = self.createProduct()
         instance.doStuff()
@@ -14,9 +15,3 @@ class Creator(ABC):
     @abstractmethod
     def createProduct(self) -> Product:
         pass
-
-@component(
-    interface=Creator
-)
-class CreatorComponent(Component):
-    pass

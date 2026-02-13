@@ -1,6 +1,6 @@
 import pytest
 from dependency.core.agrupation import Plugin, PluginMeta, module
-from dependency.core.declaration import Component, component, Product, product, instance
+from dependency.core.declaration import Component, component, instance
 from dependency.core.resolution import Container, ResolutionStrategy
 from dependency.core.exceptions import DeclarationError, ResolutionError
 
@@ -8,50 +8,58 @@ from dependency.core.exceptions import DeclarationError, ResolutionError
 class TPlugin(Plugin):
     meta = PluginMeta(name="test_plugin", version="0.1.0")
 
-class TInterface:
-    pass
-
 @component(
     module=TPlugin,
-    interface=TInterface,
 )
 class TComponent1(Component):
     pass
 
 @component(
+    imports=[TComponent1],
     module=TPlugin,
-    interface=TInterface,
 )
 class TComponent2(Component):
     pass
 
-@product(
-    imports=[TComponent1],
+@component(
+    imports=[TComponent2],
+    partial_resolution=True,
 )
-class TProduct1(Product):
+class TProduct1(Component):
     pass
 
 @instance(
-    component=TComponent1,
-    imports=[TComponent2],
+    imports=[TComponent1],
     products=[TProduct1],
 )
-class TInstance1(TInterface):
-    pass
-
-@instance(
-    component=TComponent2,
-    imports=[TComponent1],
-)
-class TInstance2(TInterface):
+class TInstance1(TComponent1):
     pass
 
 def test_exceptions() -> None:
     container = Container()
     TPlugin.resolve_container(container)
-    providers = list(TPlugin.resolve_providers())
 
     with pytest.raises(DeclarationError):
         print(TComponent1.provide())
+
+    with pytest.raises(DeclarationError):
+        list(TPlugin.resolve_providers())
+
+    TComponent2.change_parent(None)
+    injectables = list(TPlugin.resolve_providers())
+    assert injectables == [TComponent1.injection.injectable]
+
     with pytest.raises(ResolutionError):
-        ResolutionStrategy.injection(providers)
+        ResolutionStrategy.injection(injectables)
+
+    TComponent1.remove_dependencies(
+        imports=[TComponent1],
+    )
+    ResolutionStrategy.injection(injectables)
+    assert TComponent1.provide()
+
+    TProduct1.set_dependencies(
+        partial_resolution=False,
+    )
+    with pytest.raises(ResolutionError):
+        ResolutionStrategy.injection(injectables)

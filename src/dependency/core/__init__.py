@@ -8,9 +8,9 @@ from dependency.core.agrupation import (
 from dependency.core.declaration import (
     Component,
     component,
-    instance,
     Product,
     product,
+    instance,
     providers,
 )
 from dependency.core.resolution import (
@@ -33,8 +33,6 @@ __all__ = [
     "Component",
     "component",
     "instance",
-    "Product",
-    "product",
     "providers",
     "Container",
     "InjectionResolver",

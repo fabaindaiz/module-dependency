@@ -7,12 +7,13 @@ class InjectionResolver:
     """Injection Resolver Class
     """
     container: Container
-    def __init__(self, container: Container, injectables: Iterable[Injectable]) -> None: ...
-    def resolve_dependencies(self, strategy: ResolutionStrategy = ...) -> list[Injectable]:
+    providers: list[Injectable]
+    def __init__(self, container: Container, providers: Iterable[Injectable]) -> None: ...
+    def resolve_dependencies(self, strategy: type[ResolutionStrategy] = ...) -> list[Injectable]:
         """Resolve all dependencies and initialize them.
 
         Args:
-            config (InjectionConfig): Configuration for the injection resolver.
+            strategy (type[ResolutionStrategy]): The resolution strategy to use.
 
         Returns:
             list[Injectable]: List of resolved injectables."""

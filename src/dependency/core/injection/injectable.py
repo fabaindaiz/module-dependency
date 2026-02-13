@@ -1,62 +1,107 @@
 import logging
-from typing import Any, Callable, Iterable, Optional
+from typing import Any, Callable, Iterable, Self, Optional
 from dependency_injector import containers, providers
-from dependency.core.exceptions import InitializationError, CancelInitialization
-from dependency.core.utils.lazy import LazyList
+from dependency.core.exceptions import (
+    DeclarationError,
+    InitializationError,
+    CancelInitialization,
+)
 _logger = logging.getLogger("dependency.loader")
 
-# TODO: Añadir soporte para otros providers (Abstract Factory, Aggregate, Selector)
 class Injectable:
-    """Injectable Class representing a injectable dependency.
+    """Injectable Class represents a implementation of some kind that can be injected as a dependency.
+
+    Attributes:
+        interface_cls (T): The interface class that this injectable implements.
+
+        imports (Iterable[Injectable]): List of injectables that this injectable depends on.
+        products (Iterable[Injectable]): List of injectables that depend on this injectable.
     """
     def __init__(self,
-        component_cls: type,
-        provided_cls: type,
-        provider_cls: type[providers.Provider[Any]] = providers.Singleton,
-        imports: Iterable['Injectable'] = (),
-        products: Iterable['Injectable'] = (),
-        bootstrap: Optional[Callable[[], Any]] = None
+        interface_cls: type,
     ) -> None:
-        self.component_cls: type = component_cls
-        self.provided_cls: type = provided_cls
-        self.provider_cls: type[providers.Provider[Any]] = provider_cls
-        self.modules_cls: set[type] = {component_cls, provided_cls}
-        self.bootstrap: Optional[Callable[[], Any]] = bootstrap
+        self.interface_cls: type = interface_cls
+        self.modules_cls: set[type] = {interface_cls}
 
-        self._imports: LazyList['Injectable'] = LazyList(imports)
-        self._products: LazyList['Injectable'] = LazyList(products)
-        self._provider: Optional[providers.Provider[Any]] = None
+        self.implementation: Optional[type] = None
+        self.__provider: Optional[providers.Provider[Any]] = None
+        self.__bootstrap: Optional[Callable[[], Any]] = None
+
+        self.imports: set['Injectable'] = set()
+        self.products: set['Injectable'] = set()
+        #self.import_of: set['Injectable'] = set()
+        #self.product_of: set['Injectable'] = set()
+
+        self.partial_resolution: bool = False
         self.is_resolved: bool = False
 
     @property
-    def imports(self) -> list['Injectable']:
-        return self._imports()
-
-    @property
-    def products(self) -> list['Injectable']:
-        return self._products()
-
-    @property
-    # TODO: Necesito extraer esta definición de provider
-    def provider(self) -> providers.Provider[Any]:
-        """Return an instance from the provider."""
-        if self._provider is None:
-            self._provider = self.provider_cls(self.provided_cls) # type: ignore
-        return self._provider
-
-    @property
     def import_resolved(self) -> bool:
-        return all(
-            implementation.is_resolved
-            for implementation in self.imports
-        )
+        unresolved: set['Injectable'] = set(filter(lambda i: not i.is_resolved, self.imports))
+        if not unresolved:
+            return True
 
-    def do_injection(self) -> "Injectable":
-        """Mark the injectable as resolved."""
+        if self.partial_resolution:
+            _logger.warning(f"Provider {self.interface_cls.__name__} has unresolved imports: {unresolved}, but partial resolution is enabled")
+            return True
+
+        return False
+
+    def add_dependencies(self,
+        imports: Iterable['Injectable'],
+        products: Iterable['Injectable'],
+        partial_resolution: bool = False,
+    ) -> None:
+        self.imports.update(imports)
+        self.products.update(products)
+        self.partial_resolution = partial_resolution
+
+    def del_dependencies(self,
+        imports: Iterable['Injectable'],
+        products: Iterable['Injectable'],
+    ) -> None:
+        self.imports.difference_update(imports)
+        self.products.difference_update(products)
+
+    def add_implementation(self,
+        implementation: type,
+        modules_cls: Iterable[type],
+        provider: providers.Provider[Any],
+        bootstrap: Optional[Callable[[], Any]] = None
+    ) -> None:
+        if self.implementation is None:
+            _logger.debug(f"Provider {self.interface_cls.__name__} implementation assigned: {implementation.__name__}")
+        else:
+            _logger.warning(f"Provider {self.interface_cls.__name__} implementation reassigned: {self.implementation.__name__} -> {implementation.__name__}")
+
+        self.modules_cls.update(modules_cls)
+        self.implementation = implementation
+        self.__provider = provider
+        self.__bootstrap = bootstrap
+
+    @property
+    def provider(self) -> providers.Provider[Any]:
+        """Return the provider instance for this injectable."""
+        if self.__provider is None:
+            raise DeclarationError(f"Provider {self.interface_cls.__name__} has no implementation assigned")
+        return self.__provider
+
+    @property
+    def provide(self) -> providers.Provider[Any]:
+        """Return the provide instance for this injectable."""
+        if not self.is_resolved:
+            raise DeclarationError(
+                f"Injectable {self.interface_cls.__name__} accessed before being resolved. "
+                f"Ensure it is declared as a dependency (imports or products) where it is being used"
+            )
+        return self.provider
+
+    def inject(self) -> Self:
+        """Mark the provider injection as resolved."""
         self.is_resolved = True
         return self
 
-    def do_wiring(self, container: containers.DynamicContainer) -> None:
+    def wire(self, container: containers.DynamicContainer) -> None:
         """Wire the provider with the given container.
 
         Args:
@@ -64,20 +109,24 @@ class Injectable:
         """
         container.wire(
             modules=self.modules_cls,
-            warn_unresolved=True
+            warn_unresolved=True,
         )
 
-    def do_bootstrap(self) -> None:
+    def init(self) -> None:
         """Execute the bootstrap function if it exists."""
         if not self.is_resolved:
-            raise InitializationError(f"Component {self.component_cls.__name__} cannot be initialized before being resolved.")
-        if self.bootstrap is not None:
+            raise DeclarationError(
+                f"Injectable {self.interface_cls.__name__} must be resolved before initialization. "
+                f"Ensure it is declared as a dependency (imports or products) where it is being used"
+            )
+
+        if self.__bootstrap is not None:
             try:
-                self.bootstrap()
+                self.__bootstrap()
             except CancelInitialization as e:
-                _logger.warning(f"Initialization of Component {self.component_cls.__name__} was cancelled: {e}")
+                _logger.warning(f"Injectable {self.interface_cls.__name__} initialization skipped (cancelled by user): {e}")
             except Exception as e:
-                raise InitializationError(f"Failed to initialize Component {self.component_cls.__name__}") from e
+                raise InitializationError(f"Injectable {self.interface_cls.__name__} initialization failed") from e
 
     def __repr__(self) -> str:
-        return f"{self.provided_cls.__name__}"
+        return f"{self.interface_cls.__name__}"

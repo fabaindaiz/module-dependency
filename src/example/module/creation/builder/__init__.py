@@ -6,7 +6,8 @@ class Product(ABC):
     def doStuff(self) -> None:
         pass
 
-class Builder(ABC):
+@component()
+class Builder(ABC, Component):
     @abstractmethod
     def reset(self) -> None:
         pass
@@ -14,7 +15,7 @@ class Builder(ABC):
     @abstractmethod
     def buildStepA(self) -> None:
         pass
-    
+
     @abstractmethod
     def buildStepB(self) -> None:
         pass
@@ -26,9 +27,3 @@ class Builder(ABC):
     @abstractmethod
     def result(self) -> Product:
         pass
-
-@component(
-    interface=Builder
-)
-class BuilderComponent(Component):
-    pass

@@ -1,24 +1,29 @@
 import abc
 from abc import ABC, abstractmethod
+from dependency.core.exceptions import ProvisionError as ProvisionError
 from dependency.core.injection.injectable import Injectable as Injectable
-from dependency_injector import containers
+from dependency.core.injection.wiring import LazyProvide as LazyProvide
+from dependency_injector import containers, providers as providers
 from typing import Any, Generator, override
 
 class BaseInjection(ABC, metaclass=abc.ABCMeta):
     """Base Injection Class
     """
+    is_root: bool
     name: str
     parent: ContainerInjection | None
     def __init__(self, name: str, parent: ContainerInjection | None = None) -> None: ...
     @property
     def reference(self) -> str:
         """Return the reference for dependency injection."""
-    def change_parent(self, parent: ContainerInjection) -> None:
+    def change_parent(self, parent: ContainerInjection | None = None) -> None:
         """Change the parent injection of this injection.
 
         Args:
             parent (ContainerInjection): The new parent injection.
         """
+    def validation(self) -> None:
+        """Validate the injection configuration."""
     @abstractmethod
     def inject_cls(self) -> Any:
         """Return the class to be injected."""
@@ -39,3 +44,22 @@ class ContainerInjection(BaseInjection):
     @override
     def resolve_providers(self) -> Generator[Injectable, None, None]:
         """Inject all children into the current container."""
+
+class ProviderInjection(BaseInjection):
+    """Provider Injection Class
+    """
+    injectable: Injectable
+    def __init__(self, name: str, interface_cls: type, parent: ContainerInjection | None = None) -> None: ...
+    @property
+    @override
+    def reference(self) -> str:
+        """Return the reference for dependency injection."""
+    @property
+    def provider(self) -> providers.Provider[Any]:
+        """Return the provider instance."""
+    @override
+    def inject_cls(self) -> providers.Provider[Any]:
+        """Return the provider instance."""
+    @override
+    def resolve_providers(self) -> Generator[Injectable, None, None]:
+        """Inject all imports into the current injectable."""

@@ -182,7 +182,7 @@ class SomePlugin(Plugin):
 
 ```python
 from dependency.core import Product, product, providers
-from dependency.core.injection import LazyProvide
+from dependency.core.injection import LazyProvide, inject
 from ...plugin.........component import SomeService, SomeServiceComponent
 from ...plugin.....other_product import OtherProduct
 

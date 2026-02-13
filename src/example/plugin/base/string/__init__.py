@@ -2,14 +2,10 @@ from abc import ABC, abstractmethod
 from dependency.core import Component, component
 from example.plugin.base import BasePlugin
 
-class StringService(ABC):
+@component(
+    module=BasePlugin,
+)
+class StringService(ABC, Component):
     @abstractmethod
     def getRandomString(self) -> str:
         pass
-
-@component(
-    module=BasePlugin,
-    interface=StringService,
-)
-class StringServiceComponent(Component):
-    pass

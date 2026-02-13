@@ -3,4 +3,4 @@ from dependency.core.declaration.instance import instance as instance
 from dependency.core.declaration.product import Product as Product, product as product
 from dependency_injector import providers as providers
 
-__all__ = ['Component', 'component', 'instance', 'Product', 'product', 'providers']
+__all__ = ['Component', 'component', 'Product', 'product', 'instance', 'providers']

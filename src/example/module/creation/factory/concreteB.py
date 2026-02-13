@@ -1,13 +1,12 @@
-from dependency.core import provider, providers
-from example.module.creation.factory import Creator, CreatorComponent, Product
+from dependency.core import instance, providers
+from example.module.creation.factory import Creator, Product
 
 class ConcreteProductB(Product):
     def doStuff(self) -> None:
         print("ConcreteProductA works")
 
-@provider(
+@instance(
     provider=providers.Factory,
-    component=CreatorComponent
 )
 class ConcreteCreatorB(Creator):
     def createProduct(self) -> ConcreteProductB:
