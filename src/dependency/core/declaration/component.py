@@ -12,9 +12,9 @@ class Component(ProviderMixin):
 
 def component(
     module: Optional[type[Module]] = None,
-    provider: Optional[InstanceOrClass[providers.Provider[Any]]] = None,
     imports: Iterable[type[ProviderMixin]] = (),
     products: Iterable[type[ProviderMixin]] = (),
+    provider: Optional[InstanceOrClass[providers.Provider[Any]]] = None,
     partial_resolution: bool = False,
     bootstrap: bool = False,
 ) -> Callable[[type[COMPONENT]], type[COMPONENT]]:
@@ -35,7 +35,7 @@ def component(
     """
     def wrap(cls: type[COMPONENT]) -> type[COMPONENT]:
         if not issubclass(cls, Component):
-            raise TypeError(f"Class {cls} has decorator @component but is not a subclass of Component")
+            raise TypeError(f"Class {cls} has decorator @component but is not a subclass of Component") # pragma: no cover
 
         cls.init_injection(
             parent=module.injection if module else None
@@ -48,7 +48,7 @@ def component(
         )
 
         if provider is not None:
-            cls.init_injectable(
+            cls.init_implementation(
                 modules_cls=(cls,),
                 provider=validate_provider(cls, provider),
                 bootstrap=cls.provide if bootstrap else None,

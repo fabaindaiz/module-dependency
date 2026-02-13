@@ -26,7 +26,7 @@ def standalone_provider(cls: T,
         providers.Provider[Any]: Instance of the validated provider.
     """
     if not issubclass(provider, _PROVIDERS):
-        raise TypeError(f"Product {cls.__name__} has an invalid provider {provider.__name__} (allowed: {[p.__name__ for p in _PROVIDERS]})")
+        raise TypeError(f"Product {cls.__name__} has an invalid provider {provider.__name__} (allowed: {[p.__name__ for p in _PROVIDERS]})") # pragma: no cover
     return provider(cls)
 
 # TODO: validate provider for instance, what about other kinds of providers?

@@ -29,7 +29,7 @@ def test_declaration() -> None:
         provider.inject()
 
     assert TModule.__name__ == "TModule"
-    assert TComponent.injection.interface_cls.__name__ == "TComponent"
+    assert TComponent.injection.injectable.interface_cls.__name__ == "TComponent"
     assert TInstance.__name__ == "TInstance"
 
     component: TComponent = TComponent.provide()

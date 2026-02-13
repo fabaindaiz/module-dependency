@@ -1,5 +1,5 @@
 from dependency.core.agrupation.module import Module as Module
-from dependency.core.exceptions import DeclarationError as DeclarationError
+from dependency.core.exceptions import ProvisionError as ProvisionError
 from dependency.core.resolution.container import Container as Container
 from pydantic import BaseModel
 
@@ -20,8 +20,9 @@ class Plugin(Module):
         meta (PluginMeta): Metadata for the plugin
         config (BaseModel): Configuration model for the plugin
     """
-    is_root: bool
     meta: PluginMeta
+    @classmethod
+    def on_declaration(cls) -> None: ...
     @classmethod
     def resolve_container(cls, container: Container) -> None:
         """Resolve the plugin configuration.

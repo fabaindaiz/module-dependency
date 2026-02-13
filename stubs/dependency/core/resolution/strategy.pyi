@@ -1,5 +1,4 @@
 from dependency.core.injection.injectable import Injectable as Injectable
-from dependency.core.injection.resoluble import ResolubleProvider as ResolubleProvider
 from dependency.core.resolution.container import Container as Container
 from dependency.core.resolution.errors import raise_resolution_error as raise_resolution_error
 from pydantic import BaseModel
@@ -8,14 +7,13 @@ class ResolutionConfig(BaseModel):
     """Configuration for the Resolution Strategy.
     """
     init_container: bool
-    resolve_products: bool
 
 class ResolutionStrategy:
     """Defines the strategy for resolving dependencies.
     """
     config: ResolutionConfig
     @classmethod
-    def resolution(cls, container: Container, providers: list[ResolubleProvider]) -> list[Injectable]:
+    def resolution(cls, container: Container, providers: list[Injectable]) -> list[Injectable]:
         """Resolve all dependencies and initialize them.
 
         Args:
@@ -27,11 +25,11 @@ class ResolutionStrategy:
             list[Injectable]: List of resolved injectables.
         """
     @classmethod
-    def injection(cls, providers: list[ResolubleProvider]) -> list[Injectable]:
+    def injection(cls, providers: list[Injectable]) -> list[Injectable]:
         """Resolve all injectables in layers.
 
         Args:
-            providers (list[ResolubleClass]): List of resoluble classes to resolve.
+            providers (list[Injectable]): List of injectables to resolve.
 
         Returns:
             list[Injectable]: List of resolved injectables.

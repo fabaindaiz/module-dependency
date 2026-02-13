@@ -27,17 +27,17 @@ def instance(
     """
     def wrap(cls: type[COMPONENT]) -> type[COMPONENT]:
         if not issubclass(cls, Component):
-            raise TypeError(f"Class {cls} has decorator @instance but is not a subclass of Component")
+            raise TypeError(f"Class {cls} has decorator @instance but is not a subclass of Component") # pragma: no cover
+
+        cls.init_implementation(
+            modules_cls=(cls,),
+            provider=standalone_provider(cls, provider),
+            bootstrap=cls.provide if bootstrap else None,
+        )
 
         cls.init_dependencies(
             imports=imports,
             products=products,
-        )
-
-        cls.init_injectable(
-            modules_cls=(cls,),
-            provider=standalone_provider(cls, provider),
-            bootstrap=cls.provide if bootstrap else None,
         )
 
         return cls

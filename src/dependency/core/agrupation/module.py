@@ -23,7 +23,7 @@ def module(
     """
     def wrap(cls: type[MODULE]) -> type[MODULE]:
         if not issubclass(cls, Module):
-            raise TypeError(f"Class {cls} has decorator @module but is not a subclass of Module")
+            raise TypeError(f"Class {cls} has decorator @module but is not a subclass of Module") # pragma: no cover
 
         cls.init_injection(
             parent=module.injection if module else None

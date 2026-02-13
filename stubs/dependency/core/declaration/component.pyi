@@ -10,7 +10,7 @@ class Component(ProviderMixin):
     """Component Base Class
     """
 
-def component(module: type[Module] | None = None, provider: InstanceOrClass[providers.Provider[Any]] | None = None, imports: Iterable[type[ProviderMixin]] = (), products: Iterable[type[ProviderMixin]] = (), partial_resolution: bool = False, bootstrap: bool = False) -> Callable[[type[COMPONENT]], type[COMPONENT]]:
+def component(module: type[Module] | None = None, imports: Iterable[type[ProviderMixin]] = (), products: Iterable[type[ProviderMixin]] = (), provider: InstanceOrClass[providers.Provider[Any]] | None = None, partial_resolution: bool = False, bootstrap: bool = False) -> Callable[[type[COMPONENT]], type[COMPONENT]]:
     """Decorator for Component class
 
     Args:

@@ -3,7 +3,7 @@ from pydantic import BaseModel, ValidationError
 from typing import get_type_hints
 from dependency.core.agrupation.module import Module
 from dependency.core.resolution.container import Container
-from dependency.core.exceptions import DeclarationError
+from dependency.core.exceptions import ProvisionError
 _logger = logging.getLogger("dependency.loader")
 
 class PluginMeta(BaseModel):
@@ -26,8 +26,11 @@ class Plugin(Module):
         meta (PluginMeta): Metadata for the plugin
         config (BaseModel): Configuration model for the plugin
     """
-    is_root: bool = True
     meta: PluginMeta
+
+    @classmethod
+    def on_declaration(cls) -> None:
+        cls.injection.is_root = True
 
     @classmethod
     def resolve_container(cls, container: Container) -> None:
@@ -47,4 +50,4 @@ class Plugin(Module):
             else:
                 _logger.warning(f"Plugin {cls.meta} configuration class is not a subclass of BaseModel")
         except ValidationError as e:
-            raise DeclarationError(f"Plugin {cls.meta} configuration validation failed") from e
+            raise ProvisionError(f"Plugin {cls.meta} configuration validation failed") from e

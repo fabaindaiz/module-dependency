@@ -1,6 +1,5 @@
 from typing import Iterable
 from dependency.core.injection.injectable import Injectable
-from dependency.core.injection.resoluble import ResolubleProvider
 from dependency.core.resolution.container import Container
 from dependency.core.resolution.strategy import ResolutionStrategy
 
@@ -9,10 +8,10 @@ class InjectionResolver:
     """
     def __init__(self,
         container: Container,
-        providers: Iterable[ResolubleProvider],
+        providers: Iterable[Injectable],
     ) -> None:
         self.container: Container = container
-        self.providers: list[ResolubleProvider] = list(providers)
+        self.providers: list[Injectable] = list(providers)
 
     def resolve_dependencies(self,
         strategy: type[ResolutionStrategy] = ResolutionStrategy

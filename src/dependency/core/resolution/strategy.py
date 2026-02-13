@@ -1,7 +1,6 @@
 import logging
 from pydantic import BaseModel
 from dependency.core.injection.injectable import Injectable
-from dependency.core.injection.resoluble import ResolubleProvider
 from dependency.core.resolution.container import Container
 from dependency.core.resolution.errors import raise_resolution_error
 _logger = logging.getLogger("dependency.loader")
@@ -10,7 +9,6 @@ class ResolutionConfig(BaseModel):
     """Configuration for the Resolution Strategy.
     """
     init_container: bool = True
-    resolve_products: bool = True
 
 class ResolutionStrategy:
     """Defines the strategy for resolving dependencies.
@@ -20,7 +18,7 @@ class ResolutionStrategy:
     @classmethod
     def resolution(cls,
         container: Container,
-        providers: list[ResolubleProvider],
+        providers: list[Injectable],
     ) -> list[Injectable]:
         """Resolve all dependencies and initialize them.
 
@@ -46,29 +44,29 @@ class ResolutionStrategy:
 
     @classmethod
     def injection(cls,
-        providers: list[ResolubleProvider],
+        providers: list[Injectable],
     ) -> list[Injectable]:
         """Resolve all injectables in layers.
 
         Args:
-            providers (list[ResolubleClass]): List of resoluble classes to resolve.
+            providers (list[Injectable]): List of injectables to resolve.
 
         Returns:
             list[Injectable]: List of resolved injectables.
         """
         _logger.info("Resolving dependencies...")
-        unresolved: list[ResolubleProvider] = providers.copy()
-        resolved: list[ResolubleProvider] = []
+        unresolved: list[Injectable] = providers.copy()
+        resolved: list[Injectable] = []
         layer_count: int = 0
 
         while unresolved:
-            new_layer = [
+            new_layer: set[Injectable] = {
                 provider.inject()
                 for provider in unresolved
                 if provider.import_resolved
-            ]
+            }
 
-            if len(new_layer) == 0:
+            if not new_layer:
                 raise_resolution_error(
                     providers=providers,
                     unresolved=unresolved
@@ -77,19 +75,15 @@ class ResolutionStrategy:
             _logger.debug(f"Layer {layer_count}: {new_layer}")
             layer_count += 1
 
-            if cls.config.resolve_products:
-                for provider in new_layer:
-                    unresolved.extend(provider.products)
+            for provider in new_layer:
+                unresolved.extend(provider.products)
 
             unresolved = [
                 provider
                 for provider in unresolved
-                if not provider.is_resolved
+                if provider not in new_layer
             ]
-        return [
-            provider.injectable
-            for provider in resolved
-        ]
+        return resolved
 
     @classmethod
     def wiring(cls,

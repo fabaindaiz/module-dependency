@@ -30,7 +30,7 @@ def test_change_parent_and_resolve():
     injectables = loader.resolve_dependencies()
 
     assert HardwareFactory.injection.injectable in injectables
-    assert HardwareFactory.injection.is_resolved
+    assert HardwareFactory.injection.injectable.is_resolved
 
     number_service: NumberService = NumberService.provide(starting_number=40)
     assert number_service.getRandomNumber() == 40

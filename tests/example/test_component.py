@@ -1,7 +1,7 @@
 import pytest
 from dependency.core import Container, Entrypoint
 from example.plugin.base import BasePlugin
-from example.plugin.base.number.fake import NumberService, NumberService
+from example.plugin.base.number.fake import NumberService
 
 @pytest.fixture
 def setup():
