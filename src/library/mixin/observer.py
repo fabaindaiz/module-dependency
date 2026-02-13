@@ -1,32 +1,35 @@
 from threading import Thread
-from typing import Callable
+from typing import Any, Callable, Generic, TypeVar
 
-class EventContext():
+CONTEXT = TypeVar('CONTEXT', bound='EventContext')
+
+class EventContext:
     pass
 
-class EventSubscriber():
-    def __init__(self, callback: Callable[[EventContext], None]) -> None:
-        self.callback: Callable[[EventContext], None] = callback
+class EventSubscriber(Generic[CONTEXT]):
+    def __init__(self, callback: Callable[[CONTEXT], Any]) -> None:
+        self.callback: Callable[[CONTEXT], Any] = callback
 
-    def update(self, context: EventContext, threaded: bool = True) -> None:
+    def update(self, context: CONTEXT, threaded: bool = True) -> None:
         if threaded:
             Thread(target=self.callback, args=(context,), daemon=True).start()
         else:
             self.callback(context)
 
-class EventPublisher():
+class EventPublisher:
     def __init__(self) -> None:
-        self.__targets: dict[type[EventContext], list[EventSubscriber]] = {}
+        self.__targets: dict[type[EventContext], list[EventSubscriber[Any]]] = {}
 
-    def subscribe(self, subscriber: type[EventSubscriber]) -> Callable:
-        def wrapper(func: Callable[[EventContext], None]) -> Callable[[EventContext], None]:
-            for name, value in func.__annotations__.items():
-                if name == "return":
-                    raise TypeError(f"Function '{func.__name__}' must have at least one parameter with a type annotation that is a subclass of EventContext.")
+    def subscribe(self, subscriber: type[EventSubscriber[CONTEXT]]) -> Callable[[Callable[[CONTEXT], Any]], Callable[[CONTEXT], Any]]:
+        def wrapper(func: Callable[[CONTEXT], Any]) -> Callable[[CONTEXT], Any]:
+            if len(func.__annotations__) == 0:
+                raise TypeError(f"Function '{func.__name__}' must have at least one parameter with a type annotation that is a subclass of EventContext.")
+            name, value = next(iter(func.__annotations__.items()))
+            if name == "return":
+                raise TypeError(f"Function '{func.__name__}' must have at least one parameter with a type annotation that is a subclass of EventContext.")
+            if not issubclass(value, EventContext):
+                raise TypeError(f"Parameter '{name}' in '{func.__name__}' must be a subclass of EventContext, got {value.__name__}.")
 
-                if not issubclass(value, EventContext):
-                    raise TypeError(f"Parameter '{name}' in '{func.__name__}' must be a subclass of EventContext, got {value.__name__}.")
-                break
             self.__targets.setdefault(value, []).append(subscriber(func))
             return func
         return wrapper
@@ -50,11 +53,11 @@ if __name__ == '__main__':
         def __init__(self) -> None:
             self.publisher = EventPublisher()
 
-            @self.publisher.subscribe(EventSubscriber)
+            @self.publisher.subscribe(EventSubscriber[EventA])
             def listen_event_a(context1: EventA) -> None:
                 print(f"Event A triggered with parameter: {context1.parameterA}")
 
-            @self.publisher.subscribe(EventSubscriber)
+            @self.publisher.subscribe(EventSubscriber[EventB])
             def listen_event_b(context2: EventB) -> None:
                 print(f"Event B triggered with parameter: {context2.parameterB}")
 
