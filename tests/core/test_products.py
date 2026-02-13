@@ -26,7 +26,6 @@ class TComponent2(Component):
         TComponent2,
     ],
     provider=providers.Factory,
-    #partial_resolution=True,
 )
 class TProduct1(Component):
     pass
@@ -42,12 +41,13 @@ class TInstance1(TComponent1):
 def test_products() -> None:
     container = Container()
     TPlugin.resolve_container(container)
-    providers = list(TPlugin.resolve_providers())
+    injectables = list(TPlugin.resolve_providers())
 
     with pytest.raises(ResolutionError):
-        ResolutionStrategy.injection(providers)
+        ResolutionStrategy.injection(injectables)
 
     TProduct1.injection.injectable.partial_resolution = True
-    injectables = ResolutionStrategy.injection(providers)
+    injectables = ResolutionStrategy.injection(injectables)
+
     assert TComponent1.injection.injectable in injectables
     assert TProduct1.injection.injectable in injectables

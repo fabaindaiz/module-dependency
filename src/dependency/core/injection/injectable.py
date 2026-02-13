@@ -27,27 +27,17 @@ class Injectable:
         self.__provider: Optional[providers.Provider[Any]] = None
         self.__bootstrap: Optional[Callable[[], Any]] = None
 
-        self.__imports: set['Injectable'] = set()
-        self.__products: set['Injectable'] = set()
-        self.__import_of: set['Injectable'] = set()
-        self.__product_of: set['Injectable'] = set()
+        self.imports: set['Injectable'] = set()
+        self.products: set['Injectable'] = set()
+        #self.import_of: set['Injectable'] = set()
+        #self.product_of: set['Injectable'] = set()
 
         self.partial_resolution: bool = False
         self.is_resolved: bool = False
 
     @property
-    def imports(self) -> Iterable['Injectable']:
-        """Return the set of imports for this provider injection."""
-        return self.__imports
-
-    @property
-    def products(self) -> Iterable['Injectable']:
-        """Return the set of products for this provider injection."""
-        return self.__products
-
-    @property
     def import_resolved(self) -> bool:
-        unresolved: set['Injectable'] = set(filter(lambda i: not i.is_resolved, self.__imports))
+        unresolved: set['Injectable'] = set(filter(lambda i: not i.is_resolved, self.imports))
         if not unresolved:
             return True
 
@@ -57,22 +47,21 @@ class Injectable:
 
         return False
 
-    def as_import(self, provider: 'Injectable') -> Self:
-        self.__import_of.add(provider)
-        return self
-
-    def as_product(self, provider: 'Injectable') -> Self:
-        self.__product_of.add(provider)
-        return self
-
     def add_dependencies(self,
         imports: Iterable['Injectable'],
         products: Iterable['Injectable'],
         partial_resolution: bool = False,
     ) -> None:
-        self.__imports.update(imports)
-        self.__products.update(products)
+        self.imports.update(imports)
+        self.products.update(products)
         self.partial_resolution = partial_resolution
+
+    def del_dependencies(self,
+        imports: Iterable['Injectable'],
+        products: Iterable['Injectable'],
+    ) -> None:
+        self.imports.difference_update(imports)
+        self.products.difference_update(products)
 
     def add_implementation(self,
         implementation: type,
@@ -91,21 +80,21 @@ class Injectable:
         self.__bootstrap = bootstrap
 
     @property
-    def injection(self) -> providers.Provider[Any]:
-        """Return an instance from the provider."""
+    def provider(self) -> providers.Provider[Any]:
+        """Return the provider instance for this injectable."""
         if self.__provider is None:
             raise DeclarationError(f"Provider {self.interface_cls.__name__} has no implementation assigned")
         return self.__provider
 
     @property
-    def provider(self) -> providers.Provider[Any]:
-        """Return the provider instance for this injectable."""
+    def provide(self) -> providers.Provider[Any]:
+        """Return the provide instance for this injectable."""
         if not self.is_resolved:
             raise DeclarationError(
                 f"Injectable {self.interface_cls.__name__} accessed before being resolved. "
                 f"Ensure it is declared as a dependency (imports or products) where it is being used"
             )
-        return self.injection
+        return self.provider
 
     def inject(self) -> Self:
         """Mark the provider injection as resolved."""

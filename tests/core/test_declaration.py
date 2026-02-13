@@ -1,7 +1,8 @@
 from abc import ABC, abstractmethod
-from dependency_injector import containers, providers
+from dependency_injector import providers
 from dependency.core.agrupation import Module, module
 from dependency.core.declaration import Component, component, instance
+from dependency.core.resolution import Container
 
 @module()
 class TModule(Module):
@@ -23,14 +24,14 @@ class TInstance(TComponent):
         return "Hello, World!"
 
 def test_declaration() -> None:
-    container = containers.DynamicContainer()
-    setattr(container, TModule.injection.name, TModule.injection.inject_cls())
+    container = Container()
+    TModule.inject_container(container)
     for provider in TModule.injection.resolve_providers():
         provider.inject()
 
-    assert TModule.__name__ == "TModule"
-    assert TComponent.injection.injectable.interface_cls.__name__ == "TComponent"
-    assert TInstance.__name__ == "TInstance"
+    assert TComponent.injection.injectable.interface_cls == TComponent
+    assert TComponent.injection.injectable.implementation == TInstance
+    assert TInstance.injection.injectable.is_resolved
 
     component: TComponent = TComponent.provide()
     assert isinstance(component, TComponent)

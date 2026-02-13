@@ -15,7 +15,7 @@ def test_change_parent_and_resolve():
         HardwareFactory,
         HardwareObserver,
     ):
-        component.injection.change_parent(TestingModule.injection)
+        component.change_parent(TestingModule)
 
     assert HardwareFactory.injection.parent == TestingModule.injection
     assert HardwareFactory.injection in TestingModule.injection.childs

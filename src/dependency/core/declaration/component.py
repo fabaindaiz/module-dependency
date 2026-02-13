@@ -25,6 +25,7 @@ def component(
         imports (Iterable[type[ProviderMixin]], optional): List of components to be imported by the provider. Defaults to ().
         products (Iterable[type[ProviderMixin]], optional): List of products to be declared by the provider. Defaults to ().
         provider (Optional[providers.Provider[Any]], optional): Provider to be used. Defaults to None.
+        partial_resolution (bool, optional): Whether the component should be resolved with partial resolution. Defaults to False.
         bootstrap (bool, optional): Whether the provider should be bootstrapped. Defaults to False.
 
     Raises:
@@ -41,18 +42,18 @@ def component(
             parent=module.injection if module else None
         )
 
-        cls.init_dependencies(
-            imports=imports,
-            products=products,
-            partial_resolution=partial_resolution,
-        )
-
         if provider is not None:
             cls.init_implementation(
                 modules_cls=(cls,),
                 provider=validate_provider(cls, provider),
                 bootstrap=cls.provide if bootstrap else None,
             )
+
+        cls.set_dependencies(
+            imports=imports,
+            products=products,
+            partial_resolution=partial_resolution,
+        )
 
         return cls
     return wrap

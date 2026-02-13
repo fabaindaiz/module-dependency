@@ -16,7 +16,7 @@ class BaseInjection(ABC, metaclass=abc.ABCMeta):
     @property
     def reference(self) -> str:
         """Return the reference for dependency injection."""
-    def change_parent(self, parent: ContainerInjection) -> None:
+    def change_parent(self, parent: ContainerInjection | None = None) -> None:
         """Change the parent injection of this injection.
 
         Args:

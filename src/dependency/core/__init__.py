@@ -8,6 +8,8 @@ from dependency.core.agrupation import (
 from dependency.core.declaration import (
     Component,
     component,
+    Product,
+    product,
     instance,
     providers,
 )

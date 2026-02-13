@@ -48,10 +48,10 @@ class TInstance2(TComponent2):
 
 def test_exceptions() -> None:
     container = Container.from_json("example/config.json")
-    providers = TPlugin.resolve_providers()
+    injectables = TPlugin.resolve_providers()
     assert "TInstance1" not in BOOTSTRAPED
 
-    loader = InjectionResolver(container, providers)
+    loader = InjectionResolver(container, injectables)
     assert "TInstance1" not in BOOTSTRAPED
 
     loader.resolve_dependencies()

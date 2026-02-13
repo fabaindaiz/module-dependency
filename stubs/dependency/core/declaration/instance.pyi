@@ -17,5 +17,5 @@ def instance(imports: Iterable[type[ProviderMixin]] = (), products: Iterable[typ
         TypeError: If the wrapped class is not a subclass of Component declared base class.
 
     Returns:
-        Callable[[type], Instance]: Decorator function that wraps the instance class and returns an Instance object.
+        Callable[[type[COMPONENT]], COMPONENT]: Decorator function that wraps the instance class.
     """

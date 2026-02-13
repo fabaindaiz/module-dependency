@@ -27,16 +27,17 @@ class BaseInjection(ABC):
             return self.name
         return f"{self.parent.reference}.{self.name}"
 
-    def change_parent(self, parent: 'ContainerInjection') -> None:
+    def change_parent(self, parent: Optional['ContainerInjection'] = None) -> None:
         """Change the parent injection of this injection.
 
         Args:
             parent (ContainerInjection): The new parent injection.
         """
-        if self.parent:
+        if self.parent is not None:
             self.parent.childs.remove(self)
         self.parent = parent
-        parent.childs.add(self)
+        if self.parent is not None:
+            self.parent.childs.add(self)
 
     def validation(self) -> None:
         """Validate the injection configuration."""
@@ -102,12 +103,12 @@ class ProviderInjection(BaseInjection):
     @property
     def provider(self) -> providers.Provider[Any]:
         """Return the provider instance."""
-        return LazyProvide(lambda: self.reference)
+        return LazyProvide[lambda: self.reference] # type: ignore
 
     @override
     def inject_cls(self) -> providers.Provider[Any]:
         """Return the provider instance."""
-        return self.injectable.injection
+        return self.injectable.provider
 
     @override
     def resolve_providers(self) -> Generator[Injectable, None, None]:

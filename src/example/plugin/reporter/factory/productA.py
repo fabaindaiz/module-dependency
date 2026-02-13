@@ -1,15 +1,15 @@
-from dependency.core import Component, component, providers
+from dependency.core import Product, product, providers
 from example.plugin.reporter.interfaces import Reporter
 from example.plugin.hardware.events import EventSubscriber, EventHardwareCreated, EventHardwareOperation
 from example.plugin.hardware.observer import HardwareObserver
 
-@component(
+@product(
     imports=[
         HardwareObserver,
     ],
     provider=providers.Factory,
 )
-class ReporterA(Reporter, Component):
+class ReporterA(Reporter, Product):
     def __init__(self) -> None:
         self.__observer: HardwareObserver = HardwareObserver.provide()
 

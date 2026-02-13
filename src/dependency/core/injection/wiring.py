@@ -1,8 +1,11 @@
 from typing import Any, Callable, Optional, Union
 from dependency_injector import containers, providers
-from dependency_injector.wiring import Modifier, Provide, Provider, Closing
+from dependency_injector.wiring import _Marker, Modifier, Provide, Provider, Closing
 
-class LazyWiring:
+# Constant that's True when type checking, but False here.
+TYPE_CHECKING = False
+
+class LazyWiring(_Marker):
     """Base Lazy Class for deferred provider resolution.
     """
     def __init__(self,
@@ -14,20 +17,28 @@ class LazyWiring:
 
     @property
     def provider(self) -> Union[providers.Provider[Any], containers.Container, str]:
-        """Return the provider instance."""
+        """Return the provider instance.
+
+        Returns:
+            The provider instance returned by the provider callable.
+        """
         return self._provider()
 
-class LazyProvide(LazyWiring, Provide): # type: ignore
-    """Lazy Provide Class for deferred provider resolution.
-    """
-    pass
+if TYPE_CHECKING:  # noqa
 
-class LazyProvider(LazyWiring, Provider): # type: ignore
-    """Lazy Provider Class for deferred provider resolution.
-    """
-    pass
+    LazyProvide: _Marker
+    LazyProvider: _Marker
+    LazyClosing: _Marker
+else:
 
-class LazyClosing(LazyWiring, Closing): # type: ignore
-    """Lazy Closing Class for deferred provider resolution.
-    """
-    pass
+    class LazyProvide(LazyWiring, Provide): # type: ignore
+        """Lazy Provide Class for deferred provider resolution.
+        """
+
+    class LazyProvider(LazyWiring, Provider): # type: ignore
+        """Lazy Provider Class for deferred provider resolution.
+        """
+
+    class LazyClosing(LazyWiring, Closing): # type: ignore
+        """Lazy Closing Class for deferred provider resolution.
+        """

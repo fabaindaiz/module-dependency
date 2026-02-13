@@ -1,9 +1,9 @@
-from dependency.core import Component, component, providers
+from dependency.core import Product, product, providers
 from example.plugin.hardware.interfaces import Hardware
 
-@component(
+@product(
     provider=providers.Factory,
 )
-class HardwareC(Hardware, Component):
+class HardwareC(Hardware, Product):
     def doStuff(self, operation: str) -> None:
         print(f"HardwareC works with operation: {operation}")

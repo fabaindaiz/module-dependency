@@ -15,36 +15,51 @@ class TComponent1(Component):
     pass
 
 @component(
+    imports=[TComponent1],
     module=TPlugin,
 )
 class TComponent2(Component):
     pass
 
 @component(
-    imports=[TComponent1],
+    imports=[TComponent2],
+    partial_resolution=True,
 )
 class TProduct1(Component):
     pass
 
 @instance(
-    imports=[TComponent2],
+    imports=[TComponent1],
     products=[TProduct1],
 )
 class TInstance1(TComponent1):
     pass
 
-@instance(
-    imports=[TComponent1],
-)
-class TInstance2(TComponent2):
-    pass
-
 def test_exceptions() -> None:
     container = Container()
     TPlugin.resolve_container(container)
-    providers = list(TPlugin.resolve_providers())
 
     with pytest.raises(DeclarationError):
         print(TComponent1.provide())
+
+    with pytest.raises(DeclarationError):
+        list(TPlugin.resolve_providers())
+
+    TComponent2.change_parent(None)
+    injectables = list(TPlugin.resolve_providers())
+    assert injectables == [TComponent1.injection.injectable]
+
     with pytest.raises(ResolutionError):
-        ResolutionStrategy.injection(providers)
+        ResolutionStrategy.injection(injectables)
+
+    TComponent1.remove_dependencies(
+        imports=[TComponent1],
+    )
+    ResolutionStrategy.injection(injectables)
+    assert TComponent1.provide()
+
+    TProduct1.set_dependencies(
+        partial_resolution=False,
+    )
+    with pytest.raises(ResolutionError):
+        ResolutionStrategy.injection(injectables)

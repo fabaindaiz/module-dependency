@@ -26,11 +26,11 @@ class TInstance(TComponent):
 def test_resource() -> None:
     container = Container()
     TPlugin.resolve_container(container)
-    providers = list(TPlugin.resolve_providers())
+    injectables = list(TPlugin.resolve_providers())
 
     assert TInstance.initialized == False
 
-    ResolutionStrategy.resolution(container, providers)
+    ResolutionStrategy.resolution(container, injectables)
     component: TComponent = TComponent.provide()
     assert component.initialized == True
 
@@ -38,4 +38,4 @@ def test_resource() -> None:
     #container.shutdown_resources()
     TComponent.provider().shutdown() # type: ignore
     assert component.initialized == False
-    assert providers == [TComponent.injection.injectable]
+    assert injectables == [TComponent.injection.injectable]

@@ -4,7 +4,6 @@ from dependency.core.declaration.component import COMPONENT, Component
 from dependency.core.declaration.validation import standalone_provider
 from dependency.core.injection.mixin import ProviderMixin
 
-# TODO: is instance even necessary? it only holds declaration information.
 def instance(
     imports: Iterable[type[ProviderMixin]] = (),
     products: Iterable[type[ProviderMixin]] = (),
@@ -23,7 +22,7 @@ def instance(
         TypeError: If the wrapped class is not a subclass of Component declared base class.
 
     Returns:
-        Callable[[type], Instance]: Decorator function that wraps the instance class and returns an Instance object.
+        Callable[[type[COMPONENT]], COMPONENT]: Decorator function that wraps the instance class.
     """
     def wrap(cls: type[COMPONENT]) -> type[COMPONENT]:
         if not issubclass(cls, Component):
@@ -35,7 +34,7 @@ def instance(
             bootstrap=cls.provide if bootstrap else None,
         )
 
-        cls.init_dependencies(
+        cls.set_dependencies(
             imports=imports,
             products=products,
         )
