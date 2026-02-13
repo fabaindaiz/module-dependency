@@ -39,7 +39,7 @@ def test_injection1() -> None:
         Interface().test()
 
     for provider in list(container1.resolve_providers()):
-        provider.wire(container=container)
+        provider.injectable.wire(container=container)
 
     container.wire((Interface,))
     assert Interface().test() == "Injected service: Test method called"

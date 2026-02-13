@@ -1,8 +1,9 @@
 import logging
-from typing import Any, Callable, Generator, Iterable, Optional
+from typing import Any, Callable, Generator, Iterable, Optional, cast
 from dependency_injector import providers
 from dependency.core.injection.injectable import Injectable
-from dependency.core.injection.injection import ContainerInjection, ProviderInjection
+from dependency.core.injection.injection import ContainerInjection
+from dependency.core.injection.resoluble import ResolubleProvider
 from dependency.core.resolution.container import Container
 _logger = logging.getLogger("dependency.loader")
 
@@ -42,13 +43,16 @@ class ContainerMixin:
         setattr(container, cls.injection.name, cls.injection.inject_cls())
 
     @classmethod
-    def resolve_providers(cls) -> Generator[Injectable, None, None]:
+    def resolve_providers(cls) -> Generator['ResolubleProvider', None, None]:
         """Resolve provider injections for the plugin.
 
         Returns:
-            Generator[Injectable, None, None]: A generator of injectable providers.
+            Generator[ResolubleClass, None, None]: A generator of resoluble classes.
         """
-        return (provider for provider in cls.injection.resolve_providers())
+        return (
+            cast(ResolubleProvider, provider)
+            for provider in cls.injection.resolve_providers()
+        )
 
 class ProviderMixin:
     """Providable Base Class
@@ -56,7 +60,7 @@ class ProviderMixin:
     Attributes:
         injection (ProviderInjection): Injection handler for the provider
     """
-    injection: ProviderInjection
+    injection: ResolubleProvider
 
     @classmethod
     def init_injection(cls,
@@ -70,18 +74,40 @@ class ProviderMixin:
         if parent is None:
             _logger.warning(f"Provider {cls.__name__} has no parent module (consider registering)")
 
-        cls.injection = ProviderInjection(
+        cls.injection = ResolubleProvider(
             name=cls.__name__,
             interface_cls=cls,
             parent=parent,
         )
 
     @classmethod
+    def init_dependencies(cls,
+        imports: Iterable[type['ProviderMixin']],
+        products: Iterable[type['ProviderMixin']],
+        partial_resolution: bool = False,
+    ) -> None:
+        """Initialize the dependencies for the provider.
+
+        Args:
+            imports (Iterable[type["ResolubleClass"]]): List of components to be imported by the provider.
+            products (Iterable[type["ResolubleClass"]]): List of products to be declared by the provider.
+        """
+        cls.injection.add_dependencies(
+            imports={
+                injection.injection.as_import(cls.injection)
+                for injection in imports
+            },
+            products={
+                injection.injection.as_product(cls.injection)
+                for injection in products
+            },
+            partial_resolution=partial_resolution,
+        )
+
+    @classmethod
     def init_injectable(cls,
         modules_cls: Iterable[type],
         provider: providers.Provider[Any],
-        imports: Iterable[type["ProviderMixin"]],
-        products: Iterable[type["ProviderMixin"]],
         bootstrap: Optional[Callable[[], Any]]
     ) -> None:
         """Initialize the injectable for the provider.
@@ -105,37 +131,9 @@ class ProviderMixin:
                 interface_cls=cls,
                 modules_cls={cls, *modules_cls},
                 provider=provider,
-                imports=(
-                    provider.as_import()
-                    for provider in imports
-                ),
-                products=(
-                    provider.as_product()
-                    for provider in products
-                ),
                 bootstrap=bootstrap,
-             )
+            )
         )
-
-    @classmethod
-    def as_import(cls) -> Injectable:
-        """Return the provider class as an import.
-
-        Returns:
-            type: The provider class.
-        """
-        injectable = cls.injection.injectable
-        return injectable
-
-    @classmethod
-    def as_product(cls) -> Injectable:
-        """Return the provider class as a product.
-
-        Returns:
-            type: The provider class.
-        """
-        injectable = cls.injection.injectable
-        return injectable
 
     @classmethod
     def reference(cls) -> str:

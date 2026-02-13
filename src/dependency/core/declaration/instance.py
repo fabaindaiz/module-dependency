@@ -29,11 +29,14 @@ def instance(
         if not issubclass(cls, Component):
             raise TypeError(f"Class {cls} has decorator @instance but is not a subclass of Component")
 
+        cls.init_dependencies(
+            imports=imports,
+            products=products,
+        )
+
         cls.init_injectable(
             modules_cls=(cls,),
             provider=standalone_provider(cls, provider),
-            imports=imports,
-            products=products,
             bootstrap=cls.provide if bootstrap else None,
         )
 

@@ -41,7 +41,7 @@ class BaseInjection(ABC):
         pass
 
     @abstractmethod
-    def resolve_providers(self) -> Generator[Injectable, None, None]:
+    def resolve_providers(self) -> Generator['ProviderInjection', None, None]:
         """Inject all children into the current injection context."""
         pass
 
@@ -70,7 +70,7 @@ class ContainerInjection(BaseInjection):
         return self.container
 
     @override
-    def resolve_providers(self) -> Generator[Injectable, None, None]:
+    def resolve_providers(self) -> Generator['ProviderInjection', None, None]:
         """Inject all children into the current container."""
         for child in self.childs:
             setattr(self.container, child.name, child.inject_cls())
@@ -126,6 +126,6 @@ class ProviderInjection(BaseInjection):
         return self.injectable.provider_cls
 
     @override
-    def resolve_providers(self) -> Generator[Injectable, None, None]:
+    def resolve_providers(self) -> Generator['ProviderInjection', None, None]:
         """Inject all imports into the current injectable."""
-        yield self.injectable
+        yield self

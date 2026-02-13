@@ -1,7 +1,6 @@
 import logging
-from typing import Any, Callable, Iterable, Optional
+from typing import Any, Callable, Optional
 from dependency_injector import containers, providers
-from dependency.core.utils.lazy import LazyList
 from dependency.core.exceptions import (
     DeclarationError,
     InitializationError,
@@ -22,32 +21,13 @@ class Injectable:
         interface_cls: type,
         modules_cls: set[type],
         provider: providers.Provider[Any],
-        imports: Iterable['Injectable'] = (),
-        products: Iterable['Injectable'] = (),
         bootstrap: Optional[Callable[[], Any]] = None
     ) -> None:
         self.interface_cls: type = interface_cls
         self.modules_cls: set[type] = {interface_cls, *modules_cls}
         self.provider_cls: providers.Provider[Any] = provider
-        self._imports: LazyList['Injectable'] = LazyList(imports)
-        self._products: LazyList['Injectable'] = LazyList(products)
         self._bootstrap: Optional[Callable[[], Any]] = bootstrap
         self.is_resolved: bool = False
-
-    @property
-    def imports(self) -> list['Injectable']:
-        return self._imports()
-
-    @property
-    def products(self) -> list['Injectable']:
-        return self._products()
-
-    @property
-    def import_resolved(self) -> bool:
-        return all(
-            implementation.is_resolved
-            for implementation in self.imports
-        )
 
     @property
     def provider(self) -> providers.Provider[Any]:
@@ -59,10 +39,9 @@ class Injectable:
             )
         return self.provider_cls
 
-    def inject(self) -> "Injectable":
+    def inject(self) -> None:
         """Mark the injectable as resolved."""
         self.is_resolved = True
-        return self
 
     def wire(self, container: containers.DynamicContainer) -> None:
         """Wire the provider with the given container.

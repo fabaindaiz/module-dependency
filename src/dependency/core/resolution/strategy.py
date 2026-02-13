@@ -1,6 +1,7 @@
 import logging
 from pydantic import BaseModel
 from dependency.core.injection.injectable import Injectable
+from dependency.core.injection.resoluble import ResolubleProvider
 from dependency.core.resolution.container import Container
 from dependency.core.resolution.errors import raise_resolution_error
 _logger = logging.getLogger("dependency.loader")
@@ -19,20 +20,20 @@ class ResolutionStrategy:
     @classmethod
     def resolution(cls,
         container: Container,
-        injectables: list[Injectable],
+        providers: list[ResolubleProvider],
     ) -> list[Injectable]:
         """Resolve all dependencies and initialize them.
 
         Args:
             container (Container): The container to wire the injectables with.
-            injectables (list[Injectable]): List of injectables to resolve.
+            providers (list[ProviderInjection]): List of provider injections to resolve.
             config (ResolutionConfig): Configuration for the resolution strategy.
 
         Returns:
             list[Injectable]: List of resolved injectables.
         """
-        injectables = cls.injection(
-            injectables=injectables,
+        injectables: list[Injectable] = cls.injection(
+            providers=providers,
         )
         cls.wiring(
             container=container,
@@ -45,31 +46,31 @@ class ResolutionStrategy:
 
     @classmethod
     def injection(cls,
-        injectables: list[Injectable],
+        providers: list[ResolubleProvider],
     ) -> list[Injectable]:
         """Resolve all injectables in layers.
 
         Args:
-            injectables (list[Injectable]): List of injectables to resolve.
+            providers (list[ResolubleClass]): List of resoluble classes to resolve.
 
         Returns:
             list[Injectable]: List of resolved injectables.
         """
         _logger.info("Resolving dependencies...")
-        unresolved: list[Injectable] = injectables.copy()
-        resolved: list[Injectable] = []
+        unresolved: list[ResolubleProvider] = providers.copy()
+        resolved: list[ResolubleProvider] = []
         layer_count: int = 0
 
         while unresolved:
             new_layer = [
-                injectable.inject()
-                for injectable in unresolved
-                if injectable.import_resolved
+                provider.inject()
+                for provider in unresolved
+                if provider.import_resolved
             ]
 
             if len(new_layer) == 0:
                 raise_resolution_error(
-                    injectables=injectables,
+                    providers=providers,
                     unresolved=unresolved
                 )
             resolved.extend(new_layer)
@@ -77,15 +78,18 @@ class ResolutionStrategy:
             layer_count += 1
 
             if cls.config.resolve_products:
-                for injectable in new_layer:
-                    unresolved.extend(injectable.products)
+                for provider in new_layer:
+                    unresolved.extend(provider.products)
 
             unresolved = [
-                injectable
-                for injectable in unresolved
-                if not injectable.is_resolved
+                provider
+                for provider in unresolved
+                if not provider.is_resolved
             ]
-        return resolved
+        return [
+            provider.injectable
+            for provider in resolved
+        ]
 
     @classmethod
     def wiring(cls,

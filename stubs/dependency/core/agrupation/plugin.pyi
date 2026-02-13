@@ -1,5 +1,5 @@
 from dependency.core.agrupation.module import Module as Module
-from dependency.core.exceptions import ResolutionError as ResolutionError
+from dependency.core.exceptions import DeclarationError as DeclarationError
 from dependency.core.resolution.container import Container as Container
 from pydantic import BaseModel
 

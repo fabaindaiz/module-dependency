@@ -25,12 +25,12 @@ def test_change_parent_and_resolve():
     TestingModule.inject_container(container)
     loader = InjectionResolver(
         container=container,
-        injectables=TestingModule.resolve_providers(),
+        providers=TestingModule.resolve_providers(),
     )
     injectables = loader.resolve_dependencies()
 
     assert HardwareFactory.injection.injectable in injectables
-    assert HardwareFactory.injection.injectable.is_resolved
+    assert HardwareFactory.injection.is_resolved
 
     number_service: NumberService = NumberService.provide(starting_number=40)
     assert number_service.getRandomNumber() == 40

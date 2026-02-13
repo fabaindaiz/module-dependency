@@ -38,4 +38,4 @@ def test_resource() -> None:
     #container.shutdown_resources()
     TComponent.provider().shutdown() # type: ignore
     assert component.initialized == False
-    assert providers == [TComponent.injection.injectable]
+    assert providers == [TComponent.injection]

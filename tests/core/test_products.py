@@ -24,13 +24,15 @@ class TComponent2(Component):
         TComponent1,
         TComponent2,
     ],
+    partial_resolution=True,
 )
 class TProduct1(Component):
     pass
 
 @instance(
-    imports=[TComponent2],
-    products=[TProduct1],
+    products=[
+        TProduct1
+    ],
 )
 class TInstance1(TComponent1):
     pass

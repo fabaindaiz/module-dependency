@@ -15,6 +15,7 @@ def component(
     provider: Optional[InstanceOrClass[providers.Provider[Any]]] = None,
     imports: Iterable[type[ProviderMixin]] = (),
     products: Iterable[type[ProviderMixin]] = (),
+    partial_resolution: bool = False,
     bootstrap: bool = False,
 ) -> Callable[[type[COMPONENT]], type[COMPONENT]]:
     """Decorator for Component class
@@ -40,12 +41,16 @@ def component(
             parent=module.injection if module else None
         )
 
+        cls.init_dependencies(
+            imports=imports,
+            products=products,
+            partial_resolution=partial_resolution,
+        )
+
         if provider is not None:
             cls.init_injectable(
                 modules_cls=(cls,),
                 provider=validate_provider(cls, provider),
-                imports=imports,
-                products=products,
                 bootstrap=cls.provide if bootstrap else None,
             )
 

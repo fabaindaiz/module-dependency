@@ -3,7 +3,7 @@ import time
 from threading import Event
 from typing import Iterable
 from dependency.core.agrupation.plugin import Plugin
-from dependency.core.injection.injectable import Injectable
+from dependency.core.injection.resoluble import ResolubleProvider
 from dependency.core.resolution.container import Container
 from dependency.core.resolution.resolver import InjectionResolver
 _logger = logging.getLogger("dependency.loader")
@@ -20,15 +20,15 @@ class Entrypoint:
         container: Container,
         plugins: Iterable[type[Plugin]]
     ) -> None:
-        injectables: list[Injectable] = []
+        providers: list[ResolubleProvider] = []
 
         for plugin in plugins:
             plugin.resolve_container(container=container)
-            injectables.extend(plugin.resolve_providers())
+            providers.extend(plugin.resolve_providers())
 
         self.resolver: InjectionResolver = InjectionResolver(
             container=container,
-            injectables=injectables
+            providers=providers
         )
 
         self.resolver.resolve_dependencies()

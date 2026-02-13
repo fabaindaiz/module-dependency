@@ -1,5 +1,6 @@
 from dependency.core.injection.injectable import Injectable as Injectable
-from dependency.core.injection.injection import ContainerInjection as ContainerInjection, ProviderInjection as ProviderInjection
+from dependency.core.injection.injection import ContainerInjection as ContainerInjection
+from dependency.core.injection.resoluble import ResolubleProvider as ResolubleProvider
 from dependency.core.resolution.container import Container as Container
 from dependency_injector import providers as providers
 from typing import Any, Callable, Generator, Iterable
@@ -27,11 +28,11 @@ class ContainerMixin:
             container (Container): The application container.
         """
     @classmethod
-    def resolve_providers(cls) -> Generator[Injectable, None, None]:
+    def resolve_providers(cls) -> Generator['ResolubleProvider', None, None]:
         """Resolve provider injections for the plugin.
 
         Returns:
-            Generator[Injectable, None, None]: A generator of injectable providers.
+            Generator[ResolubleClass, None, None]: A generator of resoluble classes.
         """
 
 class ProviderMixin:
@@ -40,7 +41,7 @@ class ProviderMixin:
     Attributes:
         injection (ProviderInjection): Injection handler for the provider
     """
-    injection: ProviderInjection
+    injection: ResolubleProvider
     @classmethod
     def init_injection(cls, parent: ContainerInjection | None) -> None:
         """Initialize the injection for the provider.
@@ -49,7 +50,15 @@ class ProviderMixin:
             parent (Optional[ContainerInjection]): Parent container injection instance.
         """
     @classmethod
-    def init_injectable(cls, modules_cls: Iterable[type], provider: providers.Provider[Any], imports: Iterable[type['ProviderMixin']], products: Iterable[type['ProviderMixin']], bootstrap: Callable[[], Any] | None) -> None:
+    def init_dependencies(cls, imports: Iterable[type['ProviderMixin']], products: Iterable[type['ProviderMixin']], partial_resolution: bool = False) -> None:
+        '''Initialize the dependencies for the provider.
+
+        Args:
+            imports (Iterable[type["ResolubleClass"]]): List of components to be imported by the provider.
+            products (Iterable[type["ResolubleClass"]]): List of products to be declared by the provider.
+        '''
+    @classmethod
+    def init_injectable(cls, modules_cls: Iterable[type], provider: providers.Provider[Any], bootstrap: Callable[[], Any] | None) -> None:
         '''Initialize the injectable for the provider.
 
         Args:
@@ -62,20 +71,6 @@ class ProviderMixin:
         Raises:
             TypeError: _description_
         '''
-    @classmethod
-    def as_import(cls) -> Injectable:
-        """Return the provider class as an import.
-
-        Returns:
-            type: The provider class.
-        """
-    @classmethod
-    def as_product(cls) -> Injectable:
-        """Return the provider class as a product.
-
-        Returns:
-            type: The provider class.
-        """
     @classmethod
     def reference(cls) -> str:
         """Return the reference name of the Injectable."""

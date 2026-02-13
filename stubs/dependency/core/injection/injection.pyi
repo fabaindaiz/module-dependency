@@ -25,7 +25,7 @@ class BaseInjection(ABC, metaclass=abc.ABCMeta):
     def inject_cls(self) -> Any:
         """Return the class to be injected."""
     @abstractmethod
-    def resolve_providers(self) -> Generator[Injectable, None, None]:
+    def resolve_providers(self) -> Generator['ProviderInjection', None, None]:
         """Inject all children into the current injection context."""
     def __hash__(self) -> int: ...
 
@@ -39,7 +39,7 @@ class ContainerInjection(BaseInjection):
     def inject_cls(self) -> containers.Container:
         """Return the container instance."""
     @override
-    def resolve_providers(self) -> Generator[Injectable, None, None]:
+    def resolve_providers(self) -> Generator['ProviderInjection', None, None]:
         """Inject all children into the current container."""
 
 class ProviderInjection(BaseInjection):
@@ -63,5 +63,5 @@ class ProviderInjection(BaseInjection):
     def inject_cls(self) -> providers.Provider[Any]:
         """Return the provider instance."""
     @override
-    def resolve_providers(self) -> Generator[Injectable, None, None]:
+    def resolve_providers(self) -> Generator['ProviderInjection', None, None]:
         """Inject all imports into the current injectable."""

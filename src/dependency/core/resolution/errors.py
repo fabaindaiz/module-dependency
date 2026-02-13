@@ -1,32 +1,32 @@
 import logging
-from dependency.core.injection.injectable import Injectable
+from dependency.core.injection.resoluble import ResolubleProvider
 from dependency.core.exceptions import ResolutionError
 from dependency.core.utils.cycle import find_cycles
 _logger = logging.getLogger("dependency.loader")
 
 def raise_circular_error(
-    injectables: list[Injectable]
+    providers: list[ResolubleProvider]
 ) -> bool:
     """Raise an error if circular dependencies are detected.
 
     Args:
-        injectables (list[Injectable]): The list of provider injections to check for cycles.
+        providers (list[ResolubleClass]): The list of resoluble classes to check for cycles.
 
     Returns:
         bool: True if cycles were detected and errors were raised, False otherwise.
     """
-    cycles = find_cycles(lambda i: i.imports, injectables)
+    cycles = find_cycles(lambda i: i.imports, providers)
     for cycle in cycles:
         _logger.error(f"Circular dependency detected: {cycle}")
     return len(cycles) > 0
 
 def raise_dependency_error(
-    unresolved: list[Injectable],
+    unresolved: list[ResolubleProvider],
 ) -> bool:
     """Raise an error when unresolved dependencies are detected.
 
     Args:
-        unresolved (list[Injectable]): The list of unresolved provider injections.
+        unresolved (list[ResolubleClass]): The list of unresolved resoluble classes.
 
     Returns:
         bool: True if unresolved dependencies were detected and errors were raised, False otherwise.
@@ -37,8 +37,8 @@ def raise_dependency_error(
     return len(unresolved) > 0
 
 def raise_resolution_error(
-    injectables: list[Injectable],
-    unresolved: list[Injectable],
+    providers: list[ResolubleProvider],
+    unresolved: list[ResolubleProvider],
 ) -> None:
     """Raise an error if unresolved provider imports are detected.
 
@@ -49,7 +49,7 @@ def raise_resolution_error(
     Raises:
         ResolutionError: If unresolved dependencies or cycles are detected.
     """
-    circular_error = raise_circular_error(injectables)
+    circular_error = raise_circular_error(providers)
     dependency_error = raise_dependency_error(unresolved)
     if circular_error or dependency_error:
         raise ResolutionError("Provider resolution failed due to dependency errors")

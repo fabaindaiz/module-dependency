@@ -3,7 +3,7 @@ from pydantic import BaseModel, ValidationError
 from typing import get_type_hints
 from dependency.core.agrupation.module import Module
 from dependency.core.resolution.container import Container
-from dependency.core.exceptions import ResolutionError
+from dependency.core.exceptions import DeclarationError
 _logger = logging.getLogger("dependency.loader")
 
 class PluginMeta(BaseModel):
@@ -47,6 +47,4 @@ class Plugin(Module):
             else:
                 _logger.warning(f"Plugin {cls.meta} configuration class is not a subclass of BaseModel")
         except ValidationError as e:
-            raise ResolutionError(f"Plugin {cls.meta} configuration validation failed") from e
-        except Exception as e:
-            raise ResolutionError(f"Plugin {cls.meta} configuration resolution failed with unexpected error") from e
+            raise DeclarationError(f"Plugin {cls.meta} configuration validation failed") from e
