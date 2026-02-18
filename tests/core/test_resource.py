@@ -30,7 +30,7 @@ def test_resource() -> None:
 
     assert TInstance.initialized == False
 
-    ResolutionStrategy.resolution(container, injectables)
+    ResolutionStrategy.resolution(injectables, container)
     component: TComponent = TComponent.provide()
     assert component.initialized == True
 

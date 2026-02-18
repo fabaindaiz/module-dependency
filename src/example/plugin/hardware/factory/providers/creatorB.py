@@ -9,10 +9,8 @@ from example.plugin.hardware.observer import HardwareObserver
 @instance(
     imports=[
         HardwareObserver,
-    ],
-    products=[
         HardwareB,
-        HardwareC
+        HardwareC,
     ],
     provider=providers.Singleton,
 )

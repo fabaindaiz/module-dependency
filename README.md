@@ -74,8 +74,7 @@ from ...plugin...other_component import OtherService
 from ...plugin...........product import SomeProduct
 
 @instance(
-    imports=[OtherService, ...],    # List of dependencies (components) that are needed
-    products=[SomeProduct, ...],    # List of products that this instance will create
+    imports=[OtherService, ...],    # List of dependencies that this instance needs
     provider=providers.Singleton,   # Provider type (Singleton, Factory, Resource)
     bootstrap=False,                # Whether to bootstrap on application start
 )
@@ -184,7 +183,6 @@ from ...plugin.....other_product import OtherProduct
 @product(
     module=SomeModule,              # Declares the module or plugin this component belongs to
     imports=[SomeService, ...],     # List of dependencies (components) that are needed
-    products=[OtherProduct, ...],   # List of products that this product will create
     provider=providers.Singleton,   # Provider type (Singleton, Factory, Resource)
 )
 class SomeProduct(Interface, Product):
@@ -230,7 +228,6 @@ Some planned features are:
 - Enhance documentation and examples for better understanding
 - Implement framework API and extension points for customization
 - Improve injection resolution and initialization process
-- Provide injection scopes and strategies for flexibility
 - Testing framework integration for better test coverage
 - Visualization tools for dependency graphs and relationships
 

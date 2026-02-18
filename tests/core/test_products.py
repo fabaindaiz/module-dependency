@@ -15,14 +15,12 @@ class TPlugin(Plugin):
 class TComponent1(Component):
     pass
 
-@component(
-)
+@component()
 class TComponent2(Component):
     pass
 
 @component(
     imports=[
-        TComponent1,
         TComponent2,
     ],
     provider=providers.Factory,
@@ -31,8 +29,8 @@ class TProduct1(Component):
     pass
 
 @instance(
-    products=[
-        TProduct1
+    imports=[
+        TProduct1,
     ],
 )
 class TInstance1(TComponent1):
@@ -42,12 +40,13 @@ def test_products() -> None:
     container = Container()
     TPlugin.resolve_container(container)
     injectables = list(TPlugin.resolve_providers())
+    assert injectables == [TComponent1.injection.injectable]
 
     with pytest.raises(ResolutionError):
         ResolutionStrategy.injection(injectables)
 
     TProduct1.injection.injectable.partial_resolution = True
-    injectables = ResolutionStrategy.injection(injectables)
+    ResolutionStrategy.injection(injectables)
 
-    assert TComponent1.injection.injectable in injectables
-    assert TProduct1.injection.injectable in injectables
+    assert TComponent1.injection.injectable.is_resolved
+    assert TProduct1.injection.injectable.is_resolved

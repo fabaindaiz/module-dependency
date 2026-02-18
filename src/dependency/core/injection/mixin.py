@@ -120,14 +120,12 @@ class ProviderMixin:
     @classmethod
     def set_dependencies(cls,
         imports: Iterable[type['ProviderMixin']] = (),
-        products: Iterable[type['ProviderMixin']] = (),
         partial_resolution: bool = False,
     ) -> None:
         """Initialize the dependencies for the provider.
 
         Args:
-            imports (Iterable[type["ResolubleClass"]]): List of components to be imported by the provider.
-            products (Iterable[type["ResolubleClass"]]): List of products to be declared by the provider.
+            imports (Iterable[type["ResolubleClass"]]): List of providers to be imported by the provider.
             partial_resolution (bool, optional): Whether to allow partial resolution of dependencies. Defaults to False.
         """
         cls.injection.injectable.add_dependencies(
@@ -135,17 +133,12 @@ class ProviderMixin:
                 injection.injection.injectable
                 for injection in imports
             },
-            products={
-                injection.injection.injectable
-                for injection in products
-            },
             partial_resolution=partial_resolution,
         )
 
     @classmethod
     def remove_dependencies(cls,
         imports: Iterable[type['ProviderMixin']] = (),
-        products: Iterable[type['ProviderMixin']] = (),
     ) -> None:
         """Remove dependencies from the provider.
 
@@ -157,10 +150,6 @@ class ProviderMixin:
             imports={
                 injection.injection.injectable
                 for injection in imports
-            },
-            products={
-                injection.injection.injectable
-                for injection in products
             },
         )
 

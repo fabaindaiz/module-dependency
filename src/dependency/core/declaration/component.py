@@ -13,7 +13,6 @@ class Component(ProviderMixin):
 def component(
     module: Optional[type[Module]] = None,
     imports: Iterable[type[ProviderMixin]] = (),
-    products: Iterable[type[ProviderMixin]] = (),
     provider: Optional[InstanceOrClass[providers.Provider[Any]]] = None,
     partial_resolution: bool = False,
     bootstrap: bool = False,
@@ -23,7 +22,6 @@ def component(
     Args:
         module (type[Module], optional): Module where the component is registered. Defaults to None.
         imports (Iterable[type[ProviderMixin]], optional): List of components to be imported by the provider. Defaults to ().
-        products (Iterable[type[ProviderMixin]], optional): List of products to be declared by the provider. Defaults to ().
         provider (Optional[providers.Provider[Any]], optional): Provider to be used. Defaults to None.
         partial_resolution (bool, optional): Whether the component should be resolved with partial resolution. Defaults to False.
         bootstrap (bool, optional): Whether the provider should be bootstrapped. Defaults to False.
@@ -51,7 +49,6 @@ def component(
 
         cls.set_dependencies(
             imports=imports,
-            products=products,
             partial_resolution=partial_resolution,
         )
 

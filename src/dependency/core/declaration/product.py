@@ -11,7 +11,6 @@ class Product(Component):
 def product(
     module: Optional[type[Module]] = None,
     imports: Iterable[type[ProviderMixin]] = (),
-    products: Iterable[type[ProviderMixin]] = (),
     provider: type[providers.Provider[Any]] = providers.Factory,
     partial_resolution: bool = False,
     bootstrap: bool = False,
@@ -35,7 +34,6 @@ def product(
     return component(
         module=module,
         imports=imports,
-        products=products,
         provider=provider,
         partial_resolution=partial_resolution,
         bootstrap=bootstrap,

@@ -27,11 +27,10 @@ def test_declaration() -> None:
     container = Container()
     TModule.inject_container(container)
     for provider in TModule.injection.resolve_providers():
-        provider.inject()
+        assert provider.check_resolved
 
     assert TComponent.injection.injectable.interface_cls == TComponent
     assert TComponent.injection.injectable.implementation == TInstance
-    assert TInstance.injection.injectable.is_resolved
 
     component: TComponent = TComponent.provide()
     assert isinstance(component, TComponent)

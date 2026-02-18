@@ -8,7 +8,7 @@ class Product(Component):
     """Product Base Class
     """
 
-def product(module: type[Module] | None = None, imports: Iterable[type[ProviderMixin]] = (), products: Iterable[type[ProviderMixin]] = (), provider: type[providers.Provider[Any]] = ..., partial_resolution: bool = False, bootstrap: bool = False) -> Callable[[type[COMPONENT]], type[COMPONENT]]:
+def product(module: type[Module] | None = None, imports: Iterable[type[ProviderMixin]] = (), provider: type[providers.Provider[Any]] = ..., partial_resolution: bool = False, bootstrap: bool = False) -> Callable[[type[COMPONENT]], type[COMPONENT]]:
     """Decorator for Component class
 
     Args:

@@ -9,8 +9,6 @@ from example.plugin.hardware.events import EventHardwareCreated
 @instance(
     imports=[
         HardwareObserver,
-    ],
-    products=[
         HardwareA,
         HardwareB,
     ],

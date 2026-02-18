@@ -6,7 +6,6 @@ from dependency.core.injection.mixin import ProviderMixin
 
 def instance(
     imports: Iterable[type[ProviderMixin]] = (),
-    products: Iterable[type[ProviderMixin]] = (),
     provider: type[providers.Provider[Any]] = providers.Singleton,
     bootstrap: bool = False,
 ) -> Callable[[type[COMPONENT]], type[COMPONENT]]:
@@ -14,7 +13,6 @@ def instance(
 
     Args:
         imports (Iterable[type[ProviderMixin]], optional): List of components to be imported by the provider. Defaults to ().
-        products (Iterable[type[ProviderMixin]], optional): List of products to be declared by the provider. Defaults to ().
         provider (type[providers.Provider[Any]], optional): Provider to be used. Defaults to providers.Singleton.
         bootstrap (bool, optional): Whether the provider should be bootstrapped. Defaults to False.
 
@@ -36,7 +34,6 @@ def instance(
 
         cls.set_dependencies(
             imports=imports,
-            products=products,
         )
 
         return cls

@@ -1,5 +1,6 @@
 import logging
-from typing import Any, Callable, Iterable, Self, Optional
+from enum import Enum
+from typing import Any, Callable, Iterable, Optional
 from dependency_injector import containers, providers
 from dependency.core.exceptions import (
     DeclarationError,
@@ -7,6 +8,8 @@ from dependency.core.exceptions import (
     CancelInitialization,
 )
 _logger = logging.getLogger("dependency.loader")
+
+
 
 class Injectable:
     """Injectable Class represents a implementation of some kind that can be injected as a dependency.
@@ -23,45 +26,69 @@ class Injectable:
         self.interface_cls: type = interface_cls
         self.modules_cls: set[type] = {interface_cls}
 
+        # Implementation details
         self.implementation: Optional[type] = None
         self.__provider: Optional[providers.Provider[Any]] = None
         self.__bootstrap: Optional[Callable[[], Any]] = None
 
+        # Dependency tracking
         self.imports: set['Injectable'] = set()
-        self.products: set['Injectable'] = set()
-        #self.import_of: set['Injectable'] = set()
-        #self.product_of: set['Injectable'] = set()
+        self.dependent: set['Injectable'] = set()
 
+        # Validation flags
         self.partial_resolution: bool = False
         self.is_resolved: bool = False
 
     @property
-    def import_resolved(self) -> bool:
-        unresolved: set['Injectable'] = set(filter(lambda i: not i.is_resolved, self.imports))
-        if not unresolved:
+    def check_resolved(self) -> bool:
+        if self.implementation is None:
+            return False
+
+        unresolved: list['Injectable'] = list(filter(lambda i: not i.is_resolved, self.imports))
+        if unresolved:
+            return False
+
+        self.is_resolved = True
+        return True
+
+    @property
+    def check_partial(self) -> bool:
+        if self.implementation is None:
+            return False
+
+        if self.partial_resolution:
+            self.is_resolved = True
+            return True
+
+        return False
+
+
+    @property
+    def check_resolution(self) -> bool:
+        if self.is_resolved:
             return True
 
         if self.partial_resolution:
-            _logger.warning(f"Provider {self.interface_cls.__name__} has unresolved imports: {unresolved}, but partial resolution is enabled")
+            self.is_resolved = True
             return True
 
         return False
 
     def add_dependencies(self,
         imports: Iterable['Injectable'],
-        products: Iterable['Injectable'],
         partial_resolution: bool = False,
     ) -> None:
         self.imports.update(imports)
-        self.products.update(products)
+        for i in imports:
+            i.dependent.add(self)
         self.partial_resolution = partial_resolution
 
     def del_dependencies(self,
         imports: Iterable['Injectable'],
-        products: Iterable['Injectable'],
     ) -> None:
         self.imports.difference_update(imports)
-        self.products.difference_update(products)
+        for i in imports:
+            i.dependent.discard(self)
 
     def add_implementation(self,
         implementation: type,
@@ -96,11 +123,6 @@ class Injectable:
             )
         return self.provider
 
-    def inject(self) -> Self:
-        """Mark the provider injection as resolved."""
-        self.is_resolved = True
-        return self
-
     def wire(self, container: containers.DynamicContainer) -> None:
         """Wire the provider with the given container.
 
@@ -127,6 +149,9 @@ class Injectable:
                 _logger.warning(f"Injectable {self.interface_cls.__name__} initialization skipped (cancelled by user): {e}")
             except Exception as e:
                 raise InitializationError(f"Injectable {self.interface_cls.__name__} initialization failed") from e
+
+    def __hash__(self) -> int:
+        return hash(self.interface_cls)
 
     def __repr__(self) -> str:
         return f"{self.interface_cls.__name__}"

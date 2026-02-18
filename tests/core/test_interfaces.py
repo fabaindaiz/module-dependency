@@ -50,15 +50,16 @@ def test_interfaces() -> None:
 
     injectables = list(TModule.resolve_providers())
     for injectable in injectables:
-        injectable.inject()
+        injectable.check_resolved
+    assert TProduct1.injection.injectable.check_resolved
+    assert TProduct2.injection.injectable.check_resolved
+
     for injectable in injectables:
         injectable.wire(container)
-
     product1: TProduct1 = TProduct1.provide()
     product2: TProduct2 = TProduct2.provide()
 
     assert isinstance(product1, TProduct1)
     assert isinstance(product2, TProduct2)
-
     assert product1.method() == "Hello, World!"
     assert product2.method() == "Hello, World!"

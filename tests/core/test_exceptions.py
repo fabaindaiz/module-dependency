@@ -1,4 +1,5 @@
 import pytest
+from dependency_injector import providers
 from dependency.core.agrupation import Plugin, PluginMeta, module
 from dependency.core.declaration import Component, component, instance
 from dependency.core.resolution import Container, ResolutionStrategy
@@ -15,22 +16,30 @@ class TComponent1(Component):
     pass
 
 @component(
-    imports=[TComponent1],
+    imports=[
+        TComponent1,
+    ],
     module=TPlugin,
 )
 class TComponent2(Component):
     pass
 
 @component(
-    imports=[TComponent2],
+    imports=[
+        TComponent1,
+        TComponent2,
+    ],
+    provider=providers.Factory,
     partial_resolution=True,
 )
 class TProduct1(Component):
     pass
 
 @instance(
-    imports=[TComponent1],
-    products=[TProduct1],
+    imports=[
+        TComponent1,
+        TProduct1,
+    ],
 )
 class TInstance1(TComponent1):
     pass
@@ -47,7 +56,10 @@ def test_exceptions() -> None:
 
     TComponent2.change_parent(None)
     injectables = list(TPlugin.resolve_providers())
-    assert injectables == [TComponent1.injection.injectable]
+    assert set(injectables) == {TComponent1.injection.injectable}
+
+    assert TComponent1.injection.injectable in injectables
+    assert TProduct1.injection.injectable not in injectables
 
     with pytest.raises(ResolutionError):
         ResolutionStrategy.injection(injectables)

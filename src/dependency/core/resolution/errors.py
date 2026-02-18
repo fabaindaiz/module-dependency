@@ -52,4 +52,4 @@ def raise_resolution_error(
     circular_error = raise_circular_error(providers)
     dependency_error = raise_dependency_error(unresolved)
     if circular_error or dependency_error:
-        raise ResolutionError("Provider resolution failed due to dependency errors")
+        raise ResolutionError(f"Provider resolution failed due to dependency errors: {unresolved}")
