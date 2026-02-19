@@ -26,7 +26,6 @@ class TComponent2(Component):
 
 @component(
     imports=[
-        TComponent1,
         TComponent2,
     ],
     provider=providers.Factory,
@@ -58,19 +57,19 @@ def test_exceptions() -> None:
     injectables = list(TPlugin.resolve_providers())
     assert set(injectables) == {TComponent1.injection.injectable}
 
-    assert TComponent1.injection.injectable in injectables
-    assert TProduct1.injection.injectable not in injectables
+    injectables = ResolutionStrategy.expand(injectables)
+    assert set(injectables) == {TComponent1.injection.injectable, TProduct1.injection.injectable}
 
     with pytest.raises(ResolutionError):
         ResolutionStrategy.injection(injectables)
 
-    TComponent1.remove_dependencies(
+    TComponent1.discard_dependencies(
         imports=[TComponent1],
     )
     ResolutionStrategy.injection(injectables)
     assert TComponent1.provide()
 
-    TProduct1.set_dependencies(
+    TProduct1.update_dependencies(
         partial_resolution=False,
     )
     with pytest.raises(ResolutionError):

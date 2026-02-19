@@ -74,8 +74,8 @@ from ...plugin...other_component import OtherService
 from ...plugin...........product import SomeProduct
 
 @instance(
-    imports=[OtherService, ...],    # List of dependencies that this instance needs
-    provider=providers.Singleton,   # Provider type (Singleton, Factory, Resource)
+    imports=[OtherService, ...],    # List of dependencies (components) that this product needs
+    provider=providers.Singleton,   # Provider type from di (Singleton, Factory, Resource)
     bootstrap=False,                # Whether to bootstrap on application start
 )
 class ImplementedSomeService(SomeService):
@@ -182,7 +182,7 @@ from ...plugin.....other_product import OtherProduct
 
 @product(
     module=SomeModule,              # Declares the module or plugin this component belongs to
-    imports=[SomeService, ...],     # List of dependencies (components) that are needed
+    imports=[SomeService, ...],     # List of dependencies (components) that this product needs
     provider=providers.Singleton,   # Provider type (Singleton, Factory, Resource)
 )
 class SomeProduct(Interface, Product):

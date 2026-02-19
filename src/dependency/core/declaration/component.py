@@ -13,8 +13,8 @@ class Component(ProviderMixin):
 def component(
     module: Optional[type[Module]] = None,
     imports: Iterable[type[ProviderMixin]] = (),
-    provider: Optional[InstanceOrClass[providers.Provider[Any]]] = None,
     partial_resolution: bool = False,
+    provider: Optional[InstanceOrClass[providers.Provider[Any]]] = None,
     bootstrap: bool = False,
 ) -> Callable[[type[COMPONENT]], type[COMPONENT]]:
     """Decorator for Component class
@@ -47,7 +47,7 @@ def component(
                 bootstrap=cls.provide if bootstrap else None,
             )
 
-        cls.set_dependencies(
+        cls.update_dependencies(
             imports=imports,
             partial_resolution=partial_resolution,
         )

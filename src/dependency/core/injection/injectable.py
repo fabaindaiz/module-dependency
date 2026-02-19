@@ -37,53 +37,43 @@ class Injectable:
 
         # Validation flags
         self.partial_resolution: bool = False
+        self.force_resolution: bool = False
         self.is_resolved: bool = False
 
-    @property
-    def check_resolved(self) -> bool:
+    def check_resolved(self, providers: list['Injectable']) -> bool:
         if self.implementation is None:
             return False
 
-        unresolved: list['Injectable'] = list(filter(lambda i: not i.is_resolved, self.imports))
-        if unresolved:
-            return False
+        if self.force_resolution:
+            self.is_resolved = True
+            return True
+
+        if self.partial_resolution:
+            def validation(i: 'Injectable') -> bool:
+                return i.is_resolved or i not in providers
+        else:
+            def validation(i: 'Injectable') -> bool:
+                return i.is_resolved
+
+        for provider in self.imports:
+            if not validation(provider):
+                return False
 
         self.is_resolved = True
         return True
 
-    @property
-    def check_partial(self) -> bool:
-        if self.implementation is None:
-            return False
-
-        if self.partial_resolution:
-            self.is_resolved = True
-            return True
-
-        return False
-
-
-    @property
-    def check_resolution(self) -> bool:
-        if self.is_resolved:
-            return True
-
-        if self.partial_resolution:
-            self.is_resolved = True
-            return True
-
-        return False
-
-    def add_dependencies(self,
+    def update_dependencies(self,
         imports: Iterable['Injectable'],
-        partial_resolution: bool = False,
+        partial_resolution: Optional[bool] = None,
     ) -> None:
         self.imports.update(imports)
         for i in imports:
             i.dependent.add(self)
-        self.partial_resolution = partial_resolution
 
-    def del_dependencies(self,
+        if partial_resolution is not None:
+            self.partial_resolution = partial_resolution
+
+    def discard_dependencies(self,
         imports: Iterable['Injectable'],
     ) -> None:
         self.imports.difference_update(imports)
@@ -101,8 +91,8 @@ class Injectable:
         else:
             _logger.warning(f"Provider {self.interface_cls.__name__} implementation reassigned: {self.implementation.__name__} -> {implementation.__name__}")
 
-        self.modules_cls.update(modules_cls)
         self.implementation = implementation
+        self.modules_cls.update(modules_cls)
         self.__provider = provider
         self.__bootstrap = bootstrap
 

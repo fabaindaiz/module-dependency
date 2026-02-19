@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from dependency_injector import containers, providers
 from dependency.core.agrupation import Module, module
 from dependency.core.declaration import Component, component
+from dependency.core.injection import Injectable
 
 @module()
 class TModule(Module):
@@ -42,8 +43,9 @@ class TComponent(TProduct):
 def test_providers() -> None:
     container = containers.DynamicContainer()
     setattr(container, TModule.injection.name, TModule.injection.inject_cls())
-    for provider in TModule.injection.resolve_providers():
-        assert provider.check_resolved
+    providers: list[Injectable] = list(TModule.resolve_providers())
+    for provider in providers:
+        assert provider.check_resolved(providers)
 
     product1: TProduct1 = TComponent.provide("product1")
     product2: TProduct2 = TComponent.provide("product2")

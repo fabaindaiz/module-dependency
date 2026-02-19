@@ -17,10 +17,6 @@ def test_module():
     ):
         component.change_parent(TestingModule)
 
-    HardwareFactory.set_dependencies(
-        partial_resolution=True,
-    )
-
     assert HardwareFactory.injection.parent == TestingModule.injection
     assert HardwareFactory.injection in TestingModule.injection.childs
     assert HardwareFactory.injection.reference == "TestingModule.HardwareFactory"

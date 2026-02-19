@@ -29,7 +29,10 @@ class ResolutionStrategy:
         Returns:
             list[Injectable]: List of resolved injectables.
         """
-        providers = cls.injection(
+        providers = cls.expand(
+            providers=providers
+        )
+        cls.injection(
             providers=providers,
         )
         cls.wiring(
@@ -42,9 +45,33 @@ class ResolutionStrategy:
         return providers
 
     @classmethod
-    def injection(cls,
+    def expand(cls,
         providers: list[Injectable],
     ) -> list[Injectable]:
+        """Expand the list of providers by adding all their imports.
+
+        Args:
+            providers (list[Injectable]): List of providers to expand.
+
+        Returns:
+            list[Injectable]: List of expanded providers.
+        """
+        _logger.info("Expanding dependencies...")
+        unexpanded: set[Injectable] = set(providers.copy())
+        expanded: set[Injectable] = set()
+
+        while unexpanded:
+            provider: Injectable = unexpanded.pop()
+            expanded.add(provider)
+
+            if not provider.partial_resolution:
+                unexpanded.update(filter(lambda i: i not in expanded, provider.imports))
+        return list(expanded)
+
+    @classmethod
+    def injection(cls,
+        providers: list[Injectable],
+    ) -> None:
         """Resolve all injectables in layers.
 
         Args:
@@ -58,117 +85,23 @@ class ResolutionStrategy:
         resolved: set[Injectable] = set()
 
         while unresolved:
-            layer_resolved: set[Injectable] = set(
-                filter(lambda p: p.check_resolved, unresolved)
-            )
-            layer_unresolved: set[Injectable] = set(
-                filter(lambda p: not p.is_resolved, unresolved)
-            )
-
-            if not layer_resolved:
-                raise_resolution_error(
-                    providers=providers,
-                    unresolved=list(unresolved),
-                )
-
-            resolved.update(layer_resolved)
-            unresolved = layer_unresolved
-
-        return list(resolved)
-
-    @classmethod
-    def injection(cls,
-        providers: list[Injectable],
-    ) -> list[Injectable]:
-        """Resolve all injectables in layers.
-
-        Args:
-            providers (list[Injectable]): List of injectables to resolve.
-
-        Returns:
-            list[Injectable]: List of unresolved injectables.
-        """
-        _logger.info("Resolving dependencies...")
-        unresolved: set[Injectable] = set(providers.copy())
-        resolved: set[Injectable] = set()
-
-        while unresolved:
-            layer_resolved: set[Injectable] = set(
-                filter(lambda p: p.check_resolved, unresolved)
-            )
-            layer_unresolved: set[Injectable] = set(
-                filter(lambda p: not p.is_resolved, unresolved)
-            )
-
-            new_unresolved: set[Injectable] = set()
-            for provider in layer_unresolved:
-                if not provider.partial_resolution:
-                    new_unresolved.update(filter(lambda i: not i.is_resolved, provider.imports))
-
-            if not layer_resolved:
-                raise_resolution_error(
-                    providers=providers,
-                    unresolved=list(unresolved),
-                )
-
-            resolved.update(layer_resolved)
-            unresolved = layer_unresolved
-
-        return list(resolved)
-
-    @classmethod
-    def injection2(cls,
-        providers: list[Injectable],
-    ) -> list[Injectable]:
-
-            new_unresolved: set[Injectable] = set()
-            for provider in layer_unresolved:
-                if not provider.partial_resolution:
-                    new_unresolved.update(filter(lambda i: not i.is_resolved and i not in unresolved, provider.imports))
-
-
-
-
-
-
-
-            if not layer_resolved:
-
-
-                if new_unresolved:
-                    unresolved.update(new_unresolved)
-
-                    raise_resolution_error(
-                        providers=providers,
-                        unresolved=list(unresolved),
-                    )
-
-                unresolved.update(new_unresolved)
-
-
-
-
-
-            if not new_layer:
-                imports: set[Injectable] = set()
-                for provider in unresolved:
-                    imports.update(filter(lambda i: not i.is_resolved, provider.imports))
-
-                if all(provider.check_resolution for provider in imports):
-                    unresolved = set(filter(lambda p: not p.is_resolved, unresolved))
-                    continue
-
-                raise_resolution_error(
-                    providers=providers,
-                    unresolved=list(unresolved),
-                )
-
-            resolved.update(new_layer)
+            layer_resolved: set[Injectable] = set()
+            layer_unresolved: set[Injectable] = set()
 
             for provider in unresolved:
-                unresolved.update(filter(lambda d: not d.is_resolved, provider.imports))
+                if provider.check_resolved(providers):
+                    layer_resolved.add(provider)
+                else:
+                    layer_unresolved.add(provider)
 
-        return list(resolved)
+            if not layer_resolved:
+                raise_resolution_error(
+                    providers=providers,
+                    unresolved=list(unresolved),
+                )
+
+            resolved.update(layer_resolved)
+            unresolved = layer_unresolved
 
     @classmethod
     def validation(cls,

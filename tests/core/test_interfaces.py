@@ -3,7 +3,7 @@ from dependency_injector import providers
 from dependency_injector.wiring import inject
 from dependency.core.agrupation import Module, module
 from dependency.core.declaration import Component, component
-from dependency.core.injection import LazyProvide
+from dependency.core.injection import Injectable, LazyProvide
 from dependency.core.resolution import Container
 
 @module()
@@ -48,11 +48,11 @@ def test_interfaces() -> None:
     container = Container()
     TModule.inject_container(container)
 
-    injectables = list(TModule.resolve_providers())
+    injectables: list[Injectable] = list(TModule.resolve_providers())
     for injectable in injectables:
         injectable.check_resolved
-    assert TProduct1.injection.injectable.check_resolved
-    assert TProduct2.injection.injectable.check_resolved
+    assert TProduct1.injection.injectable.check_resolved(injectables)
+    assert TProduct2.injection.injectable.check_resolved(injectables)
 
     for injectable in injectables:
         injectable.wire(container)

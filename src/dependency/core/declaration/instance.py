@@ -32,7 +32,7 @@ def instance(
             bootstrap=cls.provide if bootstrap else None,
         )
 
-        cls.set_dependencies(
+        cls.update_dependencies(
             imports=imports,
         )
 

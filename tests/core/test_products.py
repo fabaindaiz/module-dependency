@@ -42,11 +42,14 @@ def test_products() -> None:
     injectables = list(TPlugin.resolve_providers())
     assert injectables == [TComponent1.injection.injectable]
 
+
     with pytest.raises(ResolutionError):
-        ResolutionStrategy.injection(injectables)
+        expanded = ResolutionStrategy.expand(injectables)
+        ResolutionStrategy.injection(expanded)
 
     TProduct1.injection.injectable.partial_resolution = True
-    ResolutionStrategy.injection(injectables)
+    expanded = ResolutionStrategy.expand(injectables)
+    ResolutionStrategy.injection(expanded)
 
     assert TComponent1.injection.injectable.is_resolved
     assert TProduct1.injection.injectable.is_resolved

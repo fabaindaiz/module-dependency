@@ -75,7 +75,7 @@ class ProviderMixin:
             TypeError: If the class is not a subclass of the interface class.
         """
     @classmethod
-    def set_dependencies(cls, imports: Iterable[type['ProviderMixin']] = (), partial_resolution: bool = False) -> None:
+    def update_dependencies(cls, imports: Iterable[type['ProviderMixin']] = (), partial_resolution: bool | None = None) -> None:
         '''Initialize the dependencies for the provider.
 
         Args:
@@ -83,7 +83,7 @@ class ProviderMixin:
             partial_resolution (bool, optional): Whether to allow partial resolution of dependencies. Defaults to False.
         '''
     @classmethod
-    def remove_dependencies(cls, imports: Iterable[type['ProviderMixin']] = ()) -> None:
+    def discard_dependencies(cls, imports: Iterable[type['ProviderMixin']] = ()) -> None:
         '''Remove dependencies from the provider.
 
         Args:

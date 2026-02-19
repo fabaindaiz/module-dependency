@@ -25,13 +25,16 @@ class ResolutionStrategy:
         """
     @classmethod
     def expand(cls, providers: list[Injectable]) -> list[Injectable]:
-        """Expand the list of providers by adding their imports.
+        """Expand the list of providers by adding all their imports.
 
         Args:
-            providers (list[Injectable]): List of injectables to search.
+            providers (list[Injectable]): List of providers to expand.
+
+        Returns:
+            list[Injectable]: List of expanded providers.
         """
     @classmethod
-    def injection(cls, providers: list[Injectable]) -> list[Injectable]:
+    def injection(cls, providers: list[Injectable]) -> None:
         """Resolve all injectables in layers.
 
         Args:
