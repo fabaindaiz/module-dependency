@@ -32,6 +32,8 @@ __all__ = [
     "PluginMeta",
     "Component",
     "component",
+    "Product",
+    "product",
     "instance",
     "providers",
     "Container",
