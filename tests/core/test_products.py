@@ -37,19 +37,20 @@ class TInstance1(TComponent1):
     pass
 
 def test_products() -> None:
+    strategy: ResolutionStrategy = ResolutionStrategy()
     container = Container()
+
     TPlugin.resolve_container(container)
     injectables = list(TPlugin.resolve_providers())
-    assert injectables == [TComponent1.injection.injectable]
-
+    assert injectables == [TComponent1.injectable]
 
     with pytest.raises(ResolutionError):
-        expanded = ResolutionStrategy.expand(injectables)
-        ResolutionStrategy.injection(expanded)
+        expanded = strategy.expand(injectables)
+        strategy.injection(expanded)
 
-    TProduct1.injection.injectable.partial_resolution = True
-    expanded = ResolutionStrategy.expand(injectables)
-    ResolutionStrategy.injection(expanded)
+    TProduct1.injectable.partial_resolution = True
+    expanded = strategy.expand(injectables)
+    strategy.injection(expanded)
 
-    assert TComponent1.injection.injectable.is_resolved
-    assert TProduct1.injection.injectable.is_resolved
+    assert TComponent1.injectable.is_resolved
+    assert TProduct1.injectable.is_resolved

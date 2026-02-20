@@ -53,10 +53,10 @@ def test_resolution() -> None:
     injectables = TPlugin.resolve_providers()
     assert "TInstance1" not in BOOTSTRAPED
 
-    loader = InjectionResolver(container, injectables)
+    loader = InjectionResolver(container)
     assert "TInstance1" not in BOOTSTRAPED
 
-    loader.resolve_dependencies()
+    loader.resolve_providers(injectables)
     assert "TInstance1" in BOOTSTRAPED
     assert "TInstance2" in BOOTSTRAPED
 

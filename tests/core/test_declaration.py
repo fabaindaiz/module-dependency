@@ -31,8 +31,8 @@ def test_declaration() -> None:
     for provider in injectables:
         assert provider.check_resolved(injectables)
 
-    assert TComponent.injection.injectable.interface_cls == TComponent
-    assert TComponent.injection.injectable.implementation == TInstance
+    assert TComponent.injectable.interface_cls == TComponent
+    assert TComponent.injectable.implementation == TInstance
 
     component: TComponent = TComponent.provide()
     assert isinstance(component, TComponent)

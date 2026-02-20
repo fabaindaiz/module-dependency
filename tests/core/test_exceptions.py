@@ -44,33 +44,33 @@ class TInstance1(TComponent1):
     pass
 
 def test_exceptions() -> None:
+    strategy: ResolutionStrategy = ResolutionStrategy()
     container = Container()
-    TPlugin.resolve_container(container)
 
+    TPlugin.resolve_container(container)
     with pytest.raises(DeclarationError):
         print(TComponent1.provide())
-
     with pytest.raises(DeclarationError):
         list(TPlugin.resolve_providers())
 
     TComponent2.change_parent(None)
     injectables = list(TPlugin.resolve_providers())
-    assert set(injectables) == {TComponent1.injection.injectable}
+    assert set(injectables) == {TComponent1.injectable}
 
-    injectables = ResolutionStrategy.expand(injectables)
-    assert set(injectables) == {TComponent1.injection.injectable, TProduct1.injection.injectable}
+    injectables = strategy.expand(injectables)
+    assert set(injectables) == {TComponent1.injectable, TProduct1.injectable}
 
     with pytest.raises(ResolutionError):
-        ResolutionStrategy.injection(injectables)
+        strategy.injection(injectables)
 
     TComponent1.discard_dependencies(
         imports=[TComponent1],
     )
-    ResolutionStrategy.injection(injectables)
+    strategy.injection(injectables)
     assert TComponent1.provide()
 
     TProduct1.update_dependencies(
         partial_resolution=False,
     )
     with pytest.raises(ResolutionError):
-        ResolutionStrategy.injection(injectables)
+        strategy.injection(injectables)

@@ -33,6 +33,12 @@ class Plugin(Module):
         cls.injection.is_root = True
 
     @classmethod
+    def on_resolution(cls,
+        container: Container
+    ) -> None:
+        cls.resolve_container(container=container)
+
+    @classmethod
     def resolve_container(cls, container: Container) -> None:
         """Resolve the plugin configuration.
 
@@ -43,7 +49,6 @@ class Plugin(Module):
             ResolutionError: If the configuration is invalid.
         """
         try:
-            cls.inject_container(container)
             config_cls = get_type_hints(cls).get("config", object)
             if issubclass(config_cls, BaseModel):
                 setattr(cls, "config", config_cls.model_validate(container.config()))

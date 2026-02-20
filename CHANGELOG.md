@@ -7,7 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [v1.0.0] - 2026-02-
+### Added
+
+- Global registry for managing and validating injectables and providers
+
+### Changed
+
+- Updated documentation and examples to reflect recent changes
+- Injectables have been extracted from Injection and now are handled by Providers
+- Refactored resolution logic to use a registry for better management and validation
+- On components, products declaration has been removed, use imports declaration
+
+## [v1.1.0] - 2026-02-
+
+### Fixed
+
+- Fixed Products not being exported from the package
+
+## [v1.0.0] - 2026-02-13
 
 ### Added
 

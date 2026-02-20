@@ -28,7 +28,9 @@ class TInstance2(TComponent1):
     pass
 
 def test_validation() -> None:
+    strategy: ResolutionStrategy = ResolutionStrategy()
     container = Container()
+
     with pytest.raises(ProvisionError):
         TPlugin.resolve_container(container)
 
@@ -36,9 +38,9 @@ def test_validation() -> None:
     TPlugin.resolve_container(container)
     injectables = list(TPlugin.resolve_providers())
 
-    ResolutionStrategy.injection(injectables)
-    assert TComponent1.injection.injectable.implementation != TInstance1
-    assert TComponent1.injection.injectable.implementation == TInstance2
+    strategy.injection(injectables)
+    assert TComponent1.injectable.implementation != TInstance1
+    assert TComponent1.injectable.implementation == TInstance2
 
     assert TComponent1.provider() == TInstance2.provider()
     assert TComponent1.provide() == TInstance2.provide()

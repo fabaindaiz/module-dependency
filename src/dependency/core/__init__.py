@@ -1,3 +1,15 @@
+from dependency.core.resolution import (
+    Container,
+    Registry,
+    InjectionResolver,
+    ResolutionConfig,
+    ResolutionStrategy,
+)
+from dependency.core.exceptions import (
+    DependencyError,
+    CancelInitialization,
+)
+
 from dependency.core.agrupation import (
     Entrypoint,
     Module,
@@ -13,18 +25,16 @@ from dependency.core.declaration import (
     instance,
     providers,
 )
-from dependency.core.resolution import (
-    Container,
-    InjectionResolver,
-    ResolutionConfig,
-    ResolutionStrategy,
-)
-from dependency.core.exceptions import (
-    DependencyError,
-    CancelInitialization,
-)
+
 
 __all__ = [
+    "Container",
+    "Registry",
+    "InjectionResolver",
+    "ResolutionConfig",
+    "ResolutionStrategy",
+    "DependencyError",
+    "CancelInitialization",
     "Entrypoint",
     "Module",
     "module",
@@ -36,10 +46,4 @@ __all__ = [
     "product",
     "instance",
     "providers",
-    "Container",
-    "InjectionResolver",
-    "ResolutionConfig",
-    "ResolutionStrategy",
-    "DependencyError",
-    "CancelInitialization",
 ]

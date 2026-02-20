@@ -1,8 +1,14 @@
 import logging
 from pydantic import BaseModel
+from typing import Optional
 from dependency.core.injection.injectable import Injectable
 from dependency.core.resolution.container import Container
 from dependency.core.resolution.errors import raise_resolution_error
+from dependency.core.exceptions import (
+    DeclarationError,
+    InitializationError,
+    CancelInitialization,
+)
 _logger = logging.getLogger("dependency.loader")
 
 class ResolutionConfig(BaseModel):
@@ -13,10 +19,12 @@ class ResolutionConfig(BaseModel):
 class ResolutionStrategy:
     """Defines the strategy for resolving dependencies.
     """
-    config: ResolutionConfig = ResolutionConfig()
+    def __init__(self,
+        config: Optional[ResolutionConfig] = None
+    ) -> None:
+        self.config: ResolutionConfig = config or ResolutionConfig()
 
-    @classmethod
-    def resolution(cls,
+    def resolution(self,
         providers: list[Injectable],
         container: Container,
     ) -> list[Injectable]:
@@ -29,23 +37,22 @@ class ResolutionStrategy:
         Returns:
             list[Injectable]: List of resolved injectables.
         """
-        providers = cls.expand(
+        providers = self.expand(
             providers=providers
         )
-        cls.injection(
+        self.injection(
             providers=providers,
         )
-        cls.wiring(
+        self.wiring(
             providers=providers,
             container=container,
         )
-        cls.initialize(
+        self.initialize(
             providers=providers
         )
         return providers
 
-    @classmethod
-    def expand(cls,
+    def expand(self,
         providers: list[Injectable],
     ) -> list[Injectable]:
         """Expand the list of providers by adding all their imports.
@@ -68,8 +75,7 @@ class ResolutionStrategy:
                 unexpanded.update(filter(lambda i: i not in expanded, provider.imports))
         return list(expanded)
 
-    @classmethod
-    def injection(cls,
+    def injection(self,
         providers: list[Injectable],
     ) -> None:
         """Resolve all injectables in layers.
@@ -103,23 +109,7 @@ class ResolutionStrategy:
             resolved.update(layer_resolved)
             unresolved = layer_unresolved
 
-    @classmethod
-    def validation(cls,
-        providers: list[Injectable],
-        unresolved: list[Injectable],
-    ) -> None:
-        """Validate that all unresolved injectables are in the list of providers.
-
-        Args:
-            providers (list[Injectable]): List of providers to validate.
-            unresolved (list[Injectable]): List of unresolved injectables.
-        """
-        if unresolved:
-            _logger.warning(f"Unresolved injectables: {unresolved}")
-
-
-    @classmethod
-    def wiring(cls,
+    def wiring(self,
         providers: list[Injectable],
         container: Container,
     ) -> None:
@@ -131,13 +121,15 @@ class ResolutionStrategy:
         """
         _logger.info("Wiring dependencies...")
         for provider in providers:
-            provider.wire(container=container)
-        if cls.config.init_container:
+            container.wire(
+                modules=provider.modules_cls,
+                warn_unresolved=True,
+            )
+        if self.config.init_container:
             container.check_dependencies()
             container.init_resources()
 
-    @classmethod
-    def initialize(cls,
+    def initialize(self,
         providers: list[Injectable],
     ) -> None:
         """Start all implementations by executing their init functions.
@@ -147,4 +139,16 @@ class ResolutionStrategy:
         """
         _logger.info("Initializing dependencies...")
         for provider in providers:
-            provider.init()
+            if not provider.is_resolved:
+                raise DeclarationError(
+                    f"Injectable {provider} must be resolved before initialization. "
+                    f"Ensure it is declared as a dependency where it is being used"
+                )
+
+            if provider.bootstrap is not None:
+                try:
+                    provider.bootstrap()
+                except CancelInitialization as e:
+                    _logger.warning(f"Injectable {provider} initialization skipped (cancelled by user): {e}")
+                except Exception as e:
+                    raise InitializationError(f"Injectable {provider} initialization failed") from e

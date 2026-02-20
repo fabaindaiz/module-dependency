@@ -50,12 +50,12 @@ def test_interfaces() -> None:
 
     injectables: list[Injectable] = list(TModule.resolve_providers())
     for injectable in injectables:
-        injectable.check_resolved
-    assert TProduct1.injection.injectable.check_resolved(injectables)
-    assert TProduct2.injection.injectable.check_resolved(injectables)
+        injectable.check_resolved(injectables)
+    assert TProduct1.injectable.check_resolved(injectables)
+    assert TProduct2.injectable.check_resolved(injectables)
 
     for injectable in injectables:
-        injectable.wire(container)
+        container.wire(injectable.modules_cls)
     product1: TProduct1 = TProduct1.provide()
     product2: TProduct2 = TProduct2.provide()
 
