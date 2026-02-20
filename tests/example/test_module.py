@@ -8,7 +8,7 @@ from example.plugin.hardware.observer.publisherA import HardwareObserver
 class TestingModule(Module):
     pass
 
-def test_change_parent_and_resolve():
+def test_module():
     for component in (
         NumberService,
         StringService,
@@ -25,12 +25,12 @@ def test_change_parent_and_resolve():
     TestingModule.inject_container(container)
     loader = InjectionResolver(
         container=container,
+    )
+    injectables = loader.resolve_providers(
         providers=TestingModule.resolve_providers(),
     )
-    injectables = loader.resolve_dependencies()
-
-    assert HardwareFactory.injection.injectable in injectables
-    assert HardwareFactory.injection.injectable.is_resolved
+    assert HardwareFactory.injectable in injectables
+    assert HardwareFactory.injectable.is_resolved
 
     number_service: NumberService = NumberService.provide(starting_number=40)
     assert number_service.getRandomNumber() == 40

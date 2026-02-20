@@ -10,13 +10,12 @@ class Component(ProviderMixin):
     """Component Base Class
     """
 
-def component(module: type[Module] | None = None, imports: Iterable[type[ProviderMixin]] = (), products: Iterable[type[ProviderMixin]] = (), provider: InstanceOrClass[providers.Provider[Any]] | None = None, partial_resolution: bool = False, bootstrap: bool = False) -> Callable[[type[COMPONENT]], type[COMPONENT]]:
+def component(module: type[Module] | None = None, imports: Iterable[type[ProviderMixin]] = (), partial_resolution: bool = False, provider: InstanceOrClass[providers.Provider[Any]] | None = None, bootstrap: bool = False) -> Callable[[type[COMPONENT]], type[COMPONENT]]:
     """Decorator for Component class
 
     Args:
         module (type[Module], optional): Module where the component is registered. Defaults to None.
         imports (Iterable[type[ProviderMixin]], optional): List of components to be imported by the provider. Defaults to ().
-        products (Iterable[type[ProviderMixin]], optional): List of products to be declared by the provider. Defaults to ().
         provider (Optional[providers.Provider[Any]], optional): Provider to be used. Defaults to None.
         partial_resolution (bool, optional): Whether the component should be resolved with partial resolution. Defaults to False.
         bootstrap (bool, optional): Whether the provider should be bootstrapped. Defaults to False.

@@ -3,8 +3,7 @@ from abc import ABC, abstractmethod
 from typing import Any, Generator, Optional, override
 from dependency_injector import containers, providers
 from dependency.core.injection.injectable import Injectable
-from dependency.core.injection.wiring import LazyProvide
-from dependency.core.exceptions import ProvisionError
+from dependency.core.exceptions import DeclarationError, ProvisionError
 _logger = logging.getLogger("dependency.loader")
 
 class BaseInjection(ABC):
@@ -39,11 +38,6 @@ class BaseInjection(ABC):
         if self.parent is not None:
             self.parent.childs.add(self)
 
-    def validation(self) -> None:
-        """Validate the injection configuration."""
-        if self.parent is None and not self.is_root:
-            _logger.warning(f"Injection {self.name} has no parent module (consider registering)")
-
     @abstractmethod
     def inject_cls(self) -> Any:
         """Return the class to be injected."""
@@ -51,9 +45,6 @@ class BaseInjection(ABC):
     @abstractmethod
     def resolve_providers(self) -> Generator[Injectable, None, None]:
         """Inject all children into the current injection context."""
-
-    def __hash__(self) -> int:
-        return hash(self.name)
 
     def __repr__(self) -> str:
         return self.name
@@ -86,11 +77,26 @@ class ProviderInjection(BaseInjection):
     """
     def __init__(self,
         name: str,
-        interface_cls: type,
-        parent: Optional['ContainerInjection'] = None
+        injectable: Injectable,
+        parent: Optional['ContainerInjection'] = None,
+        provider: Optional[providers.Provider[Any]] = None,
     ) -> None:
         super().__init__(name=name, parent=parent)
-        self.injectable: Injectable = Injectable(interface_cls=interface_cls)
+        self._injectable: Injectable = injectable
+        self._provider: Optional[providers.Provider[Any]] = provider
+
+    def set_provider(self, provider: providers.Provider[Any]) -> None:
+        """Set the provider instance for this injectable.
+
+        Args:
+            provider (providers.Provider[Any]): The provider instance to set.
+        """
+        self._provider = provider
+
+    @property
+    def injectable(self) -> Injectable:
+        """Return the injectable instance for this provider."""
+        return self._injectable
 
     @property
     @override
@@ -102,15 +108,17 @@ class ProviderInjection(BaseInjection):
 
     @property
     def provider(self) -> providers.Provider[Any]:
-        """Return the provider instance."""
-        return LazyProvide[lambda: self.reference] # type: ignore
+        """Return the provider instance for this injectable."""
+        if self._provider is None:
+            raise DeclarationError(f"Provider {self} has no implementation assigned")
+        return self._provider
 
     @override
     def inject_cls(self) -> providers.Provider[Any]:
         """Return the provider instance."""
-        return self.injectable.provider
+        return self.provider
 
     @override
     def resolve_providers(self) -> Generator[Injectable, None, None]:
         """Inject all imports into the current injectable."""
-        yield self.injectable
+        yield self._injectable

@@ -1,8 +1,7 @@
 import abc
 from abc import ABC, abstractmethod
-from dependency.core.exceptions import ProvisionError as ProvisionError
+from dependency.core.exceptions import DeclarationError as DeclarationError, ProvisionError as ProvisionError
 from dependency.core.injection.injectable import Injectable as Injectable
-from dependency.core.injection.wiring import LazyProvide as LazyProvide
 from dependency_injector import containers, providers as providers
 from typing import Any, Generator, override
 
@@ -22,15 +21,12 @@ class BaseInjection(ABC, metaclass=abc.ABCMeta):
         Args:
             parent (ContainerInjection): The new parent injection.
         """
-    def validation(self) -> None:
-        """Validate the injection configuration."""
     @abstractmethod
     def inject_cls(self) -> Any:
         """Return the class to be injected."""
     @abstractmethod
     def resolve_providers(self) -> Generator[Injectable, None, None]:
         """Inject all children into the current injection context."""
-    def __hash__(self) -> int: ...
 
 class ContainerInjection(BaseInjection):
     """Container Injection Class
@@ -48,15 +44,23 @@ class ContainerInjection(BaseInjection):
 class ProviderInjection(BaseInjection):
     """Provider Injection Class
     """
-    injectable: Injectable
-    def __init__(self, name: str, interface_cls: type, parent: ContainerInjection | None = None) -> None: ...
+    def __init__(self, name: str, injectable: Injectable, parent: ContainerInjection | None = None, provider: providers.Provider[Any] | None = None) -> None: ...
+    def set_provider(self, provider: providers.Provider[Any]) -> None:
+        """Set the provider instance for this injectable.
+
+        Args:
+            provider (providers.Provider[Any]): The provider instance to set.
+        """
+    @property
+    def injectable(self) -> Injectable:
+        """Return the injectable instance for this provider."""
     @property
     @override
     def reference(self) -> str:
         """Return the reference for dependency injection."""
     @property
     def provider(self) -> providers.Provider[Any]:
-        """Return the provider instance."""
+        """Return the provider instance for this injectable."""
     @override
     def inject_cls(self) -> providers.Provider[Any]:
         """Return the provider instance."""

@@ -3,6 +3,8 @@ from dependency_injector import providers
 from dependency.core.injection.injectable import Injectable
 from dependency.core.injection.injection import ContainerInjection, ProviderInjection
 from dependency.core.resolution.container import Container
+from dependency.core.resolution.registry import Registry
+from dependency.core.exceptions import DeclarationError
 
 class ContainerMixin:
     """Container Mixin Class
@@ -15,6 +17,16 @@ class ContainerMixin:
     @classmethod
     def on_declaration(cls) -> None:
         """Hook method called upon declaration of the container.
+        """
+
+    @classmethod
+    def on_resolution(cls,
+        container: Container
+    ) -> None:
+        """Hook method called upon resolution of the container.
+
+        Args:
+            container (Container): The application container.
         """
 
     @classmethod
@@ -31,7 +43,6 @@ class ContainerMixin:
             parent=parent,
         )
         cls.on_declaration()
-        cls.injection.validation()
 
     @classmethod
     def change_parent(cls, parent: Optional['ContainerMixin'] = None) -> None:
@@ -50,6 +61,7 @@ class ContainerMixin:
             container (Container): The application container.
         """
         setattr(container, cls.injection.name, cls.injection.inject_cls())
+        cls.on_resolution(container=container)
 
     @classmethod
     def resolve_providers(cls) -> Generator[Injectable, None, None]:
@@ -67,6 +79,7 @@ class ProviderMixin:
         injection (ProviderInjection): Injection handler for the provider
     """
     injection: ProviderInjection
+    injectable: Injectable
 
     @classmethod
     def on_declaration(cls) -> None:
@@ -82,19 +95,22 @@ class ProviderMixin:
         Args:
             parent (Optional[ContainerInjection]): Parent container injection instance.
         """
+        cls.injectable = Injectable(
+            interface_cls=cls
+        )
         cls.injection = ProviderInjection(
             name=cls.__name__,
-            interface_cls=cls,
+            injectable=cls.injectable,
             parent=parent,
         )
         cls.on_declaration()
-        cls.injection.validation()
+        Registry.register(cls.injection)
 
     @classmethod
     def init_implementation(cls,
         modules_cls: Iterable[type],
         provider: providers.Provider[Any],
-        bootstrap: Optional[Callable[[], Any]]
+        bootstrap: Optional[Callable[[], Any]],
     ) -> None:
         """Initialize the injectable for the provider.
 
@@ -106,62 +122,17 @@ class ProviderMixin:
         Raises:
             TypeError: If the class is not a subclass of the interface class.
         """
-        interface_cls: type = cls.injection.injectable.interface_cls
+        interface_cls: type = cls.injectable.interface_cls
         if not issubclass(cls, interface_cls):
             raise TypeError(f"Class {cls.__name__} must be a subclass of {interface_cls.__name__} to be used as an instance of component {cls.__name__}")
 
-        cls.injection.injectable.add_implementation(
+        cls.injection.set_provider(
+            provider=provider
+        )
+        cls.injectable.set_implementation(
             implementation=cls,
             modules_cls=modules_cls,
-            provider=provider,
             bootstrap=bootstrap,
-        )
-
-    @classmethod
-    def set_dependencies(cls,
-        imports: Iterable[type['ProviderMixin']] = (),
-        products: Iterable[type['ProviderMixin']] = (),
-        partial_resolution: bool = False,
-    ) -> None:
-        """Initialize the dependencies for the provider.
-
-        Args:
-            imports (Iterable[type["ResolubleClass"]]): List of components to be imported by the provider.
-            products (Iterable[type["ResolubleClass"]]): List of products to be declared by the provider.
-            partial_resolution (bool, optional): Whether to allow partial resolution of dependencies. Defaults to False.
-        """
-        cls.injection.injectable.add_dependencies(
-            imports={
-                injection.injection.injectable
-                for injection in imports
-            },
-            products={
-                injection.injection.injectable
-                for injection in products
-            },
-            partial_resolution=partial_resolution,
-        )
-
-    @classmethod
-    def remove_dependencies(cls,
-        imports: Iterable[type['ProviderMixin']] = (),
-        products: Iterable[type['ProviderMixin']] = (),
-    ) -> None:
-        """Remove dependencies from the provider.
-
-        Args:
-            imports (Iterable[type["ProviderMixin"]]): List of components to remove from imports.
-            products (Iterable[type["ProviderMixin"]]): List of components to remove from products.
-        """
-        cls.injection.injectable.del_dependencies(
-            imports={
-                injection.injection.injectable
-                for injection in imports
-            },
-            products={
-                injection.injection.injectable
-                for injection in products
-            },
         )
 
     @classmethod
@@ -171,6 +142,42 @@ class ProviderMixin:
         cls.injection.change_parent(parent.injection if parent else None)
 
     @classmethod
+    def update_dependencies(cls,
+        imports: Iterable[type['ProviderMixin']] = (),
+        partial_resolution: Optional[bool] = None,
+    ) -> None:
+        """Initialize the dependencies for the provider.
+
+        Args:
+            imports (Iterable[type["ResolubleClass"]]): List of providers to be imported by the provider.
+            partial_resolution (bool, optional): Whether to allow partial resolution of dependencies. Defaults to False.
+        """
+        cls.injectable.update_dependencies(
+            imports={
+                provider.injectable
+                for provider in imports
+            },
+            partial_resolution=partial_resolution,
+        )
+
+    @classmethod
+    def discard_dependencies(cls,
+        imports: Iterable[type['ProviderMixin']] = (),
+    ) -> None:
+        """Remove dependencies from the provider.
+
+        Args:
+            imports (Iterable[type["ProviderMixin"]]): List of components to remove from imports.
+            products (Iterable[type["ProviderMixin"]]): List of components to remove from products.
+        """
+        cls.injectable.discard_dependencies(
+            imports={
+                provider.injectable
+                for provider in imports
+            },
+        )
+
+    @classmethod
     def reference(cls) -> str:
         """Return the reference name of the Injectable."""
         return cls.injection.reference
@@ -178,9 +185,14 @@ class ProviderMixin:
     @classmethod
     def provider(cls) -> providers.Provider[Any]:
         """Return the provider instance of the Injectable."""
-        return cls.injection.injectable.provider
+        return cls.injection.provider
 
     @classmethod
     def provide(cls, *args: Any, **kwargs: Any) -> Any:
         """Provide an instance of the Injectable."""
-        return cls.injection.injectable.provide(*args, **kwargs)
+        if not cls.injectable.is_resolved:
+            raise DeclarationError(
+                f"Injectable {cls.injection} accessed before being resolved. "
+                f"Ensure it is declared as a dependency where it is being used."
+            )
+        return cls.injection.provider(*args, **kwargs)

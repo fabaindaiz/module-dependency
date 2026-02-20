@@ -5,7 +5,7 @@ from example.plugin.reporter.factory.productA import ReporterA
 
 @component(
     module=ReporterPlugin,
-    products=[
+    imports=[
         ReporterA,
     ],
     provider=providers.Singleton,

@@ -17,14 +17,15 @@ class Interface:
 def test_injection1() -> None:
     container1 = ContainerInjection(name="container1")
     container2 = ContainerInjection(name="container2", parent=container1)
+
+    injectable1 = Injectable(
+        interface_cls=Interface,
+        implementation=Instance,
+    )
     provider1 = ProviderInjection(
         name="provider1",
-        interface_cls=Interface,
-        parent=container2
-    )
-    provider1.injectable.add_implementation(
-        implementation=Instance,
-        modules_cls={Interface},
+        injectable=injectable1,
+        parent=container2,
         provider=providers.Singleton(Instance),
     )
     assert provider1.reference == TEST_REFERENCE
@@ -37,7 +38,7 @@ def test_injection1() -> None:
         Interface().test()
 
     for provider in list(container1.resolve_providers()):
-        provider.wire(container=container)
+        container.wire(provider.modules_cls)
 
     container.wire((Interface,))
     assert Interface().test() == "Injected service: Test method called"

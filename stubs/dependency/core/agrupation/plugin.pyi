@@ -24,6 +24,8 @@ class Plugin(Module):
     @classmethod
     def on_declaration(cls) -> None: ...
     @classmethod
+    def on_resolution(cls, container: Container) -> None: ...
+    @classmethod
     def resolve_container(cls, container: Container) -> None:
         """Resolve the plugin configuration.
 

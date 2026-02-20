@@ -9,8 +9,6 @@ from example.plugin.hardware.bridge import HardwareAbstraction
 @instance(
     imports=[
         HardwareAbstraction,
-    ],
-    products=[
         ReporterFactory,
     ],
     provider=providers.Singleton,
