@@ -49,8 +49,8 @@ class InjectionResolver:
         providers: list[Injectable] = []
 
         for module in modules:
+            providers.extend(module.resolve_injectables())
             module.inject_container(container=self.container)
-            providers.extend(module.resolve_providers())
 
         return providers
 

@@ -22,8 +22,8 @@ class ReporterFacadeA(ReportFacade):
 
     @inject
     def startModule(self,
-            factory: ReporterFactory = LazyProvide[ReporterFactory.reference],
-            bridge: HardwareAbstraction = LazyProvide[HardwareAbstraction.reference],
+            factory: ReporterFactory = LazyProvide[ReporterFactory],
+            bridge: HardwareAbstraction = LazyProvide[HardwareAbstraction],
         ) -> None:
         reporter = factory.createProduct(product="A")
         bridge.someOperation(product="A")

@@ -50,11 +50,13 @@ def test_exceptions() -> None:
     TPlugin.resolve_container(container)
     with pytest.raises(DeclarationError):
         print(TComponent1.provide())
+
     with pytest.raises(DeclarationError):
-        list(TPlugin.resolve_providers())
+        TPlugin.inject_container(container)
 
     TComponent2.change_parent(None)
-    injectables = list(TPlugin.resolve_providers())
+    TPlugin.inject_container(container)
+    injectables = list(TPlugin.resolve_injectables())
     assert set(injectables) == {TComponent1.injectable}
 
     injectables = strategy.expand(injectables)

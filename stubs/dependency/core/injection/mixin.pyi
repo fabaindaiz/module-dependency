@@ -1,6 +1,7 @@
 from dependency.core.exceptions import DeclarationError as DeclarationError
 from dependency.core.injection.injectable import Injectable as Injectable
 from dependency.core.injection.injection import ContainerInjection as ContainerInjection, ProviderInjection as ProviderInjection
+from dependency.core.injection.wiring import WiringMixin as WiringMixin
 from dependency.core.resolution.container import Container as Container
 from dependency.core.resolution.registry import Registry as Registry
 from dependency_injector import providers as providers
@@ -46,14 +47,14 @@ class ContainerMixin:
             container (Container): The application container.
         """
     @classmethod
-    def resolve_providers(cls) -> Generator[Injectable, None, None]:
+    def resolve_injectables(cls) -> Generator[Injectable, None, None]:
         """Resolve provider injections for the plugin.
 
         Returns:
             Generator[Injectable, None, None]: A generator of injectables.
         """
 
-class ProviderMixin:
+class ProviderMixin(WiringMixin):
     """Providable Base Class
 
     Attributes:

@@ -36,7 +36,7 @@ def test_validation() -> None:
 
     container = Container.from_dict({"key": "value"})
     TPlugin.resolve_container(container)
-    injectables = list(TPlugin.resolve_providers())
+    injectables = list(TPlugin.resolve_injectables())
 
     strategy.injection(injectables)
     assert TComponent1.injectable.implementation != TInstance1

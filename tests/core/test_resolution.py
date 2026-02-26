@@ -50,7 +50,7 @@ class TInstance2(TComponent2):
 
 def test_resolution() -> None:
     container = Container.from_json("example/config.json")
-    injectables = TPlugin.resolve_providers()
+    injectables = TPlugin.resolve_injectables()
     assert "TInstance1" not in BOOTSTRAPED
 
     loader = InjectionResolver(container)

@@ -1,3 +1,8 @@
+from dependency.core.injection import (
+    LazyProvide,
+    LazyProvider,
+    LazyClosing,
+)
 from dependency.core.resolution import (
     Container,
     Registry,
@@ -28,6 +33,9 @@ from dependency.core.declaration import (
 
 
 __all__ = [
+    "LazyProvide",
+    "LazyProvider",
+    "LazyClosing",
     "Container",
     "Registry",
     "InjectionResolver",

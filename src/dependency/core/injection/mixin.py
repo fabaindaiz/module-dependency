@@ -2,6 +2,7 @@ from typing import Any, Callable, Generator, Iterable, Optional
 from dependency_injector import providers
 from dependency.core.injection.injectable import Injectable
 from dependency.core.injection.injection import ContainerInjection, ProviderInjection
+from dependency.core.injection.wiring import WiringMixin
 from dependency.core.resolution.container import Container
 from dependency.core.resolution.registry import Registry
 from dependency.core.exceptions import DeclarationError
@@ -60,19 +61,20 @@ class ContainerMixin:
         Args:
             container (Container): The application container.
         """
-        setattr(container, cls.injection.name, cls.injection.inject_cls())
+        # TODO: providers resolution must happen before resolution
+        setattr(container, cls.injection.name, cls.injection.resolve_providers())
         cls.on_resolution(container=container)
 
     @classmethod
-    def resolve_providers(cls) -> Generator[Injectable, None, None]:
+    def resolve_injectables(cls) -> Generator[Injectable, None, None]:
         """Resolve provider injections for the plugin.
 
         Returns:
             Generator[Injectable, None, None]: A generator of injectables.
         """
-        return cls.injection.resolve_providers()
+        return cls.injection.resolve_injectables()
 
-class ProviderMixin:
+class ProviderMixin(WiringMixin):
     """Providable Base Class
 
     Attributes:

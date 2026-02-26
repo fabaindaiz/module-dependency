@@ -27,7 +27,7 @@ class TInstance(TComponent):
 def test_declaration() -> None:
     container = Container()
     TModule.inject_container(container)
-    injectables: list[Injectable] = list(TModule.resolve_providers())
+    injectables: list[Injectable] = list(TModule.resolve_injectables())
     for provider in injectables:
         assert provider.check_resolved(injectables)
 

@@ -43,7 +43,7 @@ class TComponent(TProduct):
 def test_providers() -> None:
     container = containers.DynamicContainer()
     setattr(container, TModule.injection.name, TModule.injection.inject_cls())
-    providers: list[Injectable] = list(TModule.resolve_providers())
+    providers: list[Injectable] = list(TModule.resolve_injectables())
     for provider in providers:
         assert provider.check_resolved(providers)
 

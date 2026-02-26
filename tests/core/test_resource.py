@@ -28,7 +28,7 @@ def test_resource() -> None:
     container = Container()
 
     TPlugin.resolve_container(container)
-    injectables = list(TPlugin.resolve_providers())
+    injectables = list(TPlugin.resolve_injectables())
     assert TInstance.initialized == False
 
     strategy.resolution(injectables, container)

@@ -27,7 +27,7 @@ def test_module():
         container=container,
     )
     injectables = loader.resolve_providers(
-        providers=TestingModule.resolve_providers(),
+        providers=TestingModule.resolve_injectables(),
     )
     assert HardwareFactory.injectable in injectables
     assert HardwareFactory.injectable.is_resolved

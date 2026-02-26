@@ -48,7 +48,7 @@ def test_interfaces() -> None:
     container = Container()
     TModule.inject_container(container)
 
-    injectables: list[Injectable] = list(TModule.resolve_providers())
+    injectables: list[Injectable] = list(TModule.resolve_injectables())
     for injectable in injectables:
         injectable.check_resolved(injectables)
     assert TProduct1.injectable.check_resolved(injectables)

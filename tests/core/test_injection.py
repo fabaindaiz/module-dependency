@@ -37,7 +37,8 @@ def test_injection1() -> None:
     with pytest.raises(AttributeError):
         Interface().test()
 
-    for provider in list(container1.resolve_providers()):
+    container1.resolve_providers()
+    for provider in list(container1.resolve_injectables()):
         container.wire(provider.modules_cls)
 
     container.wire((Interface,))
