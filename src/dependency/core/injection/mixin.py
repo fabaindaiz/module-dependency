@@ -40,6 +40,7 @@ class ContainerMixin:
             parent=parent,
         )
         cls.on_declaration()
+        Registry.register_container(cls.injection)
 
     @classmethod
     def change_parent(cls, parent: Optional['ContainerMixin'] = None) -> None:
@@ -110,7 +111,7 @@ class ProviderMixin(WiringMixin):
             parent=parent,
         )
         cls.on_declaration()
-        Registry.register(cls.injection)
+        Registry.register_provider(cls.injection)
 
     @classmethod
     def init_implementation(cls,

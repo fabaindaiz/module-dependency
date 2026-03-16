@@ -45,6 +45,7 @@ class InjectionResolver:
         Args:
             modules (Iterable[type[ContainerMixin]]): The set of module classes to resolve.
         """
+
         for module in modules:
             module.inject_container(container=self.container)
 

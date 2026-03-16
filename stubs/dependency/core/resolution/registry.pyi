@@ -1,9 +1,11 @@
-from dependency.core.injection.injectable import Injectable as Injectable
-from dependency.core.injection.injection import ProviderInjection as ProviderInjection
+from dependency.core.injection.injection import ContainerInjection as ContainerInjection, ProviderInjection as ProviderInjection
 
 class Registry:
+    containers: set[ContainerInjection]
     providers: set[ProviderInjection]
     @classmethod
-    def register(cls, provider: ProviderInjection) -> None: ...
+    def register_container(cls, container: ContainerInjection) -> None: ...
+    @classmethod
+    def register_provider(cls, provider: ProviderInjection) -> None: ...
     @classmethod
     def validation(cls) -> None: ...

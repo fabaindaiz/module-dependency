@@ -5,6 +5,7 @@ from typing import Iterable
 from dependency.core.agrupation.plugin import Plugin
 from dependency.core.injection.injectable import Injectable
 from dependency.core.resolution.container import Container
+from dependency.core.agrupation.fallback import FallbackInternal
 from dependency.core.resolution.resolver import InjectionResolver
 from dependency.core.resolution.strategy import ResolutionStrategy
 _logger = logging.getLogger("dependency.loader")
@@ -41,6 +42,10 @@ class Entrypoint:
         injectables: Iterable[Injectable] = (),
     ) -> None:
         """Initialize the application."""
+        if self.strategy.config.init_fallback:
+            FallbackInternal.initialize_fallback(parent=self.resolver.container)
+            _logger.info("Fallback plugin initialized")
+
         providers: set[Injectable] = self.resolver.resolve_injectables(
             modules=self.modules,
         )

@@ -15,6 +15,7 @@ class ResolutionConfig(BaseModel):
     """Configuration for the Resolution Strategy.
     """
     init_container: bool = True
+    init_fallback: bool = True
     legacy_resolution: bool = False
 
 class ResolutionStrategy:
