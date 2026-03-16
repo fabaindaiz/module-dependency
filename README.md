@@ -125,11 +125,6 @@ class SomeApplication(Entrypoint):
        Plugins included here will be loaded and initialized.
     """
     def __init__(self) -> None:
-        # Import all the instances that will be used on the application
-        # You can apply some logic to determine which instances to import
-        # This will automatically generate the internal provider structure
-        import ...plugin.........instance
-
         # Declare all the plugins that will be used in the application
         # Its recommended to declare the plugins list them in a separate file
         # You can also include in the same file all the instances imports
@@ -142,6 +137,14 @@ class SomeApplication(Entrypoint):
         # Requires to have a valid configuration that will be used to initialize plugins
         container = Container.from_dict(config={...}, required=True)
         super().__init__(container, PLUGINS)
+
+        # Import all the instances that will be used on the application
+        # You can apply some logic to determine which instances to import
+        # This will automatically generate the internal provider structure
+        import ...plugin.........instance
+
+        # Once all the plugins and instances are imported, we can initialize the application
+        super().initialize()
 ```
 
 ### 2. Plugin
