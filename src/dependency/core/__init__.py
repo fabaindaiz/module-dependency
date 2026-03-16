@@ -16,7 +16,6 @@ from dependency.core.exceptions import (
 )
 
 from dependency.core.agrupation import (
-    FallbackInternal,
     Entrypoint,
     Module,
     module,
@@ -44,7 +43,6 @@ __all__ = [
     "ResolutionStrategy",
     "DependencyError",
     "CancelInitialization",
-    "FallbackInternal",
     "Entrypoint",
     "Module",
     "module",

@@ -1,4 +1,4 @@
-from dependency.core.agrupation.fallback import FallbackInternal as FallbackInternal
+from dependency.core.agrupation.fallback import initialize_fallback as initialize_fallback
 from dependency.core.agrupation.plugin import Plugin as Plugin
 from dependency.core.injection.injectable import Injectable as Injectable
 from dependency.core.resolution.container import Container as Container
