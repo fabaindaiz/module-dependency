@@ -1,6 +1,6 @@
 import logging
 from pydantic import BaseModel
-from typing import Optional
+from typing import Iterable, Optional
 from dependency.core.injection.injectable import Injectable
 from dependency.core.resolution.container import Container
 from dependency.core.resolution.errors import raise_resolution_error
@@ -15,6 +15,7 @@ class ResolutionConfig(BaseModel):
     """Configuration for the Resolution Strategy.
     """
     init_container: bool = True
+    legacy_resolution: bool = False
 
 class ResolutionStrategy:
     """Defines the strategy for resolving dependencies.
@@ -25,9 +26,9 @@ class ResolutionStrategy:
         self.config: ResolutionConfig = config or ResolutionConfig()
 
     def resolution(self,
-        providers: list[Injectable],
+        providers: set[Injectable],
         container: Container,
-    ) -> list[Injectable]:
+    ) -> set[Injectable]:
         """Resolve all dependencies and initialize them.
 
         Args:
@@ -53,8 +54,8 @@ class ResolutionStrategy:
         return providers
 
     def expand(self,
-        providers: list[Injectable],
-    ) -> list[Injectable]:
+        providers: set[Injectable],
+    ) -> set[Injectable]:
         """Expand the list of providers by adding all their imports.
 
         Args:
@@ -64,7 +65,7 @@ class ResolutionStrategy:
             list[Injectable]: List of expanded providers.
         """
         _logger.info("Expanding dependencies...")
-        unexpanded: set[Injectable] = set(providers.copy())
+        unexpanded: set[Injectable] = providers.copy()
         expanded: set[Injectable] = set()
 
         while unexpanded:
@@ -73,10 +74,10 @@ class ResolutionStrategy:
 
             if not provider.partial_resolution:
                 unexpanded.update(filter(lambda i: i not in expanded, provider.imports))
-        return list(expanded)
+        return expanded
 
     def injection(self,
-        providers: list[Injectable],
+        providers: set[Injectable],
     ) -> None:
         """Resolve all injectables in layers.
 
@@ -87,7 +88,7 @@ class ResolutionStrategy:
             list[Injectable]: List of unresolved injectables.
         """
         _logger.info("Resolving dependencies...")
-        unresolved: set[Injectable] = set(providers.copy())
+        unresolved: set[Injectable] = providers.copy()
         resolved: set[Injectable] = set()
 
         while unresolved:
@@ -110,7 +111,7 @@ class ResolutionStrategy:
             unresolved = layer_unresolved
 
     def wiring(self,
-        providers: list[Injectable],
+        providers: Iterable[Injectable],
         container: Container,
     ) -> None:
         """Wire a list of providers with the given container.
@@ -130,7 +131,7 @@ class ResolutionStrategy:
             container.init_resources()
 
     def initialize(self,
-        providers: list[Injectable],
+        providers: Iterable[Injectable],
     ) -> None:
         """Start all implementations by executing their init functions.
 

@@ -2,6 +2,7 @@ import pytest
 from dependency_injector import providers
 from dependency.core.agrupation import Plugin, PluginMeta, module
 from dependency.core.declaration import Component, component, instance, providers
+from dependency.core.injection import Injectable
 from dependency.core.resolution import Container, InjectionResolver
 from dependency.core.exceptions import CancelInitialization
 
@@ -50,7 +51,7 @@ class TInstance2(TComponent2):
 
 def test_resolution() -> None:
     container = Container.from_json("example/config.json")
-    injectables = TPlugin.resolve_injectables()
+    injectables: set[Injectable] = set(TPlugin.resolve_injectables())
     assert "TInstance1" not in BOOTSTRAPED
 
     loader = InjectionResolver(container)

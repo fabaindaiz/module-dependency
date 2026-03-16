@@ -41,8 +41,8 @@ def test_products() -> None:
     container = Container()
 
     TPlugin.resolve_container(container)
-    injectables = list(TPlugin.resolve_injectables())
-    assert injectables == [TComponent1.injectable]
+    injectables = set(TPlugin.resolve_injectables())
+    assert injectables == {TComponent1.injectable}
 
     with pytest.raises(ResolutionError):
         expanded = strategy.expand(injectables)

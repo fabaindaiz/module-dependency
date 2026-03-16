@@ -4,12 +4,14 @@ from dependency.core.injection.mixin import ProviderMixin as ProviderMixin
 from dependency_injector import providers
 from typing import Any, Callable, Iterable
 
-def instance(imports: Iterable[type[ProviderMixin]] = (), provider: type[providers.Provider[Any]] = ..., bootstrap: bool = False) -> Callable[[type[COMPONENT]], type[COMPONENT]]:
+def instance(imports: Iterable[type[ProviderMixin]] = (), provider: type[providers.Provider[Any]] = ..., partial_resolution: bool = False, strict_resolution: bool = True, bootstrap: bool = False) -> Callable[[type[COMPONENT]], type[COMPONENT]]:
     """Decorator for instance class
 
     Args:
         imports (Iterable[type[ProviderMixin]], optional): List of components to be imported by the provider. Defaults to ().
         provider (type[providers.Provider[Any]], optional): Provider to be used. Defaults to providers.Singleton.
+        partial_resolution (bool, optional): Whether the component should not expand dependencies recursively. Defaults to False.
+        strict_resolution (bool, optional): Whether the component should be resolved even if it has no implementation. Defaults to True.
         bootstrap (bool, optional): Whether the provider should be bootstrapped. Defaults to False.
 
     Raises:

@@ -20,6 +20,7 @@ class TComponent1(Component):
         TComponent1,
     ],
     module=TPlugin,
+    strict_resolution=False,
 )
 class TComponent2(Component):
     pass
@@ -51,16 +52,23 @@ def test_exceptions() -> None:
     with pytest.raises(DeclarationError):
         print(TComponent1.provide())
 
+    TPlugin.inject_container(container)
+    TPlugin.resolve_providers()
+
+    TComponent2.update_dependencies(
+        strict_resolution=True,
+    )
     with pytest.raises(DeclarationError):
-        TPlugin.inject_container(container)
+        TPlugin.resolve_providers()
 
     TComponent2.change_parent(None)
+    TPlugin.resolve_providers()
     TPlugin.inject_container(container)
-    injectables = list(TPlugin.resolve_injectables())
-    assert set(injectables) == {TComponent1.injectable}
+    injectables = set(TPlugin.resolve_injectables())
+    assert injectables == {TComponent1.injectable}
 
     injectables = strategy.expand(injectables)
-    assert set(injectables) == {TComponent1.injectable, TProduct1.injectable}
+    assert injectables == {TComponent1.injectable, TProduct1.injectable}
 
     with pytest.raises(ResolutionError):
         strategy.injection(injectables)

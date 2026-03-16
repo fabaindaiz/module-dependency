@@ -1,10 +1,3 @@
-from dependency.core import Plugin
-from example.plugin.base.imports import BasePlugin
-from example.plugin.hardware.imports import HardwarePlugin
-from example.plugin.reporter.imports import ReporterPlugin
-
-PLUGINS: list[type[Plugin]] = [
-    BasePlugin,
-    HardwarePlugin,
-    ReporterPlugin
-]
+import example.plugin.base.imports
+import example.plugin.hardware.imports
+import example.plugin.reporter.imports

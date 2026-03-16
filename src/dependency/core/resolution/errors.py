@@ -1,16 +1,17 @@
 import logging
+from typing import Iterable
 from dependency.core.injection.injectable import Injectable
 from dependency.core.exceptions import ResolutionError
 from dependency.core.utils.cycle import find_cycles
 _logger = logging.getLogger("dependency.loader")
 
 def raise_circular_error(
-    providers: list[Injectable]
+    providers: Iterable[Injectable]
 ) -> bool:
     """Raise an error if circular dependencies are detected.
 
     Args:
-        providers (list[Injectable]): The list of injectables to check for cycles.
+        providers (Iterable[Injectable]): The set of injectables to check for cycles.
 
     Returns:
         bool: True if cycles were detected and errors were raised, False otherwise.
@@ -21,12 +22,12 @@ def raise_circular_error(
     return len(cycles) > 0
 
 def raise_dependency_error(
-    unresolved: list[Injectable],
+    unresolved: Iterable[Injectable],
 ) -> bool:
     """Raise an error when unresolved dependencies are detected.
 
     Args:
-        unresolved (list[Injectable]): The list of unresolved injectables.
+        unresolved (Iterable[Injectable]): The set of unresolved injectables.
 
     Returns:
         bool: True if unresolved dependencies were detected and errors were raised, False otherwise.
@@ -34,22 +35,25 @@ def raise_dependency_error(
     for injectable in unresolved:
         unresolved_imports = filter(lambda d: not d.is_resolved, injectable.imports)
         _logger.error(f"Injectable {injectable} has unresolved dependencies: {list(unresolved_imports)}")
-    return len(unresolved) > 0
+        return True
+    else:
+        return False
 
 def raise_resolution_error(
-    providers: list[Injectable],
-    unresolved: list[Injectable],
+    providers: Iterable[Injectable],
+    unresolved: Iterable[Injectable],
 ) -> None:
     """Raise an error if unresolved provider imports are detected.
 
     Args:
-        providers (list[Injectable]): The list of injectables to check.
-        unresolved (list[Injectable]): The resolved providers to check against.
+        providers (Iterable[Injectable]): The set of injectables to check.
+        unresolved (Iterable[Injectable]): The set of resolved providers to check against.
 
     Raises:
         ResolutionError: If unresolved dependencies or cycles are detected.
     """
+    unresolved_list: list[Injectable] = list(unresolved)
     circular_error = raise_circular_error(providers)
     dependency_error = raise_dependency_error(unresolved)
     if circular_error or dependency_error:
-        raise ResolutionError(f"Provider resolution failed due to dependency errors: {unresolved}")
+        raise ResolutionError(f"Provider resolution failed due to dependency errors: {unresolved_list}")

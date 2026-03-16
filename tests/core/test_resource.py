@@ -1,5 +1,6 @@
 from dependency.core.agrupation import Plugin, PluginMeta, module
 from dependency.core.declaration import Component, component, instance, providers
+from dependency.core.injection import Injectable
 from dependency.core.resolution import Container, ResolutionStrategy
 
 @module()
@@ -28,7 +29,7 @@ def test_resource() -> None:
     container = Container()
 
     TPlugin.resolve_container(container)
-    injectables = list(TPlugin.resolve_injectables())
+    injectables: set[Injectable] = set(TPlugin.resolve_injectables())
     assert TInstance.initialized == False
 
     strategy.resolution(injectables, container)
@@ -39,4 +40,4 @@ def test_resource() -> None:
     #container.shutdown_resources()
     TComponent.provider().shutdown() # type: ignore
     assert component.initialized == False
-    assert injectables == [TComponent.injectable]
+    assert injectables == {TComponent.injectable}

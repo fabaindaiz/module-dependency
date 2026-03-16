@@ -4,7 +4,7 @@ from dependency.core.injection.injection import ContainerInjection as ContainerI
 from dependency.core.injection.wiring import WiringMixin as WiringMixin
 from dependency.core.resolution.container import Container as Container
 from dependency.core.resolution.registry import Registry as Registry
-from dependency_injector import providers as providers
+from dependency_injector import containers as containers, providers as providers
 from typing import Any, Callable, Generator, Iterable
 
 class ContainerMixin:
@@ -45,6 +45,13 @@ class ContainerMixin:
 
         Args:
             container (Container): The application container.
+        """
+    @classmethod
+    def resolve_providers(cls, container: containers.Container | None = None) -> None:
+        """Resolve the container and return the resolved container instance.
+
+        Returns:
+            Container: The resolved container instance.
         """
     @classmethod
     def resolve_injectables(cls) -> Generator[Injectable, None, None]:
@@ -90,7 +97,7 @@ class ProviderMixin(WiringMixin):
         """Change the parent injection of this mixin.
         """
     @classmethod
-    def update_dependencies(cls, imports: Iterable[type['ProviderMixin']] = (), partial_resolution: bool | None = None) -> None:
+    def update_dependencies(cls, imports: Iterable[type['ProviderMixin']] = (), partial_resolution: bool | None = None, strict_resolution: bool | None = None) -> None:
         '''Initialize the dependencies for the provider.
 
         Args:

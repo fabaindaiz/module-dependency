@@ -22,14 +22,11 @@ class BaseInjection(ABC, metaclass=abc.ABCMeta):
             parent (ContainerInjection): The new parent injection.
         """
     @abstractmethod
-    def inject_cls(self) -> Any:
-        """Return the class to be injected."""
+    def resolve_providers(self, container: containers.Container | None = None) -> None:
+        """Resolve the injection context."""
     @abstractmethod
     def resolve_injectables(self) -> Generator[Injectable, None, None]:
         """Inject all children into the current injection context."""
-    @abstractmethod
-    def resolve_providers(self) -> Any:
-        """Resolve the injection context."""
 
 class ContainerInjection(BaseInjection):
     """Container Injection Class
@@ -38,13 +35,10 @@ class ContainerInjection(BaseInjection):
     container: containers.Container
     def __init__(self, name: str, parent: ContainerInjection | None = None) -> None: ...
     @override
-    def inject_cls(self) -> containers.Container:
-        """Return the container instance."""
+    def resolve_providers(self, container: containers.Container | None = None) -> None: ...
     @override
     def resolve_injectables(self) -> Generator[Injectable, None, None]:
         """Inject all children into the current container."""
-    @override
-    def resolve_providers(self) -> containers.Container: ...
 
 class ProviderInjection(BaseInjection):
     """Provider Injection Class
@@ -67,11 +61,8 @@ class ProviderInjection(BaseInjection):
     def provider(self) -> providers.Provider[Any]:
         """Return the provider instance for this injectable."""
     @override
-    def inject_cls(self) -> providers.Provider[Any]:
+    def resolve_providers(self, container: containers.Container | None = None) -> None:
         """Return the provider instance."""
     @override
     def resolve_injectables(self) -> Generator[Injectable, None, None]:
         """Inject all imports into the current injectable."""
-    @override
-    def resolve_providers(self) -> providers.Provider[Any]:
-        """Return the provider instance."""

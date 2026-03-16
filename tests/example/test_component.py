@@ -10,6 +10,7 @@ def setup():
             super().__init__(
                 container=Container(),
                 plugins=[BasePlugin])
+            super().initialize()
 
     return ExampleApp()
 

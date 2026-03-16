@@ -25,9 +25,25 @@ class Injectable:
 
         # Validation flags
         self.partial_resolution: bool = False
+        self.strict_resolution: bool = True
         self.is_resolved: bool = False
 
-    def check_resolved(self, providers: list['Injectable']) -> bool:
+    def check_implementation(self) -> bool:
+        """Check if the implementation of this injectable is valid.
+
+        Returns:
+            bool: True if the implementation is valid, False otherwise.
+        """
+        if self.strict_resolution:
+            return True
+
+        elif self.implementation is None:
+            _logger.warning(f"Injectable {self.interface_cls.__name__} has no implementation assigned")
+            return False
+
+        return True
+
+    def check_resolved(self, providers: set['Injectable']) -> bool:
         if self.implementation is None:
             return False
 
@@ -52,6 +68,7 @@ class Injectable:
     def update_dependencies(self,
         imports: Iterable['Injectable'],
         partial_resolution: Optional[bool] = None,
+        strict_resolution: Optional[bool] = None,
     ) -> None:
         self.imports.update(imports)
         for i in imports:
@@ -59,6 +76,8 @@ class Injectable:
 
         if partial_resolution is not None:
             self.partial_resolution = partial_resolution
+        if strict_resolution is not None:
+            self.strict_resolution = strict_resolution
 
     def discard_dependencies(self,
         imports: Iterable['Injectable'],

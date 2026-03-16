@@ -23,11 +23,12 @@ def test_module():
 
     container = Container()
     TestingModule.inject_container(container)
+    TestingModule.resolve_providers()
     loader = InjectionResolver(
         container=container,
     )
     injectables = loader.resolve_providers(
-        providers=TestingModule.resolve_injectables(),
+        providers=set(TestingModule.resolve_injectables()),
     )
     assert HardwareFactory.injectable in injectables
     assert HardwareFactory.injectable.is_resolved

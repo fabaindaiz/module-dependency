@@ -31,7 +31,7 @@ def test_injection1() -> None:
     assert provider1.reference == TEST_REFERENCE
 
     container = containers.DynamicContainer()
-    setattr(container, container1.name, container1.inject_cls())
+    setattr(container, container1.name, container1.container)
 
     container.wire((Interface,))
     with pytest.raises(AttributeError):

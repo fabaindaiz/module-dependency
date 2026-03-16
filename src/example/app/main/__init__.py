@@ -10,10 +10,12 @@ class MainApplication(Entrypoint):
     def __init__(self) -> None:
         # Import all the instances that will be used on the application
         # You can also import the plugins list from the imports file
-        from example.app.main.imports import PLUGINS
+        from example.app.main.plugins import PLUGINS
 
         container = Container.from_dict(
             config={"config": True},
             required=True
         )
         super().__init__(container, PLUGINS)
+        import example.app.main.imports # type: ignore
+        super().initialize()

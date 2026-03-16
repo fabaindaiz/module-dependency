@@ -3,6 +3,7 @@ import time
 from threading import Event
 from typing import Iterable
 from dependency.core.agrupation.plugin import Plugin
+from dependency.core.injection.injectable import Injectable
 from dependency.core.resolution.container import Container
 from dependency.core.resolution.resolver import InjectionResolver
 from dependency.core.resolution.strategy import ResolutionStrategy
@@ -17,18 +18,38 @@ class Entrypoint:
     def __init__(self,
         container: Container,
         plugins: Iterable[type[Plugin]],
-        strategy: ResolutionStrategy = ResolutionStrategy()
+        strategy: ResolutionStrategy = ResolutionStrategy(),
     ) -> None:
-        init_time: float = time.time()
+        self.init_time: float = time.time()
+        self.modules: list[type[Plugin]] = list(plugins)
+        self.strategy: ResolutionStrategy = strategy
 
         self.resolver: InjectionResolver = InjectionResolver(
             container=container,
         )
-        self.resolver.resolve_dependencies(
-            modules=plugins,
-            strategy=strategy,
+        if self.strategy.config.legacy_resolution:
+            self.resolver.resolve_dependencies(
+                modules=self.modules,
+                strategy=self.strategy,
+            )
+        else:
+            self.resolver.resolve_modules(
+                modules=self.modules,
+            )
+
+    def initialize(self,
+        injectables: Iterable[Injectable] = (),
+    ) -> None:
+        """Initialize the application."""
+        providers: set[Injectable] = self.resolver.resolve_injectables(
+            modules=self.modules,
         )
-        _logger.info(f"Application started in {time.time() - init_time} seconds")
+        providers.update(injectables)
+        self.resolver.resolve_providers(
+            providers=providers,
+            strategy=self.strategy,
+        )
+        _logger.info(f"Application initialized in {time.time() - self.init_time} seconds")
 
     def main_loop(self) -> None:
         """Main loop for the application. Waits indefinitely."""

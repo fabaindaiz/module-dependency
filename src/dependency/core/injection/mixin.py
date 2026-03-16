@@ -1,5 +1,5 @@
 from typing import Any, Callable, Generator, Iterable, Optional
-from dependency_injector import providers
+from dependency_injector import providers, containers
 from dependency.core.injection.injectable import Injectable
 from dependency.core.injection.injection import ContainerInjection, ProviderInjection
 from dependency.core.injection.wiring import WiringMixin
@@ -21,9 +21,7 @@ class ContainerMixin:
         """
 
     @classmethod
-    def on_resolution(cls,
-        container: Container
-    ) -> None:
+    def on_resolution(cls, container: Container) -> None:
         """Hook method called upon resolution of the container.
 
         Args:
@@ -31,9 +29,7 @@ class ContainerMixin:
         """
 
     @classmethod
-    def init_injection(cls,
-        parent: Optional[ContainerInjection],
-    ) -> None:
+    def init_injection(cls, parent: Optional[ContainerInjection]) -> None:
         """Initialize the injection for the container.
 
         Args:
@@ -61,9 +57,17 @@ class ContainerMixin:
         Args:
             container (Container): The application container.
         """
-        # TODO: providers resolution must happen before resolution
-        setattr(container, cls.injection.name, cls.injection.resolve_providers())
+        setattr(container, cls.injection.name, cls.injection.container)
         cls.on_resolution(container=container)
+
+    @classmethod
+    def resolve_providers(cls, container: Optional[containers.Container] = None) -> None:
+        """Resolve the container and return the resolved container instance.
+
+        Returns:
+            Container: The resolved container instance.
+        """
+        cls.injection.resolve_providers(container=container)
 
     @classmethod
     def resolve_injectables(cls) -> Generator[Injectable, None, None]:
@@ -147,6 +151,7 @@ class ProviderMixin(WiringMixin):
     def update_dependencies(cls,
         imports: Iterable[type['ProviderMixin']] = (),
         partial_resolution: Optional[bool] = None,
+        strict_resolution: Optional[bool] = None,
     ) -> None:
         """Initialize the dependencies for the provider.
 
@@ -160,6 +165,7 @@ class ProviderMixin(WiringMixin):
                 for provider in imports
             },
             partial_resolution=partial_resolution,
+            strict_resolution=strict_resolution,
         )
 
     @classmethod

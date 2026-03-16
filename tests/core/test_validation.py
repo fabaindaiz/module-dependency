@@ -3,6 +3,7 @@ from pydantic import BaseModel
 from dependency.core.agrupation import Plugin, PluginMeta, module
 from dependency.core.resolution import Container, ResolutionStrategy
 from dependency.core.declaration import Component, component, instance
+from dependency.core.injection import Injectable
 from dependency.core.exceptions import ProvisionError
 
 class PluginConfig(BaseModel):
@@ -36,7 +37,7 @@ def test_validation() -> None:
 
     container = Container.from_dict({"key": "value"})
     TPlugin.resolve_container(container)
-    injectables = list(TPlugin.resolve_injectables())
+    injectables: set[Injectable] = set(TPlugin.resolve_injectables())
 
     strategy.injection(injectables)
     assert TComponent1.injectable.implementation != TInstance1

@@ -7,6 +7,8 @@ from dependency.core.injection.mixin import ProviderMixin
 def instance(
     imports: Iterable[type[ProviderMixin]] = (),
     provider: type[providers.Provider[Any]] = providers.Singleton,
+    partial_resolution: bool = False,
+    strict_resolution: bool = True,
     bootstrap: bool = False,
 ) -> Callable[[type[COMPONENT]], type[COMPONENT]]:
     """Decorator for instance class
@@ -14,6 +16,8 @@ def instance(
     Args:
         imports (Iterable[type[ProviderMixin]], optional): List of components to be imported by the provider. Defaults to ().
         provider (type[providers.Provider[Any]], optional): Provider to be used. Defaults to providers.Singleton.
+        partial_resolution (bool, optional): Whether the component should not expand dependencies recursively. Defaults to False.
+        strict_resolution (bool, optional): Whether the component should be resolved even if it has no implementation. Defaults to True.
         bootstrap (bool, optional): Whether the provider should be bootstrapped. Defaults to False.
 
     Raises:
@@ -34,6 +38,8 @@ def instance(
 
         cls.update_dependencies(
             imports=imports,
+            partial_resolution=partial_resolution,
+            strict_resolution=strict_resolution,
         )
 
         return cls

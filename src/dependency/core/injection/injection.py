@@ -39,16 +39,12 @@ class BaseInjection(ABC):
             self.parent.childs.add(self)
 
     @abstractmethod
-    def inject_cls(self) -> Any:
-        """Return the class to be injected."""
+    def resolve_providers(self, container: Optional[containers.Container] = None) -> None:
+        """Resolve the injection context."""
 
     @abstractmethod
     def resolve_injectables(self) -> Generator[Injectable, None, None]:
         """Inject all children into the current injection context."""
-
-    @abstractmethod
-    def resolve_providers(self) -> Any:
-        """Resolve the injection context."""
 
     def __repr__(self) -> str:
         return self.name
@@ -65,21 +61,17 @@ class ContainerInjection(BaseInjection):
         self.container: containers.Container = containers.DynamicContainer()
 
     @override
-    def inject_cls(self) -> containers.Container:
-        """Return the container instance."""
-        return self.container
+    def resolve_providers(self,container: Optional[containers.Container] = None) -> None:
+        if container is not None:
+            setattr(container, self.name, self.container)
+        for child in self.childs:
+            child.resolve_providers(container=self.container)
 
     @override
     def resolve_injectables(self) -> Generator[Injectable, None, None]:
         """Inject all children into the current container."""
         for child in self.childs:
             yield from child.resolve_injectables()
-
-    @override
-    def resolve_providers(self) -> containers.Container:
-        for child in self.childs:
-            setattr(self.container, child.name, child.resolve_providers())
-        return self.container
 
 class ProviderInjection(BaseInjection):
     """Provider Injection Class
@@ -123,16 +115,13 @@ class ProviderInjection(BaseInjection):
         return self._provider
 
     @override
-    def inject_cls(self) -> providers.Provider[Any]:
+    def resolve_providers(self, container: Optional[containers.Container] = None) -> None:
         """Return the provider instance."""
-        return self.provider
+        if container is not None and self._injectable.check_implementation():
+            setattr(container, self.name, self.provider)
 
     @override
     def resolve_injectables(self) -> Generator[Injectable, None, None]:
         """Inject all imports into the current injectable."""
-        yield self._injectable
-
-    @override
-    def resolve_providers(self) -> providers.Provider[Any]:
-        """Return the provider instance."""
-        return self.provider
+        if self._injectable.check_implementation():
+            yield self._injectable

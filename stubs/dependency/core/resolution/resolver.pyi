@@ -10,7 +10,7 @@ class InjectionResolver:
     """
     container: Container
     def __init__(self, container: Container) -> None: ...
-    def resolve_dependencies(self, modules: Iterable[type[ContainerMixin]], strategy: ResolutionStrategy = ...) -> list[Injectable]:
+    def resolve_dependencies(self, modules: Iterable[type[ContainerMixin]], strategy: ResolutionStrategy = ...) -> set[Injectable]:
         """Resolve dependencies for a list of modules.
 
         Args:
@@ -18,24 +18,29 @@ class InjectionResolver:
             strategy (type[ResolutionStrategy]): The resolution strategy to use.
 
         Returns:
-            list[Injectable]: List of resolved injectables.
+            set[Injectable]: List of resolved injectables.
         """
-    def resolve_modules(self, modules: Iterable[type[ContainerMixin]]) -> list[Injectable]:
-        """Resolve all modules and their dependencies.
+    def resolve_modules(self, modules: Iterable[type[ContainerMixin]]) -> None:
+        """Resolve all modules and initialize them.
 
         Args:
-            modules (Iterable[type[ContainerMixin]]): The list of module classes to resolve.
-
-        Returns:
-            list[Injectable]: List of resolved injectables from the modules.
+            modules (Iterable[type[ContainerMixin]]): The set of module classes to resolve.
         """
-    def resolve_providers(self, providers: Iterable[Injectable], strategy: ResolutionStrategy = ...) -> list[Injectable]:
+    def resolve_injectables(self, modules: Iterable[type[ContainerMixin]]) -> set[Injectable]:
+        """Resolve all injectables from a set of modules.
+
+        Args:
+            modules (Iterable[type[ContainerMixin]]): The set of module classes to resolve.
+        Returns:
+            set[Injectable]: Set of resolved injectables.
+        """
+    def resolve_providers(self, providers: set[Injectable], strategy: ResolutionStrategy = ...) -> set[Injectable]:
         """Resolve all dependencies and initialize them.
 
         Args:
-            providers (Iterable[Injectable]): The list of providers to resolve.
+            providers (Iterable[Injectable]): The set of providers to resolve.
             strategy (type[ResolutionStrategy]): The resolution strategy to use.
 
         Returns:
-            list[Injectable]: List of resolved injectables.
+            set[Injectable]: Set of resolved injectables.
         """
