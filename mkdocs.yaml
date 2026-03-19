@@ -40,5 +40,5 @@ nav:
   - Architecture: ARCHITECTURE.md
   - API Reference:
     - Core: reference/core.md
-    #- CLI: reference/cli.md
+    # - CLI: reference/cli.md
     - Bibliography: REFERENCES.md

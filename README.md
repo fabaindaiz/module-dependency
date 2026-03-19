@@ -1,4 +1,4 @@
-# module-dependency
+# Module Dependency
 
 A Dependency Injection Framework for Modular Embedded Python Applications.
 
@@ -17,6 +17,8 @@ This project is available on PyPI on [module_dependency](https://pypi.org/projec
 ```bash
 pip install module-dependency
 ```
+
+Documentation are available on [GitHub Pages](https://fabaindaiz.github.io/module-dependency/).
 
 ## Core Components
 
