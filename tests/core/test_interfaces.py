@@ -44,6 +44,7 @@ class TProduct2(TProduct):
     def method(self) -> str:
         return "Hello, World!"
 
+
 def test_interfaces() -> None:
     container = Container()
     TModule.inject_container(container)

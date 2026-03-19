@@ -28,6 +28,7 @@ class TInstance1(TComponent1):
 class TInstance2(TComponent1):
     pass
 
+
 def test_validation() -> None:
     strategy: ResolutionStrategy = ResolutionStrategy()
     container = Container()
@@ -45,3 +46,16 @@ def test_validation() -> None:
 
     assert TComponent1.provider() == TInstance2.provider()
     assert TComponent1.provide() == TInstance2.provide()
+
+def test_validation_singleton_identity() -> None:
+    """provide() sobre un Singleton siempre retorna la misma instancia."""
+    container = Container.from_dict({"key": "value"})
+    TPlugin.resolve_container(container)
+    injectables: set[Injectable] = set(TPlugin.resolve_injectables())
+
+    strategy = ResolutionStrategy()
+    strategy.injection(injectables)
+
+    instance_a = TComponent1.provide()
+    instance_b = TComponent1.provide()
+    assert instance_a is instance_b

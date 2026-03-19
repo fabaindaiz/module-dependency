@@ -36,6 +36,7 @@ class TProduct1(Component):
 class TInstance1(TComponent1):
     pass
 
+
 def test_products() -> None:
     strategy: ResolutionStrategy = ResolutionStrategy()
     container = Container()

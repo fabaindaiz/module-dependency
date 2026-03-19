@@ -40,6 +40,7 @@ class TProduct2(TProduct):
 class TComponent(TProduct):
     pass
 
+
 def test_providers() -> None:
     container = containers.DynamicContainer()
     setattr(container, TModule.injection.name, TModule.injection.container)

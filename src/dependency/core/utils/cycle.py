@@ -70,7 +70,7 @@ def find_cycles(
         visited.add(node)
         path.append(node)
         for dep in function(node):
-            visit(dep, path, visited)
+            visit(dep, path, visited.copy())
         path.pop()
 
     for element in elements:

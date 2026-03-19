@@ -2,8 +2,9 @@ import pytest
 from dependency_injector import providers
 from dependency.core.agrupation import Plugin, PluginMeta, module
 from dependency.core.declaration import Component, component, instance
+from dependency.core.injection import ProviderInjection, Injectable
 from dependency.core.resolution import Container, ResolutionStrategy
-from dependency.core.exceptions import DeclarationError, ResolutionError
+from dependency.core.exceptions import DeclarationError, ResolutionError, ProvisionError
 
 @module()
 class TPlugin(Plugin):
@@ -43,6 +44,7 @@ class TProduct1(Component):
 )
 class TInstance1(TComponent1):
     pass
+
 
 def test_exceptions() -> None:
     strategy: ResolutionStrategy = ResolutionStrategy()
@@ -84,3 +86,11 @@ def test_exceptions() -> None:
     )
     with pytest.raises(ResolutionError):
         strategy.injection(injectables)
+
+def test_provider_reference_without_parent() -> None:
+    """ProviderInjection sin parent lanza ProvisionError al acceder a .reference."""
+    injectable = Injectable(interface_cls=object)
+    orphan = ProviderInjection(name="orphan", injectable=injectable)
+
+    with pytest.raises(ProvisionError):
+        _ = orphan.reference

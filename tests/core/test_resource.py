@@ -24,6 +24,7 @@ class TInstance(TComponent):
     def __exit__(self, exc_type, exc_value, traceback) -> None: # type: ignore
         self.initialized = False
 
+
 def test_resource() -> None:
     strategy: ResolutionStrategy = ResolutionStrategy()
     container = Container()

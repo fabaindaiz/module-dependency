@@ -49,6 +49,7 @@ class TInstance2(TComponent2):
         BOOTSTRAPED.append("TInstance2")
         raise CancelInitialization("Failed to initialize TInstance2")
 
+
 def test_resolution() -> None:
     container = Container.from_json("example/config.json")
     injectables: set[Injectable] = set(TPlugin.resolve_injectables())
