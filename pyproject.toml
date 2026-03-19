@@ -73,7 +73,7 @@ dependencies = [
   "pydantic",
   "pydantic-settings",
 ]
-requires-python = ">=3.9"
+requires-python = ">=3.11"
 authors = [
   { name="Fabian D", email="github.clapping767@passmail.net" },
 ]
