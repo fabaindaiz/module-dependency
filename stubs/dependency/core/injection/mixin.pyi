@@ -134,7 +134,6 @@ class ProviderMixin(WiringMixin):
 
         Args:
             imports (Iterable[type["ProviderMixin"]]): List of components to remove from imports.
-            products (Iterable[type["ProviderMixin"]]): List of components to remove from products.
         '''
     @classmethod
     def reference(cls) -> str:
