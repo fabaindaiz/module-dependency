@@ -17,6 +17,7 @@ packages = [
 template = "default"
 skip-install = false
 dependencies = [
+  "graphviz",
   "mypy",
   "pytest-asyncio",
   "pytest-cov",
@@ -28,6 +29,7 @@ PYTHONPATH = "src"
 
 [tool.hatch.envs.build.scripts]
 coverage = "pytest --cov src/dependency --cov-report html -n auto --dist=loadfile"
+graph = "python src/graph.py"
 example = "python src/main.py"
 stubs = "stubgen src/dependency -o stubs --include-docstrings"
 tests = "pytest -n auto --dist=loadfile"
@@ -37,9 +39,9 @@ typecheck = "mypy --strict src/dependency"
 template = "default"
 skip-install = false
 dependencies = [
-    "mkdocs",
-    "mkdocs-material",
-    "mkdocstrings[python]",
+  "mkdocs",
+  "mkdocs-material",
+  "mkdocstrings[python]",
 ]
 
 [tool.hatch.envs.docs.env-vars]
