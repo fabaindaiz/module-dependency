@@ -7,6 +7,12 @@ class Cycle(Generic[T]):
     """Represents a cycle of elements.
     """
     def __init__(self, elements: Iterable[T]) -> None:
+        """Store the cycle in canonical normalized form.
+
+        Args:
+            elements (Iterable[T]): The sequence of nodes forming the cycle,
+                in the order they were discovered during DFS traversal.
+        """
         self.elements: tuple[T, ...] = self.normalize(elements)
 
     @staticmethod

@@ -33,6 +33,22 @@ stubs = "stubgen src/dependency -o stubs --include-docstrings"
 tests = "pytest -n auto --dist=loadfile"
 typecheck = "mypy --strict src/dependency"
 
+[tool.hatch.envs.docs]
+template = "default"
+skip-install = false
+dependencies = [
+    "mkdocs",
+    "mkdocs-material",
+    "mkdocstrings[python]",
+]
+
+[tool.hatch.envs.docs.env-vars]
+PYTHONPATH = "src"
+
+[tool.hatch.envs.docs.scripts]
+build = "mkdocs build"
+serve = "mkdocs serve"
+
 [tool.mypy]
 plugins = [
   "pydantic.mypy",

@@ -29,7 +29,7 @@ def test_declaration() -> None:
     TModule.inject_container(container)
     injectables: set[Injectable] = set(TModule.resolve_injectables())
     for provider in injectables:
-        assert provider.check_resolved(injectables)
+        assert provider.resolve_if_posible(injectables)
 
     assert TComponent.injectable.interface_cls == TComponent
     assert TComponent.injectable.implementation == TInstance

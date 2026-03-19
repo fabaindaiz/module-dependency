@@ -24,6 +24,12 @@ class ResolutionStrategy:
     def __init__(self,
         config: Optional[ResolutionConfig] = None
     ) -> None:
+        """Initialize the strategy with an optional configuration.
+
+        Args:
+            config (ResolutionConfig, optional): Configuration for the resolution
+                process. Defaults to a ResolutionConfig with all defaults.
+        """
         self.config: ResolutionConfig = config or ResolutionConfig()
 
     def resolution(self,
@@ -97,7 +103,7 @@ class ResolutionStrategy:
             layer_unresolved: set[Injectable] = set()
 
             for provider in unresolved:
-                if provider.check_resolved(providers):
+                if provider.resolve_if_posible(providers):
                     layer_resolved.add(provider)
                 else:
                     layer_unresolved.add(provider)

@@ -9,7 +9,13 @@ class InjectionResolver:
     """Injection Resolver Class
     """
     container: Container
-    def __init__(self, container: Container) -> None: ...
+    def __init__(self, container: Container) -> None:
+        """Initialize the resolver with the application container.
+
+        Args:
+            container (Container): The root application container that providers
+                will be injected into and wired against.
+        """
     def resolve_dependencies(self, modules: Iterable[type[ContainerMixin]], strategy: ResolutionStrategy = ...) -> set[Injectable]:
         """Resolve dependencies for a list of modules.
 

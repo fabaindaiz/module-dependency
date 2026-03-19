@@ -11,6 +11,12 @@ class InjectionResolver:
     def __init__(self,
         container: Container,
     ) -> None:
+        """Initialize the resolver with the application container.
+
+        Args:
+            container (Container): The root application container that providers
+                will be injected into and wired against.
+        """
         self.container: Container = container
 
     def resolve_dependencies(self,

@@ -21,6 +21,19 @@ class Entrypoint:
         plugins: Iterable[type[Plugin]],
         strategy: ResolutionStrategy = ResolutionStrategy(),
     ) -> None:
+        """Set up the application entrypoint.
+
+        Stores the plugin list and initializes the InjectionResolver with the
+        given container. Resolves the structural dependency tree so that the
+        injection hierarchy is ready before instance imports loaded.
+        Full resolution is deferred to initialize().
+
+        Args:
+            container (Container): The application container holding configuration.
+            plugins (Iterable[type[Plugin]]): List of root Plugin classes to load.
+            strategy (ResolutionStrategy): Resolution strategy to use. Defaults to
+                a standard ResolutionStrategy with default config.
+        """
         self.init_time: float = time.time()
         self.modules: list[type[Plugin]] = list(plugins)
         self.strategy: ResolutionStrategy = strategy

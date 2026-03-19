@@ -51,9 +51,9 @@ def test_interfaces() -> None:
 
     injectables: set[Injectable] = set(TModule.resolve_injectables())
     for injectable in injectables:
-        injectable.check_resolved(injectables)
-    assert TProduct1.injectable.check_resolved(injectables)
-    assert TProduct2.injectable.check_resolved(injectables)
+        injectable.resolve_if_posible(injectables)
+    assert TProduct1.injectable.resolve_if_posible(injectables)
+    assert TProduct2.injectable.resolve_if_posible(injectables)
 
     for injectable in injectables:
         container.wire(injectable.modules_cls)

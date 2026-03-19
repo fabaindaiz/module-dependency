@@ -45,7 +45,7 @@ def test_providers() -> None:
     setattr(container, TModule.injection.name, TModule.injection.container)
     providers: set[Injectable] = set(TModule.resolve_injectables())
     for provider in providers:
-        assert provider.check_resolved(providers)
+        assert provider.resolve_if_posible(providers)
 
     product1: TProduct1 = TComponent.provide("product1")
     product2: TProduct2 = TComponent.provide("product2")

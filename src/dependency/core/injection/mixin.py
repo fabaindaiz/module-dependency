@@ -8,10 +8,14 @@ from dependency.core.resolution.registry import Registry
 from dependency.core.exceptions import DeclarationError
 
 class ContainerMixin:
-    """Container Mixin Class
+    """Mixin class for structural units in the injection tree (Module, Plugin).
+
+    Provides class-level methods to initialize, attach, and resolve a
+    ContainerInjection node. All structural classes (Module, Plugin) inherit
+    from this mixin to participate in the injection hierarchy.
 
     Attributes:
-        injection (ContainerInjection): Injection handler for the container
+        injection (ContainerInjection): The injection node for this container.
     """
     injection: ContainerInjection
 
@@ -63,16 +67,24 @@ class ContainerMixin:
 
     @classmethod
     def resolve_providers(cls, container: Optional[containers.Container] = None) -> None:
-        """Resolve the container and return the resolved container instance.
+        """Resolve all child providers into this container's DynamicContainer.
 
-        Returns:
-            Container: The resolved container instance.
+        Delegates to ContainerInjection.resolve_providers, which recursively
+        attaches each child ProviderInjection to the appropriate sub-container.
+
+        Args:
+            container (containers.Container, optional): If provided, also attaches
+                this container as an attribute of the given parent container.
         """
         cls.injection.resolve_providers(container=container)
 
     @classmethod
     def resolve_injectables(cls) -> Generator[Injectable, None, None]:
-        """Resolve provider injections for the plugin.
+        """Yield all Injectable objects registered under this container.
+
+        Walks the ContainerInjection tree and yields every Injectable found in
+        child ProviderInjection nodes. Used during Phase 2 of resolution to
+        collect the full set of providers to resolve.
 
         Returns:
             Generator[Injectable, None, None]: A generator of injectables.
@@ -80,10 +92,15 @@ class ContainerMixin:
         return cls.injection.resolve_injectables()
 
 class ProviderMixin(WiringMixin):
-    """Providable Base Class
+    """Mixin class for providable units in the injection tree (Component, Product).
+
+    Provides class-level methods to initialize a ProviderInjection node, assign
+    an implementation, manage dependencies, and expose the underlying provider.
+    All providable classes (Component, Product) inherit from this mixin.
 
     Attributes:
-        injection (ProviderInjection): Injection handler for the provider
+        injection (ProviderInjection): The injection node for this provider.
+        injectable (Injectable): The injectable tracking implementation and imports.
     """
     injection: ProviderInjection
     injectable: Injectable
@@ -154,11 +171,18 @@ class ProviderMixin(WiringMixin):
         partial_resolution: Optional[bool] = None,
         strict_resolution: Optional[bool] = None,
     ) -> None:
-        """Initialize the dependencies for the provider.
+        """Register dependency imports and update resolution flags for this provider.
+
+        Translates the list of ProviderMixin classes into their underlying
+        Injectable objects and delegates to Injectable.update_dependencies.
 
         Args:
-            imports (Iterable[type["ResolubleClass"]]): List of providers to be imported by the provider.
-            partial_resolution (bool, optional): Whether to allow partial resolution of dependencies. Defaults to False.
+            imports (Iterable[type[ProviderMixin]]): Provider classes this provider
+                depends on.
+            partial_resolution (bool, optional): If True, imports outside the
+                current provider set are not required to be resolved.
+            strict_resolution (bool, optional): If False, resolution proceeds even
+                when no implementation has been assigned.
         """
         cls.injectable.update_dependencies(
             imports={
@@ -177,7 +201,6 @@ class ProviderMixin(WiringMixin):
 
         Args:
             imports (Iterable[type["ProviderMixin"]]): List of components to remove from imports.
-            products (Iterable[type["ProviderMixin"]]): List of components to remove from products.
         """
         cls.injectable.discard_dependencies(
             imports={

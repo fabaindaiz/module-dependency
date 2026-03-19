@@ -20,6 +20,20 @@ class LazyWiring(_Marker):
         provider: Union[type[WiringMixin], Callable[[], Union[providers.Provider[Any], containers.Container, str]]],
         modifier: Optional[Modifier] = None,
     ) -> None:
+        """Initialize the lazy wiring marker.
+
+        Accepts either a WiringMixin subclass (e.g. a Component class) or a plain
+        callable returning a reference string or provider. If a WiringMixin class
+        is given, its .reference classmethod is used as the deferred callable,
+        ensuring the reference string is only resolved at injection time rather
+        than at import time.
+
+        Args:
+            provider: A WiringMixin subclass or a callable returning a provider,
+                container, or dot-separated reference string.
+            modifier (Modifier, optional): Optional wiring modifier from
+                dependency-injector.
+        """
         if isinstance(provider, type) and issubclass(provider, WiringMixin):
             provider = provider.reference
         self._provider: Callable[[], Union[providers.Provider[Any], containers.Container, str]] = provider # type: ignore

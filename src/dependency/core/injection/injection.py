@@ -7,7 +7,18 @@ from dependency.core.exceptions import DeclarationError, ProvisionError
 _logger = logging.getLogger("dependency.loader")
 
 class BaseInjection(ABC):
-    """Base Injection Class
+    """Base class for all nodes in the injection tree.
+
+    Holds the node's name, its optional parent ContainerInjection, and the
+    dot-separated reference path used by dependency-injector for wiring.
+    Subclassed by ContainerInjection (for structural units) and
+    ProviderInjection (for providable units).
+
+    Attributes:
+        is_root (bool): True if this node is a root (Plugin), meaning it has
+            no parent by design and should not be treated as orphan.
+        name (str): The class name of the decorated unit.
+        parent (ContainerInjection, optional): The parent node in the tree.
     """
     def __init__(self,
         name: str,
@@ -62,6 +73,16 @@ class ContainerInjection(BaseInjection):
 
     @override
     def resolve_providers(self,container: Optional[containers.Container] = None) -> None:
+        """Recursively attach all child providers to this container's DynamicContainer.
+
+        If a parent container is provided, also registers this node's DynamicContainer
+        as an attribute on it, building the nested container structure that
+        dependency-injector uses for reference-based wiring.
+
+        Args:
+            container (containers.Container, optional): The parent container to attach
+                this node's DynamicContainer to, if any.
+        """
         if container is not None:
             setattr(container, self.name, self.container)
         for child in self.childs:
@@ -74,7 +95,17 @@ class ContainerInjection(BaseInjection):
             yield from child.resolve_injectables()
 
 class ProviderInjection(BaseInjection):
-    """Provider Injection Class
+    """Injection node for a providable unit (Component or Product).
+
+    Holds the ProviderInjection's Injectable and the underlying
+    dependency-injector Provider instance. Participates in the injection
+    tree as a leaf node — it has a parent ContainerInjection but no children.
+
+    Attributes:
+        _injectable (Injectable): Tracks the implementation, imports, and
+            resolution state for this provider.
+        _provider (providers.Provider, optional): The dependency-injector
+            provider instance (Singleton, Factory, or Resource).
     """
     def __init__(self,
         name: str,
@@ -117,11 +148,11 @@ class ProviderInjection(BaseInjection):
     @override
     def resolve_providers(self, container: Optional[containers.Container] = None) -> None:
         """Return the provider instance."""
-        if container is not None and self._injectable.check_implementation():
+        if container is not None and self._injectable.has_implementation():
             setattr(container, self.name, self.provider)
 
     @override
     def resolve_injectables(self) -> Generator[Injectable, None, None]:
         """Inject all imports into the current injectable."""
-        if self._injectable.check_implementation():
+        if self._injectable.has_implementation():
             yield self._injectable

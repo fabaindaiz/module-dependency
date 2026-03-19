@@ -22,9 +22,24 @@ class Plugin(Module):
     """
     meta: PluginMeta
     @classmethod
-    def on_declaration(cls) -> None: ...
+    def on_declaration(cls) -> None:
+        """Mark this plugin as a root container in the injection tree.
+
+        Called by ContainerMixin.init_injection when the @module decorator is
+        applied. Sets is_root=True on the ContainerInjection so the Registry
+        and FallbackPlugin do not treat it as an orphan.
+        """
     @classmethod
-    def on_resolution(cls, container: Container) -> None: ...
+    def on_resolution(cls, container: Container) -> None:
+        """Resolve plugin configuration against the application container.
+
+        Called by ContainerMixin.inject_container when the plugin is attached to
+        the application container during module resolution. Delegates to
+        resolve_container to validate and populate the config attribute.
+
+        Args:
+            container (Container): The application container.
+        """
     @classmethod
     def resolve_container(cls, container: Container) -> None:
         """Resolve the plugin configuration.

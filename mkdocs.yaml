@@ -1,0 +1,44 @@
+site_name: module-dependency
+site_description: A Dependency Injection Framework for Modular Embedded Python Applications
+site_url: https://fabaindaiz.github.io/module-dependency/
+repo_name: module-dependency
+repo_url: https://github.com/tu-usuario/module-dependency
+docs_dir: docs
+strict: true
+
+theme:
+  name: material
+  features:
+    - navigation.sections
+    - navigation.indexes
+    - navigation.top
+    - toc.integrate
+    - content.code.copy
+    - content.code.annotate
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [src]
+          options:
+            docstring_style: google
+            show_source: false
+            show_root_heading: true
+            show_symbol_type_heading: true
+            show_symbol_type_toc: true
+            members_order: source
+            merge_init_into_class: true
+            filters:
+              - "!^_"
+              - "^__init__"
+              - "^__repr__"
+
+nav:
+  - Overview: README.md
+  - Architecture: ARCHITECTURE.md
+  - API Reference:
+    - Core: reference/core.md
+    #- CLI: reference/cli.md
+    - Bibliography: REFERENCES.md

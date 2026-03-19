@@ -16,7 +16,13 @@ class ResolutionStrategy:
     """Defines the strategy for resolving dependencies.
     """
     config: ResolutionConfig
-    def __init__(self, config: ResolutionConfig | None = None) -> None: ...
+    def __init__(self, config: ResolutionConfig | None = None) -> None:
+        """Initialize the strategy with an optional configuration.
+
+        Args:
+            config (ResolutionConfig, optional): Configuration for the resolution
+                process. Defaults to a ResolutionConfig with all defaults.
+        """
     def resolution(self, providers: set[Injectable], container: Container) -> set[Injectable]:
         """Resolve all dependencies and initialize them.
 
