@@ -1,7 +1,7 @@
 from dependency.core import Registry
 from dependency.core.injection import ContainerInjection
-from library.digraph.models import Graph
-from library.digraph.process import process_container
+from dependency.library.digraph.models import Graph
+from dependency.library.digraph.process import process_container
 
 def generate_graph(
     output: str = "build/output",

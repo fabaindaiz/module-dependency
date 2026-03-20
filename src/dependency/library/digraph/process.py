@@ -1,5 +1,5 @@
 from dependency.core.injection import ContainerInjection, ProviderInjection
-from library.digraph.models import Graph, Cluster, Node, Edge
+from dependency.library.digraph.models import Graph, Cluster, Node, Edge
 
 def process_container(
     graph: Graph,

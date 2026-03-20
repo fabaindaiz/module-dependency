@@ -1,4 +1,4 @@
-from library.mixin.observer import EventContext, EventSubscriber
+from dependency.library.mixin.observer import EventContext, EventSubscriber
 
 class HardwareEventContext(EventContext):
     pass

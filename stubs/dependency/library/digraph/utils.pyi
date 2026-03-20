@@ -1,0 +1,3 @@
+from dependency.core.injection import Injectable as Injectable, ProviderInjection as ProviderInjection
+
+def find_first_parent(provider: ProviderInjection, visited: set[ProviderInjection] | None = None, injectable_to_provider: dict[Injectable, ProviderInjection] = {}) -> str: ...

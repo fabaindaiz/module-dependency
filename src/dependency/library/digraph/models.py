@@ -8,7 +8,7 @@ class Graph(BaseModel):
     edges: list[Edge] = []
 
     def draw(self) -> Digraph:
-        graph = Digraph(comment=self.name, engine="dot")
+        graph: Digraph = Digraph(comment=self.name, engine="dot")
         graph.attr(rankdir="TB", newrank="true", ordering="in", overlap="false", splines="true", nodesep="1.0", ranksep="1.0")
         graph.attr("node", fontname="Helvetica", fontsize="12", margin="0.2", style="invis")
 
