@@ -1,5 +1,5 @@
 from dependency.core.injection import ContainerInjection as ContainerInjection, ProviderInjection as ProviderInjection
-from dependency.library.digraph.models import Cluster as Cluster, Edge as Edge, Graph as Graph, Node as Node
+from dependency.library.graph.models import Cluster as Cluster, Drawable as Drawable, Edge as Edge, Graph as Graph, Node as Node
 
 def process_container(graph: Graph, container: ContainerInjection, ignore_modules: set[str] = {'BasePlugin'}) -> Cluster: ...
 def process_provider(graph: Graph, provider: ProviderInjection, ignore_modules: set[str] = {'BasePlugin'}) -> Node: ...

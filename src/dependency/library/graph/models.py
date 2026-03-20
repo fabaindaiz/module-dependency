@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
+from itertools import pairwise
 from graphviz import Digraph
 from pydantic import BaseModel
+from typing import Optional
 
 class Graph(BaseModel):
     name: str = "Dependency Graph"
@@ -19,15 +21,16 @@ class Graph(BaseModel):
         return graph
 
 class Drawable(BaseModel, ABC):
-    in_degree: int = 0
     name: str
+    label: Optional[str] = None
+    in_degree: int = 0
 
     @abstractmethod
     def draw(self, parent: Digraph) -> None:
         pass
 
 class Cluster(Drawable):
-    childs: dict[str, Drawable] = {}
+    childs: list[Drawable] = []
     include_modules: bool = True
     style: dict[str, str] = {
         "style": "rounded,filled",
@@ -41,17 +44,13 @@ class Cluster(Drawable):
         with parent.subgraph(name=name) as c:
             c.attr(label=self.name, **self.style)
 
-            children: list[Drawable] = sorted(
-                self.childs.values(),
-                key=lambda c: c.in_degree
-            )
-            for child in children:
+            childs: list[Drawable] = sorted(self.childs, key=lambda c: c.in_degree)
+            for child in childs:
                 child.draw(c)
 
             # Encadenar nodos verticalmente con aristas invisibles
-            names = list(self.childs.keys())
-            for i in range(len(names) - 1):
-                c.edge(names[i], names[i+1], style="invis", weight="10")
+            for i, j in pairwise(childs):
+                c.edge(i.name, j.name, style="invis", weight="10")
 
 class Node(Drawable):
     style: dict[str, str] = {
@@ -61,7 +60,7 @@ class Node(Drawable):
     }
 
     def draw(self, parent: Digraph) -> None:
-        parent.node(self.name, **self.style)
+        parent.node(self.name, label=self.label, **self.style)
 
 class Edge(BaseModel):
     source: str

@@ -10,15 +10,17 @@ class Graph(BaseModel):
     def draw(self) -> Digraph: ...
 
 class Drawable(BaseModel, ABC, metaclass=abc.ABCMeta):
-    in_degree: int
     name: str
+    label: str | None
+    in_degree: int
     @abstractmethod
     def draw(self, parent: Digraph) -> None: ...
 
 class Cluster(Drawable):
-    childs: dict[str, Drawable]
+    childs: list[Drawable]
     include_modules: bool
     style: dict[str, str]
+    def get_childs(self) -> list[Drawable]: ...
     def draw(self, parent: Digraph) -> None: ...
 
 class Node(Drawable):

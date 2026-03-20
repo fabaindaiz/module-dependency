@@ -1,7 +1,6 @@
 from dependency.core import Registry
-from dependency.core.injection import ContainerInjection
-from dependency.library.digraph.models import Graph
-from dependency.library.digraph.process import process_container
+from dependency.library.graph.models import Graph
+from dependency.library.graph.process import process_container
 
 def generate_graph(
     output: str = "build/output",
@@ -14,16 +13,11 @@ def generate_graph(
     the graphviz library to create a visual representation of the nodes and
     their relationships.
     """
-    plugins: list[ContainerInjection] = [
-        container for container in Registry.containers
-        if container.is_root
-    ]
 
     graph: Graph = Graph(name="Dependency Graph")
-    graph.drawable = {
-        plugin.name: process_container(graph, plugin, ignore_modules)
-        for plugin in plugins
-    }
+    for container in Registry.containers:
+        if container.is_root:
+            process_container(graph, container, ignore_modules)
 
     digraph = graph.draw()
-    digraph.render(filename=output, format="svg")
+    digraph.render(filename=output, format="svg") # type: ignore

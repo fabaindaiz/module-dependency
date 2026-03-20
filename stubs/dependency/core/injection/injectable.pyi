@@ -16,6 +16,16 @@ class Injectable:
     strict_resolution: bool
     is_resolved: bool
     def __init__(self, interface_cls: type, implementation: type | None = None) -> None: ...
+    def weight(self) -> int:
+        """Calculate the weight of this injectable for graph visualization.
+
+        The weight is defined as the number of imports plus twice the number of
+        dependents. This heuristic emphasizes providers that are more central in
+        the dependency graph, as they have more dependents relying on them.
+
+        Returns:
+            int: The calculated weight of this injectable.
+        """
     def has_implementation(self) -> bool:
         """Check if the implementation of this injectable is valid.
 

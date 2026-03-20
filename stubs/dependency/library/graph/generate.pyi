@@ -1,7 +1,6 @@
 from dependency.core import Registry as Registry
-from dependency.core.injection import ContainerInjection as ContainerInjection
-from dependency.library.digraph.models import Graph as Graph
-from dependency.library.digraph.process import process_container as process_container
+from dependency.library.graph.models import Graph as Graph
+from dependency.library.graph.process import process_container as process_container
 
 def generate_graph(output: str = 'build/output', ignore_modules: set[str] = {'BasePlugin'}) -> None:
     """Generate a graph visualization of the registered containers and providers.

@@ -1,4 +1,5 @@
 import logging
+
 from typing import Any, Callable, Iterable, Optional
 _logger = logging.getLogger("dependency.loader")
 
@@ -22,11 +23,26 @@ class Injectable:
         # Dependency tracking
         self.imports: set['Injectable'] = set()
         self.dependent: set['Injectable'] = set()
+        self._weight: Optional[int] = None
 
         # Validation flags
         self.partial_resolution: bool = False
         self.strict_resolution: bool = True
         self.is_resolved: bool = False
+
+    def weight(self) -> int:
+        """Calculate the weight of this injectable for graph visualization.
+
+        The weight is defined as the number of imports plus twice the number of
+        dependents. This heuristic emphasizes providers that are more central in
+        the dependency graph, as they have more dependents relying on them.
+
+        Returns:
+            int: The calculated weight of this injectable.
+        """
+        if self._weight is None:
+            self._weight = len(self.imports) + sum(d.weight() for d in self.imports)
+        return self._weight
 
     def has_implementation(self) -> bool:
         """Check if the implementation of this injectable is valid.
