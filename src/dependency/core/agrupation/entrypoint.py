@@ -8,6 +8,7 @@ from dependency.core.resolution.container import Container
 from dependency.core.agrupation.fallback import initialize_fallback
 from dependency.core.resolution.resolver import InjectionResolver
 from dependency.core.resolution.strategy import ResolutionStrategy
+from dependency.library.threading import handle_exit
 _logger = logging.getLogger("dependency.loader")
 
 class Entrypoint:
@@ -69,6 +70,10 @@ class Entrypoint:
         )
         _logger.info(f"Application initialized in {time.time() - self.init_time} seconds")
 
+    @handle_exit
     def main_loop(self) -> None:
-        """Main loop for the application. Waits indefinitely."""
+        """Main loop for the application. Waits indefinitely.
+
+        This method is intended to be called after the application has been initialized.
+        """
         Event().wait() # pragma: no cover

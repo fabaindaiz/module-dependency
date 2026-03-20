@@ -1,7 +1,8 @@
 from dependency.core import Product, product, providers
+from dependency.library.patterns.observer import EventSubscriber
 from example.plugin.reporter import ReporterPlugin
 from example.plugin.reporter.interfaces import Reporter
-from example.plugin.hardware.events import EventSubscriber, EventHardwareCreated, EventHardwareOperation
+from example.plugin.hardware.events import EventHardwareCreated, EventHardwareOperation
 from example.plugin.hardware.observer import HardwareObserver
 
 @product(
@@ -19,11 +20,11 @@ class ReporterA(Reporter, Product):
         self.operations: list[str] = []
 
         @self.__observer.subscribe(EventSubscriber) # type: ignore
-        def on_product_created(context: EventHardwareCreated) -> None:
+        async def on_product_created(context: EventHardwareCreated) -> None:
             self.products.append(context.product)
 
         @self.__observer.subscribe(EventSubscriber) # type: ignore
-        def on_product_operation(context: EventHardwareOperation) -> None:
+        async def on_product_operation(context: EventHardwareOperation) -> None:
             self.operations.append(f"{context.product} -> {context.operation}")
 
     def reportProducts(self) -> list[str]:

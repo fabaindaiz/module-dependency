@@ -1,8 +1,9 @@
 from abc import ABC, abstractmethod
 from typing import Callable
 from dependency.core import Component, component
+from dependency.library.patterns.observer import EventSubscriber
 from example.plugin.hardware import HardwarePlugin
-from example.plugin.hardware.events import EventSubscriber, HardwareEventContext
+from example.plugin.hardware.events import HardwareEventContext
 
 @component(
     module=HardwarePlugin,

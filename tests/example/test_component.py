@@ -5,6 +5,8 @@ from example.plugin.base.number.fake import NumberService
 
 @pytest.fixture
 def setup():
+    import example.plugin.base.deferred.uvloop # type: ignore
+
     class ExampleApp(Entrypoint):
         def __init__(self) -> None:
             super().__init__(

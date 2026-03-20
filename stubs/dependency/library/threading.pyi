@@ -1,0 +1,9 @@
+from _typeshed import Incomplete
+from typing import Any, Callable, TypeVar
+
+logger: Incomplete
+WRAP = TypeVar('WRAP', bound=Callable[..., Any])
+
+def excluded(blocking: bool = False, default: Any = None) -> Callable[[WRAP], WRAP]: ...
+def threaded(name: str | None = None, daemon: bool = True) -> Callable[[WRAP], WRAP]: ...
+def handle_exit(func: WRAP) -> WRAP: ...

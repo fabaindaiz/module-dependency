@@ -4,6 +4,7 @@ from dependency.core.injection.injectable import Injectable as Injectable
 from dependency.core.resolution.container import Container as Container
 from dependency.core.resolution.resolver import InjectionResolver as InjectionResolver
 from dependency.core.resolution.strategy import ResolutionStrategy as ResolutionStrategy
+from dependency.library.threading import handle_exit as handle_exit
 from typing import Iterable
 
 class Entrypoint:
@@ -32,5 +33,9 @@ class Entrypoint:
         """
     def initialize(self, injectables: Iterable[Injectable] = ()) -> None:
         """Initialize the application."""
+    @handle_exit
     def main_loop(self) -> None:
-        """Main loop for the application. Waits indefinitely."""
+        """Main loop for the application. Waits indefinitely.
+
+        This method is intended to be called after the application has been initialized.
+        """

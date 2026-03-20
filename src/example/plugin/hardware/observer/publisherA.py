@@ -1,14 +1,19 @@
 from typing import Callable
 from dependency.core import instance, providers
-from example.plugin.hardware.events import EventSubscriber, HardwareEventContext
+from dependency.library.patterns.observer import EventPublisher, EventSubscriber
+from example.plugin.base.deferred import DeferredService
+from example.plugin.hardware.events import HardwareEventContext
 from example.plugin.hardware.observer import HardwareObserver
-from dependency.library.mixin.observer import EventPublisher
 
 @instance(
+    imports=[
+        DeferredService,
+    ],
     provider=providers.Singleton,
 )
 class HardwareObserverA(HardwareObserver):
     def __init__(self):
+        self.__deferred: DeferredService = DeferredService.provide()
         self.__publisher = EventPublisher()
         print("PublisherObserverA initialized")
 
@@ -16,4 +21,4 @@ class HardwareObserverA(HardwareObserver):
         return self.__publisher.subscribe(listener)
 
     def update(self, context: HardwareEventContext) -> None:
-        self.__publisher.update(context)
+        self.__deferred.run(self.__publisher.update(context))

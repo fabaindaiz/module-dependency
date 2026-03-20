@@ -1,26 +1,25 @@
-from threading import Thread
-from typing import Any, Callable, Generic, TypeVar
+import asyncio
+from typing import Any, Callable, TypeVar
 
 CONTEXT = TypeVar('CONTEXT', bound='EventContext')
 
 class EventContext:
     pass
 
-class EventSubscriber(Generic[CONTEXT]):
-    def __init__(self, callback: Callable[[CONTEXT], Any]) -> None:
-        self.callback: Callable[[CONTEXT], Any] = callback
+class EventSubscriber:
+    def __init__(self,
+        callback: Callable[..., Any]
+    ) -> None:
+        self.callback: Callable[..., Any] = callback
 
-    def update(self, context: CONTEXT, threaded: bool = True) -> None:
-        if threaded:
-            Thread(target=self.callback, args=(context,), daemon=True).start()
-        else:
-            self.callback(context)
+    async def update(self, context: EventContext) -> None:
+        await self.callback(context)
 
 class EventPublisher:
     def __init__(self) -> None:
-        self.__targets: dict[type[EventContext], list[EventSubscriber[Any]]] = {}
+        self.__targets: dict[type[EventContext], list[EventSubscriber]] = {}
 
-    def subscribe(self, subscriber: type[EventSubscriber[CONTEXT]]) -> Callable[[Callable[[CONTEXT], Any]], Callable[[CONTEXT], Any]]:
+    def subscribe(self, subscriber: type[EventSubscriber]) -> Callable[[Callable[[CONTEXT], Any]], Callable[[CONTEXT], Any]]:
         def wrapper(func: Callable[[CONTEXT], Any]) -> Callable[[CONTEXT], Any]:
             if len(func.__annotations__) == 0:
                 raise TypeError(f"Function '{func.__name__}' must have at least one parameter with a type annotation that is a subclass of EventContext.")
@@ -34,10 +33,11 @@ class EventPublisher:
             return func
         return wrapper
 
-    def update(self, context: EventContext) -> None:
+    async def update(self, context: EventContext) -> None:
         subscribers = self.__targets.get(type(context), [])
-        for subscriber in subscribers:
-            subscriber.update(context)
+        async with asyncio.TaskGroup() as tg:
+            for subscriber in subscribers:
+                tg.create_task(subscriber.update(context))
 
 
 if __name__ == '__main__':
@@ -53,14 +53,17 @@ if __name__ == '__main__':
         def __init__(self) -> None:
             self.publisher = EventPublisher()
 
-            @self.publisher.subscribe(EventSubscriber[EventA])
-            def listen_event_a(context1: EventA) -> None:
+            @self.publisher.subscribe(EventSubscriber)
+            async def listen_event_a(context1: EventA) -> None:
                 print(f"Event A triggered with parameter: {context1.parameterA}")
 
-            @self.publisher.subscribe(EventSubscriber[EventB])
-            def listen_event_b(context2: EventB) -> None:
+            @self.publisher.subscribe(EventSubscriber)
+            async def listen_event_b(context2: EventB) -> None:
                 print(f"Event B triggered with parameter: {context2.parameterB}")
 
-    instance = Observer()
-    instance.publisher.update(EventA("Hello World!"))
-    instance.publisher.update(EventB("Goodbye World!"))
+    async def execute() -> None:
+        instance = Observer()
+        await instance.publisher.update(EventA("Hello World!"))
+        await instance.publisher.update(EventB("Goodbye World!"))
+
+    asyncio.run(execute())

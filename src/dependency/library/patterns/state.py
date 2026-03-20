@@ -3,7 +3,7 @@ from typing import Any, Generic, TypeVar
 
 T = TypeVar('T')
 
-class StateMixin(Generic[T]):
+class StateHolder(Generic[T]):
     def __init__(self, initial_state: T, **kwargs: Any):
         super().__init__(**kwargs)
         self.__state: T = initial_state
@@ -23,7 +23,7 @@ if __name__ == '__main__':
         def action(self) -> None:
             pass
 
-    class HasPlayerState(StateMixin[PlayerState]):
+    class HasPlayerState(StateHolder[PlayerState]):
         pass
 
     class PlayerState1(PlayerState):
