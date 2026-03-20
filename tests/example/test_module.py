@@ -1,9 +1,9 @@
 from dependency.core import Container, InjectionResolver, Module, module
 from example.plugin.base.number.fake import NumberService
 from example.plugin.base.string.fake import StringService
+from example.plugin.base.deferred.uvloop import DeferredService
 from example.plugin.hardware.factory.providers.creatorA import HardwareFactory
 from example.plugin.hardware.observer.publisherA import HardwareObserver
-import example.plugin.base.deferred.uvloop # type: ignore
 
 @module()
 class TestingModule(Module):
@@ -13,6 +13,7 @@ def test_module():
     for component in (
         NumberService,
         StringService,
+        DeferredService,
         HardwareFactory,
         HardwareObserver,
     ):
