@@ -1,10 +1,12 @@
 from dependency_injector.wiring import inject
 from dependency.core import Product, product, providers
 from dependency.core.injection import LazyProvide
-from example.plugin.hardware.interfaces import Hardware
 from example.plugin.base.string import StringService
+from example.plugin.hardware import HardwarePlugin
+from example.plugin.hardware.interfaces import Hardware
 
 @product(
+    module=HardwarePlugin,
     imports=[
         StringService,
     ],

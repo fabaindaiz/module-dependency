@@ -1,9 +1,11 @@
 from dependency.core import Product, product, providers
+from example.plugin.reporter import ReporterPlugin
 from example.plugin.reporter.interfaces import Reporter
 from example.plugin.hardware.events import EventSubscriber, EventHardwareCreated, EventHardwareOperation
 from example.plugin.hardware.observer import HardwareObserver
 
 @product(
+    module=ReporterPlugin,
     imports=[
         HardwareObserver,
     ],
