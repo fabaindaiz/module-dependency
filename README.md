@@ -188,7 +188,7 @@ from ...plugin.....other_product import OtherProduct
 @product(
     module=SomeModule,              # Declares the module or plugin this component belongs to
     imports=[SomeService, ...],     # List of dependencies (components) that this product needs
-    provider=providers.Singleton,   # Provider type (Singleton, Factory, Resource)
+    provider=providers.Factory,   # Provider type (Singleton, Factory, Resource)
 )
 class SomeProduct(Interface, Product):
     """This is the product class. This class will check for its dependencies.
@@ -216,31 +216,27 @@ class SomeProduct(Interface, Product):
 
 ## Important Notes
 
-- Declare all the dependencies (components) on Instances and Products to avoid injection issues.
+- Remember to declare all the dependencies you need in the `imports` parameter of the `@instance` or `@product` decorator.
 - Read the documentation carefully and refer to the examples to understand the framework's behavior.
 
 ## Usage Examples
 
 This repository includes a practical example demonstrating how to use the framework. You can find this example in the `example` directory. It showcases the implementation of the core components and how they interact to manage dependencies effectively in a sample application.
 
-This example requires the `module-injection` package to be installed and the `library` folder to be present in the project root.
-
 ## Future Work
 
 This project is a work in progress, and there are several improvements and enhancements planned for the future.
 
 Some planned features are:
+- Add pre-defined components for common patterns and use cases
+- Dependency CLI support for easier interaction with the framework
+- Pytest testing framework integration for better test management
+
+Some new improvements that has been recently added:
 - Enhance documentation and examples for better understanding
 - Implement framework API and extension points for customization
 - Improve injection resolution and initialization process
-- Testing framework integration for better test coverage
 - Visualization tools for dependency graphs and relationships
-
-Some of the areas that will be explored in the future include:
-- Add some basic components and plugins for common use cases
-- Dependency CLI support for easier interaction with the framework
-- Explore more advanced dependency injection patterns and use cases
-- Improve testing and validation for projects using this framework
 
 Pending issues that eventually will be addressed:
 - Migration guide from previous versions (some breaking changes were introduced)

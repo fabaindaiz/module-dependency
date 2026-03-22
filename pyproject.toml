@@ -22,6 +22,7 @@ dependencies = [
   "pytest-asyncio",
   "pytest-cov",
   "pytest-xdist",
+  "uvloop",
 ]
 
 [tool.hatch.envs.build.env-vars]
@@ -68,13 +69,12 @@ testpaths = ["tests"]
 
 [project]
 name = "module_dependency"
-version = "1.1.5"
+version = "1.1.6"
 dependencies = [
   "dependency_injector",
   "jinja2",
   "pydantic",
   "pydantic-settings",
-  "uvloop",
 ]
 requires-python = ">=3.11"
 authors = [

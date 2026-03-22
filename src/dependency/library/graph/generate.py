@@ -8,12 +8,15 @@ def generate_graph(
 ) -> None:
     """Generate a graph visualization of the registered containers and providers.
 
-    This method is intended for debugging and documentation purposes, allowing
-    developers to visualize the structure of their dependency graph. It uses
-    the graphviz library to create a visual representation of the nodes and
-    their relationships.
-    """
+    This method allows you to visualize the structure of your dependency graph, including the
+    containers (modules) and providers (components/products) and their relationships. The generated
+    graph can be used for debugging, documentation, or simply to understand the structure of your
+    dependency graph. The output will be saved as an SVG file at the specified location.
 
+    Args:
+        output: The output path for the generated graph.
+        ignore_modules: A set of module names to ignore during graph generation.
+    """
     graph: Graph = Graph(name="Dependency Graph")
     for container in Registry.containers:
         if container.is_root:

@@ -3,7 +3,7 @@ from itertools import groupby, pairwise
 from graphviz import Digraph
 from pydantic import BaseModel
 
-GROUP_SIZE = 2
+GROUP_SIZE: int = 2
 
 class Graph(BaseModel):
     name: str = "Dependency Graph"
