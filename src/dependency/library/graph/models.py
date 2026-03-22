@@ -1,12 +1,13 @@
 from abc import ABC, abstractmethod
-from itertools import pairwise
+from itertools import groupby, pairwise
 from graphviz import Digraph
 from pydantic import BaseModel
-from typing import Optional
+
+GROUP_SIZE: int = 2
 
 class Graph(BaseModel):
     name: str = "Dependency Graph"
-    drawable: dict[str, Drawable] = {}
+    drawable: list[Drawable] = []
     edges: list[Edge] = []
 
     def draw(self) -> Digraph:
@@ -14,7 +15,7 @@ class Graph(BaseModel):
         graph.attr(rankdir="TB", newrank="true", ordering="in", overlap="false", splines="true", nodesep="1.0", ranksep="1.0")
         graph.attr("node", fontname="Helvetica", fontsize="12", margin="0.2", style="invis")
 
-        for drawable in self.drawable.values():
+        for drawable in self.drawable:
             drawable.draw(graph)
         for edge in self.edges:
             edge.draw(graph)
@@ -22,7 +23,6 @@ class Graph(BaseModel):
 
 class Drawable(BaseModel, ABC):
     name: str
-    label: Optional[str] = None
     in_degree: int = 0
 
     @abstractmethod
@@ -31,7 +31,6 @@ class Drawable(BaseModel, ABC):
 
 class Cluster(Drawable):
     childs: list[Drawable] = []
-    include_modules: bool = True
     style: dict[str, str] = {
         "style": "rounded,filled",
         "fillcolor": "lightyellow",
@@ -40,17 +39,26 @@ class Cluster(Drawable):
     }
 
     def draw(self, parent: Digraph) -> None:
-        name: str = f"cluster_{self.name}" if self.include_modules else self.name
-        with parent.subgraph(name=name) as c:
+        with parent.subgraph(name=f"cluster_{self.name}") as c:
             c.attr(label=self.name, **self.style)
 
+            # Agrupar por profundidad y ordenar por in_degree dentro de cada grupo
+            def bucket(x: Drawable): return x.in_degree // GROUP_SIZE
             childs: list[Drawable] = sorted(self.childs, key=lambda c: c.in_degree)
-            for child in childs:
-                child.draw(c)
+            groups = [list(g) for _, g in groupby(childs, key=bucket)]
 
-            # Encadenar nodos verticalmente con aristas invisibles
-            for i, j in pairwise(childs):
-                c.edge(i.name, j.name, style="invis", weight="10")
+            for group in groups:
+                for child in group:
+                    child.draw(c)
+
+                # Arista invisible entre nodos del mismo grupo para mantenerlos juntos
+                for i, (n1, n2) in enumerate(pairwise(group)):
+                    if isinstance(n2, Node) and i % min(2,  max(1, len(group) // GROUP_SIZE)) != 0:
+                        c.edge(n1.name, n2.name, style="invis", weight="1")
+
+            # Arista invisible solo entre representantes de grupos consecutivos
+            for (g1, g2) in pairwise(groups):
+                c.edge(g1[0].name, g2[0].name, style="invis", weight="1")
 
 class Node(Drawable):
     style: dict[str, str] = {
@@ -60,15 +68,12 @@ class Node(Drawable):
     }
 
     def draw(self, parent: Digraph) -> None:
-        parent.node(self.name, label=self.label, **self.style)
+        parent.node(self.name, **self.style)
 
 class Edge(BaseModel):
     source: str
     target: str
-    same_cluster: bool = False
 
     def draw(self, parent: Digraph) -> None:
         kwargs: dict[str, str] = {}
-        if self.same_cluster:
-            kwargs["constraint"] = "false"
-        parent.edge(self.source, self.target, **kwargs)
+        parent.edge(self.source, self.target, weight="5", minlen="1", **kwargs)

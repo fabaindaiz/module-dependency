@@ -1,6 +1,6 @@
 from dependency.core import Registry as Registry
-from dependency.library.graph.models import Graph as Graph
-from dependency.library.graph.process import process_container as process_container
+from dependency.core.injection import ContainerInjection as ContainerInjection, ProviderInjection as ProviderInjection
+from dependency.library.graph.models import Cluster as Cluster, Edge as Edge, Graph as Graph, Node as Node
 
 def generate_graph(output: str = 'build/output', ignore_modules: set[str] = {'BasePlugin'}) -> None:
     """Generate a graph visualization of the registered containers and providers.
@@ -10,3 +10,5 @@ def generate_graph(output: str = 'build/output', ignore_modules: set[str] = {'Ba
     the graphviz library to create a visual representation of the nodes and
     their relationships.
     """
+def process_container(graph: Graph, container: ContainerInjection, ignore_modules: set[str] = {'BasePlugin'}) -> Cluster: ...
+def process_provider(graph: Graph, provider: ProviderInjection, ignore_modules: set[str] = {'BasePlugin'}) -> Node: ...
