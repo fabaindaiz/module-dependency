@@ -70,7 +70,7 @@ be depended upon, but cannot be provided directly until an `Instance` implements
 
 ```python
 @component(module=HardwarePlugin)
-class HardwareFactory(ABC, Component):
+class HardwareFactory(Component):
     @abstractmethod
     def createHardware(self, product: str) -> Hardware: ...
 ```

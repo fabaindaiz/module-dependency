@@ -10,7 +10,7 @@ T = TypeVar('T')
 @component(
     module=BasePlugin,
 )
-class DeferredService(ABC, Component):
+class DeferredService(Component):
     """DeferredService
 
        Deferred Service is an abstract class that defines the methods to interact with asyncio tasks.

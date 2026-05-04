@@ -8,7 +8,7 @@ from example.plugin.hardware.events import HardwareEventContext
 @component(
     module=HardwarePlugin,
 )
-class HardwareObserver(ABC, Component):
+class HardwareObserver(Component):
     @abstractmethod
     def subscribe(self, listener: type[EventSubscriber]) -> Callable:
         pass

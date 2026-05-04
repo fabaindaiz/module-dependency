@@ -7,7 +7,7 @@ class Product(ABC):
         pass
 
 @component()
-class Builder(ABC, Component):
+class Builder(Component):
     @abstractmethod
     def reset(self) -> None:
         pass

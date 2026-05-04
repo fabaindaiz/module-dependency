@@ -5,7 +5,7 @@ from example.plugin.hardware import HardwarePlugin
 @component(
     module=HardwarePlugin,
 )
-class HardwareAbstraction(ABC, Component):
+class HardwareAbstraction(Component):
     @abstractmethod
     def someOperation(self, product: str) -> None:
         pass

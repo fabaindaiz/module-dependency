@@ -5,7 +5,7 @@ from example.plugin.base import BasePlugin
 @component(
     module=BasePlugin,
 )
-class StringService(ABC, Component):
+class StringService(Component):
     @abstractmethod
     def getRandomString(self) -> str:
         pass

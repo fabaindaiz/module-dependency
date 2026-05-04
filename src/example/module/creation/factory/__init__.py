@@ -7,7 +7,7 @@ class Product(ABC):
         pass
 
 @component()
-class Creator(ABC, Component):
+class Creator(Component):
     def someOperation(self) -> None:
         instance = self.createProduct()
         instance.doStuff()

@@ -12,7 +12,7 @@ class AbtractProductB(ABC):
         pass
 
 @component()
-class AbtractFactory(ABC, Component):
+class AbtractFactory(Component):
     def work(self) -> None:
         instance1 = self.createProductA()
         instance2 = self.createProductB()

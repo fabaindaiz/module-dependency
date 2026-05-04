@@ -5,7 +5,7 @@ from example.plugin.reporter import ReporterPlugin
 @component(
     module=ReporterPlugin,
 )
-class ReportFacade(ABC, Component):
+class ReportFacade(Component):
     @abstractmethod
     def startModule(self) -> None:
         pass

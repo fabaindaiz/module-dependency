@@ -46,14 +46,14 @@ class SomeModule(Module):
 - Promotes loose coupling and enables easier testing and maintenance
 
 ```python
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 from dependency.core import Component, component
 from ...plugin.........module import SomeModule
 
 @component(
     module=SomeModule,     # Declares the module or plugin this component belongs to
 )
-class SomeService(ABC, Component):
+class SomeService(Component):
     """This is the component class. A instance will be injected here.
        Components are only started when provided or bootstrapped.
        Components also defines the interface for all instances.

@@ -18,7 +18,7 @@ class TStandalone(Component):
     def method(self) -> str:
         return "Hello, World!"
 
-class TProduct(ABC, Component):
+class TProduct(Component):
     @abstractmethod
     def method(self) -> str:
         pass

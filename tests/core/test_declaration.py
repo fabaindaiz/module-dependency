@@ -14,7 +14,7 @@ class TModule(Module):
 @component(
     module=TModule,
 )
-class TComponent(ABC, Component):
+class TComponent(Component):
     @abstractmethod
     def method(self) -> str:
         pass

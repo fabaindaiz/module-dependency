@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from dependency.core import Component, component
 
 @component()
-class Implementation(ABC, Component):
+class Implementation(Component):
     @abstractmethod
     def method1(self):
         pass

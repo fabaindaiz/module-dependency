@@ -8,7 +8,7 @@ from dependency.core.injection import Injectable
 class TModule(Module):
     pass
 
-class TProduct(ABC, Component):
+class TProduct(Component):
     @abstractmethod
     def method(self) -> str:
         pass
