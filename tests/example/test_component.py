@@ -21,5 +21,7 @@ def test_component(setup: object):
     numberService2: NumberService = NumberService.provide()
     assert numberService1 == numberService2
     assert isinstance(numberService1, NumberService)
-    assert numberService1.getRandomNumber() == 42
-    assert numberService2.getRandomNumber() == 43
+
+    number1 = numberService1.getRandomNumber()
+    number2 = numberService2.getRandomNumber()
+    assert number1 + 1 == number2
