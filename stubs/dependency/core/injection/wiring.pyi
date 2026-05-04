@@ -1,12 +1,12 @@
 import abc
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 from dependency_injector import containers as containers, providers as providers
 from dependency_injector.wiring import Closing as Closing, Modifier as Modifier, Provide as Provide, _Marker
 from typing import Any, Callable
 
 TYPE_CHECKING: bool
 
-class WiringMixin(metaclass=abc.ABCMeta):
+class WiringMixin(ABC, metaclass=abc.ABCMeta):
     """Base class for wiring mixins."""
     @classmethod
     @abstractmethod

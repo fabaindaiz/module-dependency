@@ -1,4 +1,4 @@
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 from typing import Any, Callable, Optional, Union
 from dependency_injector import containers, providers
 from dependency_injector.wiring import _Marker, Modifier, Provide, Provider, Closing
@@ -6,7 +6,7 @@ from dependency_injector.wiring import _Marker, Modifier, Provide, Provider, Clo
 # Constant that's True when type checking, but False here.
 TYPE_CHECKING = False
 
-class WiringMixin:
+class WiringMixin(ABC):
     """Base class for wiring mixins."""
     @classmethod
     @abstractmethod
