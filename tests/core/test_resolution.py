@@ -3,8 +3,8 @@ from dependency_injector import providers
 from dependency.core.agrupation import Plugin, PluginMeta, module
 from dependency.core.declaration import Component, component, instance, providers
 from dependency.core.injection import Injectable
-from dependency.core.resolution import Container, InjectionResolver
-from dependency.core.exceptions import CancelInitialization
+from dependency.core.resolution import Container, InjectionResolver, ResolutionStrategy
+from dependency.core.exceptions import CancelInitialization, ResolutionError
 
 BOOTSTRAPED: list[str] = []
 
@@ -52,7 +52,7 @@ class TInstance2(TComponent2):
 
 def test_resolution() -> None:
     container = Container.from_json("example/config.json")
-    injectables: set[Injectable] = set(TPlugin.resolve_injectables())
+    injectables: set[ProviderInjection] = set(TPlugin.collect_providers())
     assert "TInstance1" not in BOOTSTRAPED
 
     loader = InjectionResolver(container)

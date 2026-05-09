@@ -30,10 +30,10 @@ def test_module():
         container=container,
     )
     injectables = loader.resolve_providers(
-        providers=set(TestingModule.resolve_injectables()),
+        providers=set(TestingModule.collect_providers()),
     )
-    assert HardwareFactory.injectable in injectables
-    assert HardwareFactory.injectable.is_resolved
+    assert HardwareFactory.injection in injectables
+    assert HardwareFactory.injection.is_resolved
 
     number_service: NumberService = NumberService.provide(starting_number=40)
     assert number_service.getRandomNumber() == 40

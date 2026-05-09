@@ -5,7 +5,8 @@ from dependency.core.injection import (
 )
 from dependency.core.resolution import (
     Container,
-    Registry,
+    ExpansionFailure,
+    ExpansionResult,
     InjectionResolver,
     ResolutionConfig,
     ResolutionStrategy,
@@ -37,7 +38,8 @@ __all__ = [
     "LazyProvider",
     "LazyClosing",
     "Container",
-    "Registry",
+    "ExpansionFailure",
+    "ExpansionResult",
     "InjectionResolver",
     "ResolutionConfig",
     "ResolutionStrategy",

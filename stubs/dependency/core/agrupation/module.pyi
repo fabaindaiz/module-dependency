@@ -1,5 +1,5 @@
-from dependency.core.injection.mixin import ContainerMixin as ContainerMixin
-from typing import Callable, TypeVar
+from dependency.core.injection.mixin import ContainerMixin as ContainerMixin, ProviderMixin as ProviderMixin
+from typing import Callable, Iterable, TypeVar
 
 MODULE = TypeVar('MODULE', bound='Module')
 
@@ -13,7 +13,7 @@ class Module(ContainerMixin):
     Modules must be decorated with @module to be registered in the injection tree.
     """
 
-def module(module: type[Module] | None = None) -> Callable[[type[MODULE]], type[MODULE]]:
+def module(module: type[Module] | None = None, provides: Iterable[type[ProviderMixin]] = ()) -> Callable[[type[MODULE]], type[MODULE]]:
     """Register a Module class into the injection tree.
 
     Initializes a ContainerInjection node for the decorated class and attaches
@@ -25,6 +25,9 @@ def module(module: type[Module] | None = None) -> Callable[[type[MODULE]], type[
             belongs to. If None, the module is registered without a parent —
             it will be treated as an orphan unless it is itself a Plugin root.
             Defaults to None.
+        provides (Iterable[type[ProviderMixin]], optional): Providers to assign
+            to this module. Alternative to declaring module= on each provider.
+            Defaults to ().
 
     Raises:
         TypeError: If the decorated class is not a subclass of Module.

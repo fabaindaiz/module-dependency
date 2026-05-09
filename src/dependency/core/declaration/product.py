@@ -21,8 +21,8 @@ class Product(Component):
 def product(
     module: Optional[type[Module]] = None,
     imports: Iterable[type[ProviderMixin]] = (),
+    optional: Iterable[type[ProviderMixin]] = (),
     provider: type[providers.Provider[Any]] = providers.Factory,
-    partial_resolution: bool = False,
     bootstrap: bool = False,
 ) -> Callable[[type[COMPONENT]], type[COMPONENT]]:
     """Register a Product class into the injection tree.
@@ -38,12 +38,12 @@ def product(
     Args:
         module (type[Module], optional): Module or Plugin this product belongs to.
             If None, the product is registered as an orphan. Defaults to None.
-        imports (Iterable[type[ProviderMixin]], optional): Components this product
-            depends on. Defaults to ().
+        imports (Iterable[type[ProviderMixin]], optional): Required dependencies.
+            Must be resolved before this product can be initialized. Defaults to ().
+        optional (Iterable[type[ProviderMixin]], optional): Optional dependencies.
+            Silently skipped if not implemented. Defaults to ().
         provider (type[providers.Provider], optional): Provider class to use.
             Defaults to providers.Factory.
-        partial_resolution (bool, optional): If True, imports outside the current
-            provider set are not required to be resolved. Defaults to False.
         bootstrap (bool, optional): If True, the provider is eagerly instantiated
             during the initialization phase. Defaults to False.
 
@@ -57,7 +57,7 @@ def product(
     return component(
         module=module,
         imports=imports,
+        optional=optional,
         provider=provider,
-        partial_resolution=partial_resolution,
         bootstrap=bootstrap,
     )

@@ -38,7 +38,7 @@ def test_validation() -> None:
 
     container = Container.from_dict({"key": "value"})
     TPlugin.resolve_container(container)
-    injectables: set[Injectable] = set(TPlugin.resolve_injectables())
+    injectables: set[ProviderInjection] = set(TPlugin.collect_providers())
 
     strategy.injection(injectables)
     assert TComponent1.injectable.implementation != TInstance1
@@ -51,7 +51,7 @@ def test_validation_singleton_identity() -> None:
     """provide() sobre un Singleton siempre retorna la misma instancia."""
     container = Container.from_dict({"key": "value"})
     TPlugin.resolve_container(container)
-    injectables: set[Injectable] = set(TPlugin.resolve_injectables())
+    injectables: set[ProviderInjection] = set(TPlugin.collect_providers())
 
     strategy = ResolutionStrategy()
     strategy.injection(injectables)

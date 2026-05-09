@@ -39,7 +39,7 @@ class TComponentInline(Component):
 def test_declaration() -> None:
     container = Container()
     TModule.inject_container(container)
-    injectables: set[Injectable] = set(TModule.resolve_injectables())
+    injectables: set[ProviderInjection] = set(TModule.collect_providers())
     for provider in injectables:
         assert provider.resolve_if_posible(injectables)
 
@@ -56,7 +56,7 @@ def test_declaration_inline_provider() -> None:
     TModule.inject_container(container)
     TModule.resolve_providers()
 
-    injectables = set(TModule.resolve_injectables())
+    injectables = set(TModule.collect_providers())
     for injectable in injectables:
         injectable.resolve_if_posible(injectables)
 

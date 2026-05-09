@@ -1,26 +1,23 @@
-from dependency.core import Registry
+from typing import Iterable
 from dependency.core.injection import ContainerInjection, ProviderInjection
+from dependency.core.injection.mixin import ContainerMixin
 from dependency.library.graph.models import Graph, Cluster, Node, Edge
 
 def generate_graph(
+    plugins: Iterable[type[ContainerMixin]],
     output: str = "build/output",
     ignore_modules: set[str] = {"BasePlugin"},
 ) -> None:
-    """Generate a graph visualization of the registered containers and providers.
-
-    This method allows you to visualize the structure of your dependency graph, including the
-    containers (modules) and providers (components/products) and their relationships. The generated
-    graph can be used for debugging, documentation, or simply to understand the structure of your
-    dependency graph. The output will be saved as an SVG file at the specified location.
+    """Generate a graph visualization of the dependency tree.
 
     Args:
-        output: The output path for the generated graph.
-        ignore_modules: A set of module names to ignore during graph generation.
+        plugins: Root modules or plugins to include in the graph.
+        output: The output path for the generated graph (rendered as SVG).
+        ignore_modules: Module names to exclude from the graph.
     """
     graph: Graph = Graph(name="Dependency Graph")
-    for container in Registry.containers:
-        if container.is_root:
-            graph.drawable.append(process_container(graph, container, ignore_modules))
+    for plugin in plugins:
+        graph.drawable.append(process_container(graph, plugin.injection, ignore_modules))
 
     digraph = graph.draw()
     digraph.render(filename=output, format="svg") # type: ignore
@@ -46,11 +43,11 @@ def process_provider(
     if provider.parent is not None and str(provider.parent) in ignore_modules:
         return Node(name=provider.name)
 
-    for dependent in provider.injectable.dependent:
+    for dependent in provider.dependent:
         source: str = provider.injectable.interface_cls.__name__
-        target: str = dependent.interface_cls.__name__
+        target: str = dependent.injectable.interface_cls.__name__
         edge: Edge = Edge(source=source, target=target)
         graph.edges.append(edge)
 
-    in_degree: int = provider.injectable.weight()
+    in_degree: int = provider.weight()
     return Node(name=provider.name, in_degree=in_degree)

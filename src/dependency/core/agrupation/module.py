@@ -1,5 +1,5 @@
-from typing import Callable, Optional, TypeVar
-from dependency.core.injection.mixin import ContainerMixin
+from typing import Callable, Iterable, Optional, TypeVar
+from dependency.core.injection.mixin import ContainerMixin, ProviderMixin
 
 MODULE = TypeVar('MODULE', bound='Module')
 
@@ -14,7 +14,8 @@ class Module(ContainerMixin):
     """
 
 def module(
-    module: Optional[type[Module]] = None
+    module: Optional[type[Module]] = None,
+    provides: Iterable[type[ProviderMixin]] = (),
 ) -> Callable[[type[MODULE]], type[MODULE]]:
     """Register a Module class into the injection tree.
 
@@ -27,6 +28,9 @@ def module(
             belongs to. If None, the module is registered without a parent —
             it will be treated as an orphan unless it is itself a Plugin root.
             Defaults to None.
+        provides (Iterable[type[ProviderMixin]], optional): Providers to assign
+            to this module. Alternative to declaring module= on each provider.
+            Defaults to ().
 
     Raises:
         TypeError: If the decorated class is not a subclass of Module.
@@ -36,17 +40,15 @@ def module(
             module class and returns it unchanged.
     """
     def wrap(cls: type[MODULE]) -> type[MODULE]:
-        """Register the module class into the injection tree.
-
-        Initializes the ContainerInjection for the class and attaches it to the
-        parent module's injection node if one was provided.
-        """
         if not issubclass(cls, Module):
             raise TypeError(f"Class {cls} has decorator @module but is not a subclass of Module") # pragma: no cover
 
         cls.init_injection(
             parent=module.injection if module else None
         )
+
+        for provider in provides:
+            provider.change_parent(cls)
 
         return cls
     return wrap

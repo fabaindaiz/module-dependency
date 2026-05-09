@@ -39,9 +39,9 @@ def test_injection1() -> None:
     with pytest.raises(AttributeError):
         Interface().test()
 
-    container1.resolve_providers()
-    for provider in list(container1.resolve_injectables()):
-        container.wire(provider.modules_cls)
+    container1.attach()
+    for provider in list(container1.collect_providers()):
+        container.wire(provider.injectable.modules_cls)
 
     container.wire((Interface,))
     assert Interface().test() == "Injected service: Test method called"

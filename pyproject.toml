@@ -37,8 +37,7 @@ tests = "pytest -n auto --dist=loadfile"
 typecheck = "mypy --strict src/dependency"
 
 [tool.hatch.envs.docs]
-template = "default"
-skip-install = false
+skip-install = true
 dependencies = [
   "mkdocs",
   "mkdocs-material",

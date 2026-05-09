@@ -2,24 +2,19 @@ import pytest
 from dependency_injector import providers
 from dependency.core.agrupation import Plugin, PluginMeta, module
 from dependency.core.declaration import Component, component, instance
-from dependency.core.injection import ProviderInjection, Injectable
 from dependency.core.resolution import Container, ResolutionStrategy
-from dependency.core.exceptions import DeclarationError, ResolutionError, ProvisionError
+from dependency.core.exceptions import ResolutionError
 
 @module()
 class TPlugin(Plugin):
     meta = PluginMeta(name="test_plugin", version="0.1.0")
 
-@component(
-    module=TPlugin,
-)
+@component(module=TPlugin)
 class TComponent1(Component):
     pass
 
 @component(
-    imports=[
-        TComponent1,
-    ],
+    imports=[TComponent1],
     module=TPlugin,
     strict_resolution=False,
 )
@@ -27,11 +22,8 @@ class TComponent2(Component):
     pass
 
 @component(
-    imports=[
-        TComponent2,
-    ],
+    optional=[TComponent2],
     provider=providers.Factory,
-    partial_resolution=True,
 )
 class TProduct1(Component):
     pass
@@ -46,51 +38,27 @@ class TInstance1(TComponent1):
     pass
 
 
-def test_exceptions() -> None:
+def test_circular_self_import_raises_resolution_error() -> None:
+    """TInstance1 imports TComponent1, which TInstance1 itself implements.
+
+    This creates a self-import cycle: the provider depends on its own interface,
+    so injection can never settle. Breaking the self-import unblocks resolution.
+    """
     strategy: ResolutionStrategy = ResolutionStrategy()
     container = Container()
 
     TPlugin.resolve_container(container)
-    with pytest.raises(DeclarationError):
-        print(TComponent1.provide())
-
     TPlugin.inject_container(container)
     TPlugin.resolve_providers()
-
-    TComponent2.update_dependencies(
-        strict_resolution=True,
-    )
-    with pytest.raises(DeclarationError):
-        TPlugin.resolve_providers()
-
-    TComponent2.change_parent(None)
-    TPlugin.resolve_providers()
-    TPlugin.inject_container(container)
-    injectables = set(TPlugin.resolve_injectables())
-    assert injectables == {TComponent1.injectable}
+    injectables = set(TPlugin.collect_providers())
+    assert injectables == {TComponent1.injection}
 
     injectables = strategy.expand(injectables)
-    assert injectables == {TComponent1.injectable, TProduct1.injectable}
+    assert injectables == {TComponent1.injection, TProduct1.injection}
 
     with pytest.raises(ResolutionError):
         strategy.injection(injectables)
 
-    TComponent1.discard_dependencies(
-        imports=[TComponent1],
-    )
+    TComponent1.discard_dependencies(imports=[TComponent1])
     strategy.injection(injectables)
     assert TComponent1.provide()
-
-    TProduct1.update_dependencies(
-        partial_resolution=False,
-    )
-    with pytest.raises(ResolutionError):
-        strategy.injection(injectables)
-
-def test_provider_reference_without_parent() -> None:
-    """ProviderInjection sin parent lanza ProvisionError al acceder a .reference."""
-    injectable = Injectable(interface_cls=object)
-    orphan = ProviderInjection(name="orphan", injectable=injectable)
-
-    with pytest.raises(ProvisionError):
-        _ = orphan.reference

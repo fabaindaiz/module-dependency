@@ -1,7 +1,8 @@
 from dependency.core.exceptions import CancelInitialization as CancelInitialization, DeclarationError as DeclarationError, InitializationError as InitializationError
-from dependency.core.injection.injectable import Injectable as Injectable
+from dependency.core.injection.injection import ProviderInjection as ProviderInjection
 from dependency.core.resolution.container import Container as Container
 from dependency.core.resolution.errors import raise_resolution_error as raise_resolution_error
+from dependency.core.resolution.expansion import ProviderExpansion as ProviderExpansion
 from pydantic import BaseModel
 from typing import Iterable
 
@@ -9,58 +10,22 @@ class ResolutionConfig(BaseModel):
     """Configuration for the Resolution Strategy.
     """
     init_container: bool
-    init_fallback: bool
     legacy_resolution: bool
 
 class ResolutionStrategy:
     """Defines the strategy for resolving dependencies.
     """
     config: ResolutionConfig
-    def __init__(self, config: ResolutionConfig | None = None) -> None:
-        """Initialize the strategy with an optional configuration.
+    def __init__(self, config: ResolutionConfig | None = None) -> None: ...
+    def expand(self, providers: set[ProviderInjection]) -> set[ProviderInjection]:
+        """Expand a seed set of providers by following imports transitively.
 
-        Args:
-            config (ResolutionConfig, optional): Configuration for the resolution
-                process. Defaults to a ResolutionConfig with all defaults.
+        Raises ResolutionError if any required dependency could not be resolved.
         """
-    def resolution(self, providers: set[Injectable], container: Container) -> set[Injectable]:
-        """Resolve all dependencies and initialize them.
-
-        Args:
-            providers (list[Injectable]): List of providers to resolve.
-            container (Container): The container to wire the injectables with.
-
-        Returns:
-            list[Injectable]: List of resolved injectables.
-        """
-    def expand(self, providers: set[Injectable]) -> set[Injectable]:
-        """Expand the list of providers by adding all their imports.
-
-        Args:
-            providers (list[Injectable]): List of providers to expand.
-
-        Returns:
-            list[Injectable]: List of expanded providers.
-        """
-    def injection(self, providers: set[Injectable]) -> None:
-        """Resolve all injectables in layers.
-
-        Args:
-            providers (list[Injectable]): List of injectables to resolve.
-
-        Returns:
-            list[Injectable]: List of unresolved injectables.
-        """
-    def wiring(self, providers: Iterable[Injectable], container: Container) -> None:
-        """Wire a list of providers with the given container.
-
-        Args:
-            providers (list[Injectable]): List of providers to wire.
-            container (Container): The container to wire the providers with.
-        """
-    def initialize(self, providers: Iterable[Injectable]) -> None:
-        """Start all implementations by executing their init functions.
-
-        Args:
-            providers (list[Injectable]): List of providers to start.
-        """
+    def resolution(self, providers: set[ProviderInjection], container: Container) -> set[ProviderInjection]: ...
+    def injection(self, providers: set[ProviderInjection]) -> None:
+        """Resolve all providers in dependency order (layer by layer)."""
+    def wiring(self, providers: Iterable[ProviderInjection], container: Container) -> None:
+        """Wire providers against the application container."""
+    def initialize(self, providers: Iterable[ProviderInjection]) -> None:
+        """Execute bootstrap callables for eagerly-instantiated providers."""

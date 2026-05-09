@@ -4,7 +4,7 @@ from dependency.core.injection.mixin import ProviderMixin as ProviderMixin
 from dependency_injector import providers
 from typing import Any, Callable, Iterable
 
-def instance(imports: Iterable[type[ProviderMixin]] = (), provider: type[providers.Provider[Any]] = ..., partial_resolution: bool = False, strict_resolution: bool = True, bootstrap: bool = False) -> Callable[[type[COMPONENT]], type[COMPONENT]]:
+def instance(imports: Iterable[type[ProviderMixin]] = (), optional: Iterable[type[ProviderMixin]] = (), provider: type[providers.Provider[Any]] = ..., strict_resolution: bool = True, bootstrap: bool = False) -> Callable[[type[COMPONENT]], type[COMPONENT]]:
     """Register a class as the concrete implementation of a Component.
 
     Takes ownership of the parent Component's Injectable by calling
@@ -15,15 +15,13 @@ def instance(imports: Iterable[type[ProviderMixin]] = (), provider: type[provide
     The decorated class must be a subclass of the Component it implements.
 
     Args:
-        imports (Iterable[type[ProviderMixin]], optional): Components this instance
-            depends on. Must be declared for all dependencies used in __init__ or
-            injected methods to ensure correct resolution order. Defaults to ().
+        imports (Iterable[type[ProviderMixin]], optional): Required dependencies.
+            Must be resolved before this instance can be initialized. Defaults to ().
+        optional (Iterable[type[ProviderMixin]], optional): Optional dependencies.
+            Followed during expansion if implemented; silently skipped otherwise.
+            This instance resolves even if they are absent. Defaults to ().
         provider (type[providers.Provider], optional): Provider class to use.
             Accepts Singleton, Factory, or Resource. Defaults to providers.Singleton.
-        partial_resolution (bool, optional): If True, imports that are outside the
-            current provider set are not required to be resolved. Use for instances
-            that depend on optional or externally-provided dependencies.
-            Defaults to False.
         strict_resolution (bool, optional): If False, resolution proceeds even when
             this instance has no implementation assigned. Rarely needed on @instance
             since the decorated class itself is the implementation. Defaults to True.

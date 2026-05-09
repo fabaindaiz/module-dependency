@@ -18,7 +18,7 @@ class Product(Component):
     Products must be decorated with @product to be registered in the injection tree.
     """
 
-def product(module: type[Module] | None = None, imports: Iterable[type[ProviderMixin]] = (), provider: type[providers.Provider[Any]] = ..., partial_resolution: bool = False, bootstrap: bool = False) -> Callable[[type[COMPONENT]], type[COMPONENT]]:
+def product(module: type[Module] | None = None, imports: Iterable[type[ProviderMixin]] = (), optional: Iterable[type[ProviderMixin]] = (), provider: type[providers.Provider[Any]] = ..., bootstrap: bool = False) -> Callable[[type[COMPONENT]], type[COMPONENT]]:
     """Register a Product class into the injection tree.
 
     Convenience wrapper around @component that sets providers.Factory as the
@@ -32,12 +32,12 @@ def product(module: type[Module] | None = None, imports: Iterable[type[ProviderM
     Args:
         module (type[Module], optional): Module or Plugin this product belongs to.
             If None, the product is registered as an orphan. Defaults to None.
-        imports (Iterable[type[ProviderMixin]], optional): Components this product
-            depends on. Defaults to ().
+        imports (Iterable[type[ProviderMixin]], optional): Required dependencies.
+            Must be resolved before this product can be initialized. Defaults to ().
+        optional (Iterable[type[ProviderMixin]], optional): Optional dependencies.
+            Silently skipped if not implemented. Defaults to ().
         provider (type[providers.Provider], optional): Provider class to use.
             Defaults to providers.Factory.
-        partial_resolution (bool, optional): If True, imports outside the current
-            provider set are not required to be resolved. Defaults to False.
         bootstrap (bool, optional): If True, the provider is eagerly instantiated
             during the initialization phase. Defaults to False.
 

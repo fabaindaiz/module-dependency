@@ -1,13 +1,18 @@
 import logging
-
 from typing import Any, Callable, Iterable, Optional
 _logger = logging.getLogger("dependency.loader")
 
 class Injectable:
-    """Injectable Class represents a implementation of some kind that can be injected as a dependency.
+    """Binding between a Component interface and its concrete implementation.
+
+    Created at @component decoration time. The implementation is assigned later
+    by @instance when the concrete class is declared separately.
 
     Attributes:
-        interface_cls (T): The interface class that this injectable implements.
+        interface_cls: The interface class (the decorated Component).
+        implementation: The concrete class assigned by @instance, if any.
+        modules_cls: Python modules to include in dependency-injector wiring.
+        bootstrap: Callable invoked during initialization if bootstrap=True.
     """
     def __init__(self,
         interface_cls: type,
@@ -15,150 +20,18 @@ class Injectable:
     ) -> None:
         self.interface_cls: type = interface_cls
         self.modules_cls: set[type] = {interface_cls}
-
-        # Implementation details
         self.implementation: Optional[type] = implementation
         self.bootstrap: Optional[Callable[[], Any]] = None
-
-        # Dependency tracking
-        self.imports: set['Injectable'] = set()
-        self.dependent: set['Injectable'] = set()
-        self._weight: Optional[int] = None
-
-        # Validation flags
-        self.partial_resolution: bool = False
-        self.strict_resolution: bool = True
-        self.is_resolved: bool = False
-
-    def weight(self) -> int:
-        """Calculate the weight of this injectable for graph visualization.
-
-        The weight is defined as the number of imports plus twice the number of
-        dependents. This heuristic emphasizes providers that are more central in
-        the dependency graph, as they have more dependents relying on them.
-
-        Returns:
-            int: The calculated weight of this injectable.
-        """
-        if self._weight is None:
-            self._weight = len(self.imports) + sum(d.weight() for d in self.imports)
-        return self._weight
-
-    def has_implementation(self) -> bool:
-        """Check if the implementation of this injectable is valid.
-
-        Returns:
-            bool: True if the implementation is valid, False otherwise.
-        """
-        if self.strict_resolution:
-            return True
-
-        elif self.implementation is None:
-            _logger.warning(f"Injectable {self.interface_cls.__name__} has no implementation assigned")
-            return False
-
-        return True
-
-    def resolve_if_posible(self, providers: set['Injectable']) -> bool:
-        """Attempt to mark this injectable as resolved.
-
-        Checks whether all imports are satisfied according to the resolution mode.
-        In normal mode, all imports must already be resolved. In partial_resolution
-        mode, an import is considered satisfied if it is resolved, also uses partial
-        resolution, or is not part of the current provider set.
-
-        If all imports are satisfied and an implementation is assigned, sets
-        is_resolved=True as a side effect and returns True.
-
-        Args:
-            providers (set[Injectable]): The full set of injectables being resolved
-                in the current resolution pass.
-
-        Returns:
-            bool: True if this injectable is now resolved, False otherwise.
-        """
-        if self.implementation is None:
-            return False
-
-        if self.partial_resolution:
-            def validation(i: 'Injectable') -> bool:
-                return (
-                    i.is_resolved or
-                    i.partial_resolution or
-                    i not in providers
-                )
-        else:
-            def validation(i: 'Injectable') -> bool:
-                return i.is_resolved
-
-        for provider in self.imports:
-            if not validation(provider):
-                return False
-
-        self.is_resolved = True
-        return True
-
-    def update_dependencies(self,
-        imports: Iterable['Injectable'],
-        partial_resolution: Optional[bool] = None,
-        strict_resolution: Optional[bool] = None,
-    ) -> None:
-        """Add imports and update resolution flags.
-
-        Registers the given injectables as dependencies of this injectable and
-        records the reverse relationship (self as a dependent of each import).
-        Resolution flags are updated only if explicitly provided (not None).
-
-        Args:
-            imports (Iterable[Injectable]): Injectables this injectable depends on.
-            partial_resolution (bool, optional): If True, imports outside the current
-                provider set are not required to be resolved.
-            strict_resolution (bool, optional): If False, resolution proceeds even
-                when no implementation has been assigned.
-        """
-        self.imports.update(imports)
-        for i in imports:
-            i.dependent.add(self)
-
-        if partial_resolution is not None:
-            self.partial_resolution = partial_resolution
-        if strict_resolution is not None:
-            self.strict_resolution = strict_resolution
-
-    def discard_dependencies(self,
-        imports: Iterable['Injectable'],
-    ) -> None:
-        """Remove imports from this injectable's dependency set.
-
-        Removes the reverse dependent relationship from each discarded import as
-        well. Useful when reconfiguring the dependency graph between resolution
-        passes, for example in tests or dynamic reconfiguration scenarios.
-
-        Args:
-            imports (Iterable[Injectable]): Injectables to remove from imports.
-        """
-        self.imports.difference_update(imports)
-        for i in imports:
-            i.dependent.discard(self)
 
     def set_implementation(self,
         implementation: type,
         modules_cls: Iterable[type],
-        bootstrap: Optional[Callable[[], Any]] = None
+        bootstrap: Optional[Callable[[], Any]] = None,
     ) -> None:
         """Assign a concrete implementation to this injectable.
 
-        Sets the implementation class, adds its module to the wiring set, and
-        optionally sets a bootstrap callable. If an implementation was already
-        assigned, logs a warning before overwriting — the last @instance decorator
-        applied to a given Component wins.
-
-        Args:
-            implementation (type): The concrete class implementing the interface.
-            modules_cls (Iterable[type]): Modules to include in wiring for this
-                implementation (typically the implementation class itself).
-            bootstrap (Callable[[], Any], optional): Callable invoked during the
-                initialization phase if bootstrap=True was set on the decorator.
+        If an implementation was already assigned, logs a warning before
+        overwriting — the last @instance decorator applied wins.
         """
         if self.implementation is None:
             _logger.debug(f"Provider {self.interface_cls.__name__} implementation assigned: {implementation.__name__}")

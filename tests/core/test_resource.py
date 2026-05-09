@@ -30,7 +30,7 @@ def test_resource() -> None:
     container = Container()
 
     TPlugin.resolve_container(container)
-    injectables: set[Injectable] = set(TPlugin.resolve_injectables())
+    injectables: set[ProviderInjection] = set(TPlugin.collect_providers())
     assert TInstance.initialized == False
 
     strategy.resolution(injectables, container)
@@ -41,4 +41,4 @@ def test_resource() -> None:
     #container.shutdown_resources()
     TComponent.provider().shutdown() # type: ignore
     assert component.initialized == False
-    assert injectables == {TComponent.injectable}
+    assert injectables == {TComponent.injection}

@@ -42,16 +42,19 @@ def test_products() -> None:
     container = Container()
 
     TPlugin.resolve_container(container)
-    injectables = set(TPlugin.resolve_injectables())
-    assert injectables == {TComponent1.injectable}
+    injectables = set(TPlugin.collect_providers())
+    assert injectables == {TComponent1.injection}
 
+    # TComponent2 is a required import of TProduct1 with no implementation → fails
     with pytest.raises(ResolutionError):
-        expanded = strategy.expand(injectables)
-        strategy.injection(expanded)
+        strategy.expand(injectables)
 
-    TProduct1.injectable.partial_resolution = True
+    # Move TComponent2 to optional: TProduct1 can now resolve without it
+    TProduct1.discard_dependencies(imports=[TComponent2])
+    TProduct1.update_dependencies(optional=[TComponent2])
+
     expanded = strategy.expand(injectables)
     strategy.injection(expanded)
 
-    assert TComponent1.injectable.is_resolved
-    assert TProduct1.injectable.is_resolved
+    assert TComponent1.injection.is_resolved
+    assert TProduct1.injection.is_resolved

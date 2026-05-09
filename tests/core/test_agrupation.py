@@ -1,7 +1,8 @@
 import pytest
 from pydantic import BaseModel
 from dependency.core.agrupation import Plugin, PluginMeta, Module, module
-from dependency.core.resolution import Container
+from dependency.core.declaration import Component, component, instance
+from dependency.core.resolution import Container, InjectionResolver
 from dependency.core.exceptions import ProvisionError
 
 class TPluginConfig(BaseModel):

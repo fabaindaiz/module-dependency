@@ -21,7 +21,7 @@ class Component(ProviderMixin):
 def component(
     module: Optional[type[Module]] = None,
     imports: Iterable[type[ProviderMixin]] = (),
-    partial_resolution: bool = False,
+    optional: Iterable[type[ProviderMixin]] = (),
     strict_resolution: bool = True,
     provider: Optional[InstanceOrClass[providers.Provider[Any]]] = None,
     bootstrap: bool = False,
@@ -36,19 +36,17 @@ def component(
 
     Args:
         module (type[Module], optional): Module or Plugin this component belongs to.
-            If None, the component is registered as an orphan and will be adopted
-            by the FallbackPlugin at initialization time. Defaults to None.
-        imports (Iterable[type[ProviderMixin]], optional): Components this component
-            depends on. Must be declared for all dependencies used in the
-            implementation to ensure correct resolution order. Defaults to ().
+            If None, the component is an orphan and will be adopted by the first
+            provider that imports it during expansion. Defaults to None.
+        imports (Iterable[type[ProviderMixin]], optional): Required dependencies.
+            Must be resolved before this component can be initialized. Defaults to ().
+        optional (Iterable[type[ProviderMixin]], optional): Optional dependencies.
+            Followed during expansion if implemented; silently skipped otherwise.
+            This component resolves even if they are absent. Defaults to ().
         provider (InstanceOrClass[providers.Provider], optional): Provider instance
             or class to assign directly to this component, making it self-providing
             without a separate @instance. Accepts Singleton, Factory, or Resource.
             Defaults to None.
-        partial_resolution (bool, optional): If True, imports that are outside the
-            current provider set are not required to be resolved. Use for components
-            that depend on optional or externally-provided dependencies.
-            Defaults to False.
         strict_resolution (bool, optional): If False, resolution proceeds even when
             no implementation has been assigned to this component. Use for optional
             interface declarations that may or may not have a concrete implementation.
@@ -87,7 +85,7 @@ def component(
 
         cls.update_dependencies(
             imports=imports,
-            partial_resolution=partial_resolution,
+            optional=optional,
             strict_resolution=strict_resolution,
         )
 

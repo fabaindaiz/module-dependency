@@ -50,14 +50,14 @@ def test_interfaces() -> None:
     TModule.inject_container(container)
     TModule.resolve_providers()
 
-    injectables: set[Injectable] = set(TModule.resolve_injectables())
+    injectables: set[ProviderInjection] = set(TModule.collect_providers())
     for injectable in injectables:
         injectable.resolve_if_posible(injectables)
-    assert TProduct1.injectable.resolve_if_posible(injectables)
-    assert TProduct2.injectable.resolve_if_posible(injectables)
+    assert TProduct1.injection.resolve_if_posible(injectables)
+    assert TProduct2.injection.resolve_if_posible(injectables)
 
     for injectable in injectables:
-        container.wire(injectable.modules_cls)
+        container.wire(injectable.injectable.modules_cls)
     product1: TProduct1 = TProduct1.provide()
     product2: TProduct2 = TProduct2.provide()
 
