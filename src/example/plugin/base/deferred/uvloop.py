@@ -15,7 +15,7 @@ T = TypeVar('T')
 class UVLoopDeferredService(DeferredService):
     def __init__(self) -> None:
         self.__thread_pool = ThreadPoolExecutor(max_workers=4)
-        self.__running_loop: asyncio.AbstractEventLoop = uvloop.new_event_loop()
+        self.__running_loop = uvloop.new_event_loop()
         self.start_event_loop()
 
     @property

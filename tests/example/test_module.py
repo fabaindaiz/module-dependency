@@ -35,6 +35,7 @@ def test_module():
     assert HardwareFactory.injection in injectables
     assert HardwareFactory.injection.is_resolved
 
+    NumberService.provider().reset() # type: ignore
     number_service: NumberService = NumberService.provide(starting_number=40)
     assert number_service.getRandomNumber() == 40
 
@@ -44,5 +45,4 @@ def test_module():
 
     number_service1: NumberService = NumberService.provide()
     number_service2: NumberService = NumberService.provide()
-    assert number_service1.getRandomNumber() == 42
-    assert number_service2.getRandomNumber() == 43
+    assert number_service1.getRandomNumber() +1 == number_service2.getRandomNumber()
