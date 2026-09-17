@@ -9,7 +9,6 @@ class {{ component.interface }}(ABC):
 
 @component(
     module={{ module.name }},
-    interface={{ component.interface }},
 )
-class {{ component.name }}(Component):
+class {{ component.name }}({{ component.interface }}, Component):
     pass

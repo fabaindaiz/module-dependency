@@ -1,0 +1,47 @@
+# One block per language, each matching that language's tooling.
+# A missing block is a silent fight between the formatter and the editor.
+
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.py]
+indent_style = space
+indent_size = 4
+max_line_length = 100
+
+[*.pyi]
+indent_style = space
+indent_size = 4
+
+# Jinja2 templates emit Python; keep them consistent with it.
+[*.j2]
+indent_style = space
+indent_size = 4
+# Templates rely on exact whitespace around {% %} blocks.
+trim_trailing_whitespace = false
+
+[*.{toml,cfg,ini}]
+indent_style = space
+indent_size = 4
+
+[*.{yml,yaml}]
+indent_style = space
+indent_size = 2
+
+[*.json]
+indent_style = space
+indent_size = 2
+
+[*.md]
+indent_style = space
+indent_size = 2
+# Two trailing spaces are a hard line break in Markdown.
+trim_trailing_whitespace = false
+
+[Makefile]
+indent_style = tab

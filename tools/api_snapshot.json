@@ -1,0 +1,27 @@
+{
+  "comment": "Public API of dependency.core as of the last PUBLISHED release. Update only together with a version bump.",
+  "version": "1.1.7",
+  "core": [
+    "CancelInitialization",
+    "Component",
+    "Container",
+    "DependencyError",
+    "Entrypoint",
+    "InjectionResolver",
+    "LazyClosing",
+    "LazyProvide",
+    "LazyProvider",
+    "Module",
+    "Plugin",
+    "PluginMeta",
+    "Product",
+    "Registry",
+    "ResolutionConfig",
+    "ResolutionStrategy",
+    "component",
+    "instance",
+    "module",
+    "product",
+    "providers"
+  ]
+}

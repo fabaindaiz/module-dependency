@@ -29,7 +29,9 @@ dependencies = [
 PYTHONPATH = "src"
 
 [tool.hatch.envs.build.scripts]
+audit = "python tools/audit_dependency.py"
 coverage = "pytest --cov src/dependency --cov-report html -n auto --dist=loadfile"
+gate = ["tests", "typecheck", "audit"]
 graph = "python src/graph.py"
 example = "python src/main.py"
 stubs = "stubgen src/dependency -o stubs --include-docstrings"
@@ -51,17 +53,6 @@ PYTHONPATH = "src"
 build = "mkdocs build"
 serve = "mkdocs serve"
 
-[tool.mypy]
-plugins = [
-  "pydantic.mypy",
-]
-mypy_path = [
-  "src",
-  "stubs",
-]
-explicit_package_bases = true
-show_error_codes = true
-
 [tool.pytest.ini_options]
 pythonpath = ["src"]
 testpaths = ["tests"]
@@ -70,12 +61,12 @@ testpaths = ["tests"]
 name = "module_dependency"
 version = "1.1.7"
 dependencies = [
-  "dependency_injector",
+  "dependency_injector>=4.48.2,<5",
   "jinja2",
   "pydantic",
   "pydantic-settings",
 ]
-requires-python = ">=3.11"
+requires-python = ">=3.12"
 authors = [
   { name="Fabian D", email="github.clapping767@passmail.net" },
 ]
@@ -83,6 +74,7 @@ description = "A dependency management tool for Python projects."
 readme = "README.md"
 license = "GPL-3.0-or-later"
 license-files = ["LICEN[CS]E*"]
+
 keywords = [
   "dependency-injection",
   "dependency-management",
@@ -94,6 +86,9 @@ classifiers = [
     "Programming Language :: Python :: 3",
     "Operating System :: OS Independent",
 ]
+
+[project.optional-dependencies]
+graph = ["graphviz"]
 
 [project.urls]
 Homepage = "https://github.com/fabaindaiz/module-injection"

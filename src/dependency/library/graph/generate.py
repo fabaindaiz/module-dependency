@@ -20,7 +20,7 @@ def generate_graph(
         graph.drawable.append(process_container(graph, plugin.injection, ignore_modules))
 
     digraph = graph.draw()
-    digraph.render(filename=output, format="svg") # type: ignore
+    digraph.render(filename=output, format="svg")
 
 def process_container(
     graph: Graph,

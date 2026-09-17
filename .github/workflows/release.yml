@@ -16,12 +16,32 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.13'
+          python-version: '3.12'
       - name: Install Hatch
         run: pipx install hatch
-      - name: Run tests
-        run: hatch run build:tests
+      - name: Run the gate (tests + typecheck + audit)
+        run: hatch run build:gate
       - name: Build dist
         run: hatch build
+      # The class of bug this repo cannot see: works from the source tree, fails for the
+      # user. Install the built wheel into a clean venv on the MINIMUM supported Python
+      # and import every public module. See .claude/skills/release/SKILL.md.
+      - name: Pre-ship check — install the wheel into a clean venv
+        run: |
+          python -m venv /tmp/shipcheck
+          /tmp/shipcheck/bin/pip install -q "$(ls dist/*.whl)[graph]"
+          /tmp/shipcheck/bin/python - <<'PY'
+          import importlib
+          for m in ["dependency.core",
+                    "dependency.cli.generation.component",
+                    "dependency.library.threading",
+                    "dependency.library.patterns.observer",
+                    "dependency.library.patterns.composite",
+                    "dependency.library.patterns.state",
+                    "dependency.library.graph",
+                    "dependency.library.graph.generate"]:
+              importlib.import_module(m)
+              print("OK  ", m)
+          PY
       - name: Publish package distributions to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1

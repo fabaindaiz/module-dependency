@@ -23,9 +23,13 @@
 
 ::: dependency.core.resolution.resolver
 ::: dependency.core.resolution.strategy
-::: dependency.core.resolution.registry
+::: dependency.core.resolution.expansion
 ::: dependency.core.resolution.container
 ::: dependency.core.resolution.errors
+
+## Utils
+
+::: dependency.core.utils.cycle
 
 ## Exceptions
 

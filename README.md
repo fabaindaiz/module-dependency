@@ -16,7 +16,12 @@ This project is available on PyPI on [module_dependency](https://pypi.org/projec
 
 ```bash
 pip install module-dependency
+
+# Optional: dependency graph rendering (requires graphviz)
+pip install module-dependency[graph]
 ```
+
+Requires Python 3.12 or newer.
 
 Documentation are available on [GitHub Pages](https://fabaindaiz.github.io/module-dependency/).
 
@@ -180,8 +185,9 @@ class SomePlugin(Plugin):
 - Allows to provide standalone classes without the need to define new providers
 
 ```python
+from dependency_injector.wiring import inject
 from dependency.core import Product, product, providers
-from dependency.core.injection import LazyProvide, inject
+from dependency.core.injection import LazyProvide
 from ...plugin.........component import SomeService
 from ...plugin.....other_product import OtherProduct
 

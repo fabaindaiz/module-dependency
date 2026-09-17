@@ -5,7 +5,71 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [v1.1.5] - 2026-03-
+## [Unreleased]
+
+**Breaking.** `Registry` was removed from the public API (`dependency.core.__all__`) and
+replaced by the expansion result types. Under semantic versioning the next release is
+`2.0.0`; the version has not been bumped yet.
+
+### Added
+
+- `ProviderExpansion`: dependency graph expansion as an explicit four-step breadth-first
+  walk, reporting `ExpansionResult` with both resolved providers and failures
+- `ExpansionFailure` and `ExpansionResult` are now public, carrying the full import chain
+  (`A -> B -> C`) for every provider that could not enter resolution
+- Optional imports via `optional=` on `@component`, `@instance` and `@product`: followed
+  when implemented, skipped silently otherwise, and never cascading a failure
+- `[graph]` optional extra for dependency graph rendering: `pip install module-dependency[graph]`
+- Agent instruction system: `CLAUDE.md`, area guides, skills, `docs/decisions.md`,
+  `docs/references.md`, `docs/roadmap.md`
+- `tools/audit_dependency.py`, twelve structural checks, wired into `hatch run build:gate`
+
+### Changed
+
+- **Minimum Python is now 3.12.** The package declared `>=3.11` but used `typing.override`
+  (3.12+, PEP 698) and could not be imported on 3.11 at all
+- `dependency_injector` is bounded to `>=4.48.2,<5`. 4.48.2 introduced the `warn_unresolved`
+  wiring argument the framework relies on
+- Orphan providers are adopted into the container of whichever provider first imports them,
+  replacing the previous fallback plugin mechanism
+- Documentation rewritten against the current code: `docs/architecture.md` replaces
+  `docs/ARCHITECTURE.md`, `docs/index.md` replaces the duplicated `docs/README.md`
+
+### Fixed
+
+- `dependency.library.graph` failed to import on Python 3.12 and 3.13 with
+  `NameError: name 'Drawable' is not defined` — unquoted forward references in class bodies,
+  which only work from 3.14 onward (PEP 649). No test imported the module
+- `dependency.library.graph` imported `graphviz`, which was never declared as a dependency,
+  so it failed for every user who installed from PyPI
+- `hatch run build:graph` called `generate_graph()` without its required `plugins` argument
+- The code generator emitted `@component(interface=...)` and `@instance(component=...)`,
+  neither of which exists — generated modules raised `TypeError` on import
+- Two `mypy --strict` errors that were never caught because CI did not run the type checker
+
+### Removed
+
+- `Registry` and the global registry validation pass, superseded by `ProviderExpansion`
+- The internal fallback plugin for orphan providers
+- The `[tool.mypy]` block in `pyproject.toml`, which never applied — `.mypy.ini` takes
+  precedence, so its pydantic plugin and `mypy_path` had no effect
+
+## [v1.1.7] - 2026-05-04
+
+### Fixed
+
+- `ProviderMixin` is now an abstract base class, so a mixin used without its required
+  methods fails at declaration rather than at injection
+- Abstract base class usage in the example application
+
+## [v1.1.6] - 2026-03-22
+
+### Added
+
+- Dependency graph visualization: `dependency.library.graph.generate_graph` renders the
+  resolved injection tree to SVG via graphviz
+
+## [v1.1.5] - 2026-03-20
 
 ### Added
 

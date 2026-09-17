@@ -8,5 +8,5 @@ class {{ module.name }}Config(BaseModel):
 class {{ module.name }}(Plugin):
     meta = PluginMeta(name="{{ module.name }}", version="0.0.1")
 
-    def config(self) -> {{ module.name }}Config:
-        return {{ module.name }}Config(**self.container.config())
+    # Resolved from the application Container at startup via get_type_hints.
+    config: {{ module.name }}Config

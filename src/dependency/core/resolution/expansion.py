@@ -209,8 +209,9 @@ class ProviderExpansion:
     ) -> None:
         """Step 4: propagate failures to providers that strictly depend on them.
 
-        Providers with partial_resolution=True are immune — they can operate
-        without all their declared imports.
+        Only required imports cascade. A provider that declared a dependency as
+        optional stated it can run without it, so an optional failure never
+        propagates — see the loop below, which walks .imports only.
         """
         failed_set: set[ProviderInjection] = {f.node.provider for f in failures}
 
