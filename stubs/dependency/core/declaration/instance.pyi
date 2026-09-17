@@ -1,6 +1,7 @@
 from dependency.core.declaration.component import COMPONENT as COMPONENT, Component as Component
 from dependency.core.declaration.validation import standalone_provider as standalone_provider
 from dependency.core.injection.mixin import ProviderMixin as ProviderMixin
+from dependency.core.injection.spec import IMPLEMENTATION_SPEC as IMPLEMENTATION_SPEC, ImplementationSpec as ImplementationSpec, attach_spec as attach_spec, target_component as target_component
 from dependency_injector import providers
 from typing import Any, Callable, Iterable
 

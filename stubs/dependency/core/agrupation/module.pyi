@@ -1,4 +1,5 @@
 from dependency.core.injection.mixin import ContainerMixin as ContainerMixin, ProviderMixin as ProviderMixin
+from dependency.core.injection.spec import MODULE_SPEC as MODULE_SPEC, ModuleSpec as ModuleSpec, attach_spec as attach_spec
 from typing import Callable, Iterable, TypeVar
 
 MODULE = TypeVar('MODULE', bound='Module')

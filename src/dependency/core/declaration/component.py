@@ -1,6 +1,8 @@
 from typing import Any, Callable, Iterable, Optional, TypeVar
 from dependency_injector import providers
 from dependency.core.agrupation.module import Module
+from functools import partial
+from dependency.core.injection.spec import COMPONENT_SPEC, ComponentSpec, attach_spec
 from dependency.core.declaration.validation import InstanceOrClass, validate_provider
 from dependency.core.injection.mixin import ProviderMixin
 
@@ -72,6 +74,9 @@ def component(
         if not issubclass(cls, Component):
             raise TypeError(f"Class {cls} has decorator @component but is not a subclass of Component") # pragma: no cover
 
+        declared_imports = tuple(imports)
+        declared_optional = tuple(optional)
+
         cls.init_injection(
             parent=module.injection if module else None
         )
@@ -84,10 +89,23 @@ def component(
             )
 
         cls.update_dependencies(
-            imports=imports,
-            optional=optional,
+            imports=declared_imports,
+            optional=declared_optional,
             strict_resolution=strict_resolution,
         )
+
+        attach_spec(cls, ComponentSpec(
+            declared_cls=cls,
+            name=cls.__name__,
+            module=module,
+            imports=declared_imports,
+            optional=declared_optional,
+            strict_resolution=strict_resolution,
+            provider_factory=(
+                partial(validate_provider, provider=provider) if provider is not None else None
+            ),
+            bootstrap=bootstrap,
+        ), COMPONENT_SPEC)
 
         return cls
     return wrap

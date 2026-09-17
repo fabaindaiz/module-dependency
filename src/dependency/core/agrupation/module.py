@@ -1,4 +1,5 @@
 from typing import Callable, Iterable, Optional, TypeVar
+from dependency.core.injection.spec import MODULE_SPEC, ModuleSpec, attach_spec
 from dependency.core.injection.mixin import ContainerMixin, ProviderMixin
 
 MODULE = TypeVar('MODULE', bound='Module')
@@ -43,12 +44,22 @@ def module(
         if not issubclass(cls, Module):
             raise TypeError(f"Class {cls} has decorator @module but is not a subclass of Module") # pragma: no cover
 
+        declared_provides = tuple(provides)
+
         cls.init_injection(
             parent=module.injection if module else None
         )
 
-        for provider in provides:
+        for provider in declared_provides:
             provider.change_parent(cls)
+
+        attach_spec(cls, ModuleSpec(
+            declared_cls=cls,
+            name=cls.__name__,
+            parent=module,
+            provides=declared_provides,
+            is_root=cls.injection.is_root,
+        ), MODULE_SPEC)
 
         return cls
     return wrap

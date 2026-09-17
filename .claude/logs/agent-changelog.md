@@ -36,6 +36,58 @@ Earlier entries predate these two fields and are not rewritten.
 
 ---
 
+## 2026-09-17 — Declarations become frozen specs, written but not yet read
+
+**What.** New `core/injection/spec.py` with `ModuleSpec`, `ComponentSpec` and
+`ImplementationSpec` — frozen, slotted, tuples not sets. `@module`, `@component`,
+`@instance` and `@product` now attach one to the class they decorate, **in addition to**
+everything they already did. Nothing reads them yet. `tests/core/test_spec.py` pins their
+contents against the decorator arguments.
+
+**Areas.** `src/dependency/core/injection/spec.py`,
+`src/dependency/core/declaration/{component,instance}.py`,
+`src/dependency/core/agrupation/module.py`, `tests/core/test_spec.py`, `stubs/`.
+
+**Why.** Step 3 of removing process-global declaration state, and the step that makes the
+dangerous one reviewable: the graph has to be buildable from declarations before the
+class-attribute path can be deleted.
+
+Two design points worth keeping:
+
+- **Specs live in `injection/`, not `declaration/`.** `declaration` may import `injection`;
+  the reverse would invert that edge and hand `check_layering` a second cycle, which is a
+  failure rather than an advisory.
+- **A spec holds a provider *factory*, never a provider instance.** `standalone_provider`
+  builds `providers.Singleton(cls)` at decoration time, and that singleton's cached object
+  then outlives every rebuild — measured earlier: `Svc.provide()` returns the same object
+  across two independent `Entrypoint` builds. A factory is called once per build and cannot
+  do that.
+
+**Architecture.** ✅ Complies. Additive only; both paths run side by side.
+
+**What went wrong on the way.** Nothing broke, but writing the specs surfaced the MRO trap
+the design depends on: a subclass of an implementation **inherits**
+`__implementation_spec__`, so reading specs with `getattr` would count it as a second
+declaration of the same component. Every read goes through `own_*` helpers that look only
+in `cls.__dict__`, and `test_a_subclass_of_an_implementation_declares_nothing` is what keeps
+that true.
+
+Also fixed in passing: `imports`, `optional` and `provides` are typed `Iterable` and were
+being iterated directly, so a generator would have been consumed by the first reader. They
+are converted to tuples once, at the top of each decorator.
+
+**What was left undone.** Nothing reads a spec. `GraphBuilder` and `ApplicationGraph` are
+step 4, and until they exist the specs are unverified against reality — the tests assert
+they match the decorator arguments, not that a graph built from them behaves like the
+current one. That comparison is step 4's characterisation test.
+
+**Measured.** 123 passed + 1 xfailed (was 114), `mypy --strict` clean on 51 files, 14
+checks passed. `hatch run build:example` resolves in **0.0088 s** with zero errors,
+`CancelInitialization` still skips the unfitted pressure probe, and shutdown is clean on
+SIGINT — read from the output, not inferred from a green suite.
+
+---
+
 ## 2026-09-17 — A pytest plugin that measures what it cannot yet isolate
 
 **What.** New `src/dependency/testing/` subpackage, shipped deliberately incomplete:

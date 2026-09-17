@@ -1,6 +1,7 @@
 from dependency.core.agrupation.module import Module as Module
 from dependency.core.declaration.validation import InstanceOrClass as InstanceOrClass, validate_provider as validate_provider
 from dependency.core.injection.mixin import ProviderMixin as ProviderMixin
+from dependency.core.injection.spec import COMPONENT_SPEC as COMPONENT_SPEC, ComponentSpec as ComponentSpec, attach_spec as attach_spec
 from dependency_injector import providers as providers
 from typing import Any, Callable, Iterable, TypeVar
 
