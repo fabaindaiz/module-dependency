@@ -20,7 +20,12 @@ version that *contained* `Registry`. `audit_dependency.py::check_api_snapshot` f
 this until the version is bumped — deliberately.
 
 **The immediate open question is the version number for the next release.** Under semver it
-is `2.0.0`. Nothing else blocks it.
+is `2.0.0`. Nothing else blocks it, and everything below that does not need a decision has
+been done: the library contracts, their tests, the upstream contract test, the pydantic
+mypy plugin, and the example rewrite.
+
+What remains in this document is, without exception, **blocked on a decision** — each entry
+says which one.
 
 `library/` is the opposite: **23%**, with `graph/` at 0 — the overall figure is 78%, not
 the 91% previously reported, which was inflated because two missing `__init__.py` files
@@ -126,19 +131,16 @@ is made from where the code is.
 
 ## Compatibility and packaging
 
-### Contract test against `dependency-injector`'s private API
+### Contract test against `dependency-injector`'s private API — **done**
 
-`injection/wiring.py` imports `_Marker` — an underscore-prefixed class. An upstream
-refactor breaks every installed user, and we would learn about it from an issue report.
+`tests/core/test_wiring_contract.py` asserts both shape and behaviour: the upstream names
+exist and are classes, `__class_getitem__` still makes `LazyProvide[X]` equal `LazyProvide(X)`,
+`_Marker.__init__` still accepts `modifier`, resolution is still deferred to call time, and
+a wired injection resolves end to end. D-038.
 
-**What it collides with.** Nothing. This is the rare item with no trade-off.
-
-**What is already in its favour.** The `<5` upper bound (D-012) buys time but does not
-detect anything. The test would be ten lines.
-
-**What must be decided first.** Whether the test asserts *shape* (the names exist, the
-constructor takes what we pass) or *behaviour* (a wired injection actually resolves). The
-second is stronger and slower.
+Writing it found D-037: `@inject` silently does nothing on a module-level function, because
+wiring is given the component classes rather than their modules. That is pinned by a test
+so it is not rediscovered the hard way.
 
 ### Decide `py.typed` versus generated stubs
 
@@ -180,8 +182,10 @@ fixture or a redesign.
 does not provide, so it skips itself when absent — and CI now installs it so that it
 actually runs there rather than skipping silently.
 
-Remaining gap: `threading.py` at 63%. `excluded` and `threaded` are untested, and both are
-concurrency helpers whose failure modes only show under contention.
+`threading.py` is covered too: `tests/library/test_threading.py` exercises `excluded`
+under real contention (a second caller is turned away, not queued), asserts the lock is
+released after an exception, and checks `threaded` runs off the calling thread and returns
+nothing.
 
 ---
 
@@ -241,9 +245,15 @@ abstract attributes when the stub is type-checked standalone. It is an interacti
 `stubgen` and `dependency-injector`'s own types, on a class that is not public API, and
 `stubs/` cannot be hand-edited (D-015).
 
-**What must be decided first.** Whether to declare `LazyWiring` abstract in the source so
-stubgen says so, or to accept a narrowly scoped ignore. Both need checking against what
-`stubgen` actually emits.
+**Tried and rejected:** declaring `LazyWiring(_Marker, ABC)` in the source. `stubgen` does
+emit `class LazyWiring(_Marker, ABC)`, but mypy still reports the abstract attributes — it
+does not add `metaclass=abc.ABCMeta` the way it does for `WiringMixin`, whose first base is
+`ABC`. Reverted, since the change bought nothing.
+
+**What must be decided first.** Whether to accept a narrowly scoped ignore in generated
+output — which means either post-processing `stubs/` or hand-editing it, and D-015 forbids
+the second. The honest alternative is to stop generating stubs and ship `py.typed` instead,
+which is the entry above.
 
 ---
 
@@ -295,17 +305,10 @@ be its own commit, and the commit must contain nothing else.
 **What must be decided first.** Format-only, or lint rules too? Lint rules on an unlinted
 codebase produce hundreds of findings and someone has to triage them.
 
-### Enable the pydantic mypy plugin
+### Enable the pydantic mypy plugin — **done**
 
-It was configured in `[tool.mypy]` in `pyproject.toml` and **never loaded** — `.mypy.ini`
-wins (D-024, verified with `mypy -v`). The dead block is deleted; the intent is not.
-
-**What it collides with.** Nothing structural, but it may surface type errors that have been
-hidden for the whole life of the project. `typecheck` is now in the gate, so those errors
-become blocking the day the plugin is enabled.
-
-**What must be decided first.** Nothing — just do it on a day when a pile of new mypy errors
-is welcome.
+Enabled in `.mypy.ini`. This entry predicted "a pile of new mypy errors"; measured, it
+produced **zero**. D-039.
 
 ---
 

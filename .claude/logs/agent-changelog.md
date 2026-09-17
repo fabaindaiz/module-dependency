@@ -23,6 +23,51 @@ Format:
 
 ---
 
+## 2026-09-17 — Close out everything that needed no decision
+
+**What.** Finished the four remaining roadmap items that were not blocked on a judgement
+call, and rewrote the rest of the roadmap so every surviving entry names its blocker.
+
+- `tests/core/test_wiring_contract.py`: the contract test against `dependency-injector`'s
+  private `_Marker`. Asserts shape (names exist, `__class_getitem__`, `modifier`, deferred
+  resolution) and behaviour (a wired injection resolves end to end). D-038.
+- `tests/library/test_threading.py`: `excluded` under real contention, lock release after
+  an exception, `threaded` off-thread and returning nothing, `handle_exit` not swallowing
+  real exceptions.
+- Enabled the pydantic mypy plugin in `.mypy.ini`. D-039.
+- Recorded D-037 after the contract test found it.
+
+**Areas.** `tests/core/`, `tests/library/`, `.mypy.ini`, `docs/decisions.md`,
+`docs/roadmap.md`.
+
+**Why.** Requested: finish what can be finished now, define the rest in the roadmap, and
+close the session.
+
+**Architecture.** ✅ Complies. No source change except the mypy configuration.
+
+**Measured.**
+
+- **`@inject` does nothing on a module-level function** — found while writing the contract
+  test, which failed on its first run for exactly this reason. `ResolutionStrategy.wiring`
+  passes `injectable.modules_cls`, which holds component *classes*, so dependency-injector
+  wires those classes' members and nothing else. No error is raised: the marker object is
+  passed through as the argument. Pinned by a test. D-037.
+- **The pydantic mypy plugin produced zero new errors.** The roadmap entry predicted "a
+  pile"; there was none. D-039.
+- **`LazyWiring(_Marker, ABC)` does not fix the stub error.** `stubgen` emits the ABC base
+  but not `metaclass=abc.ABCMeta`, and mypy still reports the abstract attributes.
+  Reverted; the roadmap entry now records the attempt so nobody repeats it.
+- Tests: **87 → 109**.
+- State review: 14 checks defined = registered = cited by a rule; 39 decisions defined =
+  cited; 3 rows still have `—` in the enforcer column; `CLAUDE.md` at 157/200 lines; no
+  dead pointers in the document map.
+
+**Left open, all blocked on a decision.** The version number (`2.0.0` vs a `1.2.0` with a
+deprecation shim), `py.typed` versus generated stubs, the first-party pytest plugin, making
+the `reference` collision unrepresentable, breaking the `injection ↔ resolution` cycle,
+letting the root container see plugin providers, deterministic bootstrap order, `ruff`, and
+the warning a plugin without config emits.
+
 ## 2026-09-17 — The example is an application now, not a catalogue of patterns
 
 **What.** Replaced `src/example` with a working monitoring station, and finished the two

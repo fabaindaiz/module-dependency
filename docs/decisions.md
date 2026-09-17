@@ -78,6 +78,12 @@ start, and the error names the offending provider and its import chain.**
 | D-035 | Bootstrap order is unspecified; anything order-dependent is sequenced from the entrypoint | `ResolutionStrategy.initialize` iterates a `set`, so a `bootstrap=True` component cannot assume another has already run. The example's sampler would otherwise publish its warm-up readings before the alert sink had subscribed — intermittently, depending on set iteration | — (roadmap; `Sampler.warmup()` is called from `MonitoringStation.__init__`) |
 | D-036 | `src/example` is a monitoring station, not a catalogue of design patterns | The old example was `abstract_factory`, `builder` and `bridge` under `module/`, plus a sketch of an app. It showed GoF patterns, not what the framework is for. A reader could not tell from it why they would choose this library | `tests/example/`, which fails if the example stops working |
 
+| # | Decision | Why | Enforced in |
+|---|---|---|---|
+| D-037 | `@inject` goes on a **component method**, never on a module-level function | Measured: `ResolutionStrategy.wiring` calls `container.wire(modules=injectable.modules_cls)`, and `modules_cls` holds the component *classes*, not the modules they live in — so dependency-injector wires those classes' members and nothing else. A module-level `@inject` raises no error; the marker object is passed straight through as the argument and the first sign is an `AttributeError` somewhere unrelated | `tests/core/test_wiring_contract.py::test_inject_does_not_reach_module_level_functions` |
+| D-038 | The private upstream API (`_Marker`) has a contract test | The package builds `LazyProvide`/`LazyProvider`/`LazyClosing` on an underscore-prefixed class of `dependency-injector`. The `<5` bound buys time but detects nothing; the test asserts both shape (the names exist, `__class_getitem__` works, `modifier` is still accepted) and behaviour (a wired injection actually resolves) | `tests/core/test_wiring_contract.py` |
+| D-039 | The pydantic mypy plugin is enabled | It was configured in a dead `pyproject.toml` block and never loaded (D-024). The roadmap expected turning it on to surface a backlog. **Measured: zero new errors.** There was no pile | `.mypy.ini` |
+
 ## Closed by measurement
 
 | # | Decision | The number that closed it | Enforced in |
