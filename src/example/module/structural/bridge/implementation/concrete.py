@@ -5,11 +5,11 @@ from example.module.structural.bridge.implementation import Implementation
     provider=providers.Singleton,
 )
 class ConcreteImplementation(Implementation):
-    def method1(self):
+    def method1(self) -> None:
         pass
 
-    def method2(self):
+    def method2(self) -> None:
         pass
 
-    def method3(self):
+    def method3(self) -> None:
         pass

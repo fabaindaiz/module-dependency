@@ -1,18 +1,11 @@
-from abc import ABC, abstractmethod
-from typing import Callable
-from dependency.core import Component, component
-from dependency.library.patterns.observer import EventSubscriber
+from dependency.core import component
+from dependency.library.components import ObserverComponent
 from example.plugin.hardware import HardwarePlugin
 from example.plugin.hardware.events import HardwareEventContext
 
 @component(
     module=HardwarePlugin,
 )
-class HardwareObserver(Component):
-    @abstractmethod
-    def subscribe(self, listener: type[EventSubscriber]) -> Callable:
-        pass
-
-    @abstractmethod
-    def update(self, context: HardwareEventContext) -> None:
-        pass
+class HardwareObserver(ObserverComponent[HardwareEventContext]):
+    """Publishes hardware events. The contract comes from the library; the module,
+    the provider and the context type stay here, where the domain is."""

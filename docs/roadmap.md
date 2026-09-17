@@ -38,27 +38,30 @@ templates, two `mypy --strict` errors, and the two missing package markers.
 The three features the README commits to, with what each one collides with. These are the
 project's stated goals; everything below this section is maintenance that serves them.
 
-### 1. Pre-defined components for common patterns
+### 1. Pre-defined components — **decided, and started**
 
-**Where it actually is.** `library/patterns/` has `Composite`, `EventPublisher`/
-`EventSubscriber` and `StateHolder` — but they are **plain classes with no framework
-decorator**. Nothing in `library/` is a `@component`, so none of it participates in
-resolution. "Pre-defined components" does not exist yet; "pre-defined classes" does.
+**The decision (D-030).** `library/` ships **undecorated** `Component` contracts plus
+implementation mixins; the application applies `@component` and `@instance` itself. It was
+measured, not argued: `injection` is a class attribute with one instance per process, a
+library default plus an application override logs `implementation reassigned` on every
+startup, and **the last decorator applied wins — so which implementation runs depends on
+import order, not on intent.**
 
-**What it collides with.** D-001 and D-019. The moment a `library/` class is decorated with
-`@component`, `library/` starts declaring providers, and `core → library` stops being a
-one-line convenience edge and becomes a real dependency in the resolution path. The
-layering check would need rewriting, and a shipped component becomes public API under D-013
-forever.
+**What exists.** `library/components/observer.py` with `ObserverComponent[CONTEXT]` and
+`EventPublisherMixin[CONTEXT]`, and `plugin/hardware/observer/` refactored onto them as the
+worked case: 15 lines of per-domain boilerplate became 4.
 
-**What is already in its favour.** The example plugin already demonstrates the pattern:
-`plugin/hardware/observer/` wraps `EventPublisher` into a component. That wrapper is the
-template — the question is whether it moves into the library or stays as documentation.
+**What is left.** Contracts for the other two primitives — `Composite` and `StateHolder` —
+following the same shape. Neither needs a new decision.
 
-**What must be decided first.** Do pre-defined components ship as *declared components* (and
-join the public API and the resolution graph) or as *base classes an application decorates
-itself*? Those are different products. The second keeps `library/` out of the graph entirely
-and is reversible; the first is what the README's wording implies.
+**What to watch.** Contracts must be `Generic` in their domain type (D-031) or every
+domain-typed override becomes a `mypy --strict` error. And nothing in `library/` may carry a
+framework decorator; `check_library_undecorated` enforces it.
+
+**What would reopen D-030.** If `Injectable.set_implementation` gained explicit override
+semantics — something like `@instance(overrides=LibraryDefault)` instead of last-wins —
+shipping defaults from the library would become safe and the trade-off would change. That is
+a change in the core, not in `library/`.
 
 ### 2. Dependency CLI
 
@@ -225,6 +228,23 @@ the first thing a new user sees is a warning about nothing.
 
 **What must be decided first.** Whether "no config" and "config of the wrong type" should
 stay one message. They are different situations: the second is a real mistake.
+
+---
+
+### Put `src/example` in the gate
+
+Adding the nine missing `__init__.py` files let mypy see the example for the first time and
+found **28 errors**; 27 are fixed. The example is the teaching artefact, so it should not be
+able to rot again.
+
+**What it collides with.** One remaining error: `LazyWiring(_Marker)` reports unimplemented
+abstract attributes when the stub is type-checked standalone. It is an interaction between
+`stubgen` and `dependency-injector`'s own types, on a class that is not public API, and
+`stubs/` cannot be hand-edited (D-015).
+
+**What must be decided first.** Whether to declare `LazyWiring` abstract in the source so
+stubgen says so, or to accept a narrowly scoped ignore. Both need checking against what
+`stubgen` actually emits.
 
 ---
 

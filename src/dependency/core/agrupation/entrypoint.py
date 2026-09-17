@@ -7,7 +7,7 @@ from dependency.core.injection.injection import ProviderInjection
 from dependency.core.resolution.container import Container
 from dependency.core.resolution.resolver import InjectionResolver
 from dependency.core.resolution.strategy import ResolutionStrategy
-from dependency.library.threading import handle_exit
+from dependency.core.utils.threading import handle_exit
 _logger = logging.getLogger("dependency.loader")
 
 class Entrypoint:

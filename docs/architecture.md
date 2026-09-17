@@ -293,7 +293,8 @@ All inherit from `DependencyError`.
 | tree, binding or wiring-marker logic | `core/injection/` |
 | expansion, ordering, diagnostics | `core/resolution/` |
 | a generic algorithm with no framework types | `core/utils/` |
-| a reusable piece for applications *using* the framework | `library/` |
+| a reusable primitive with no framework types | `library/patterns/` |
+| a reusable **contract** or implementation mixin | `library/components/` — undecorated, see D-030 |
 | a code generator or template | `cli/` |
 
 The allowed dependency direction between these, and the two accepted cycles, are in

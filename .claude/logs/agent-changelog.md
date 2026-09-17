@@ -23,6 +23,68 @@ Format:
 
 ---
 
+## 2026-09-17 — Reusable building blocks: library ships contracts, not declarations
+
+**What.** Answered the open product question from the roadmap — whether "pre-defined
+components" ship as declared components or as base classes — and implemented the answer.
+
+- New `dependency.library.components` with `ObserverComponent[CONTEXT]` (an **undecorated**
+  `Component` contract) and `EventPublisherMixin[CONTEXT]` (the implementation body).
+- Refactored `example/plugin/hardware/observer/` onto them as the worked case. Per-domain
+  boilerplate went from ~15 lines to 4.
+- New audit check `check_library_undecorated`: no `@component`, `@instance`, `@product` or
+  `@module` may appear anywhere under `library/`.
+- **Closed the `core → library` cycle.** `handle_exit` moved to `core/utils/threading.py`;
+  `library/threading.py` re-exports it, so the old import path still works. `library` now
+  depends on `core` and never the reverse. D-019 changed from "accepted debt" to "closed".
+- Added the nine missing `__init__.py` files under `src/example`, and extended
+  `check_package_markers` to cover it.
+- Renamed `validation.standalone_provider(cls=...)` to `provided_cls`, and annotated it as
+  `type[T]`.
+
+**Areas.** `src/dependency/library/`, `src/dependency/core/utils/threading.py`,
+`src/dependency/core/agrupation/entrypoint.py`,
+`src/dependency/core/declaration/validation.py`, `src/example/`, `tools/audit_dependency.py`,
+`docs/`, `stubs/`.
+
+**Why.** Requested: implement the decision, considering what could break backward
+compatibility — with the note that the project is not yet in heavy use, which is what made
+closing the cycle and renaming a parameter acceptable now rather than at a major version.
+
+**Architecture.** ✅ Complies, and improves. One accepted cycle removed; the layering rule is
+now `library → core`, one-directional, and a third cycle is a failure rather than an
+advisory.
+
+**Backward compatibility.** Nothing in `dependency.core.__all__` changed. `library/components`
+is new. `dependency.library.threading.handle_exit` still imports from the same path via a
+re-export. The one behavioural change is `validation.standalone_provider` / `validate_provider`
+renaming their first parameter, which breaks only a caller passing it by keyword — both
+internal call sites are positional, and neither function is in `__all__`.
+
+**Measured.**
+
+- **The decision was made on three measurements, not on taste.** `EventBus.injection` is a
+  class attribute — one node per process. A library default plus an application override
+  logs `Provider EventBus implementation reassigned: DefaultEventBus -> AppEventBus` on
+  every startup. And the last decorator applied wins, so **which implementation runs depends
+  on import order**. The alternative was verified too: two domains declaring from the same
+  undecorated contract get independent injection nodes
+  (`HardwarePlugin.HardwareObserver` and `ReporterPlugin.ReporterObserver`), with no
+  reassignment warning.
+- **`mypy --strict src/example`: 28 errors → 1.** The example had never been type-checked at
+  all — mypy refused to map its modules because nine directories had no `__init__.py`.
+  The remaining error is `LazyWiring(_Marker)` reporting unimplemented abstract attributes
+  when the stub is checked standalone.
+- **`stubgen` strips the annotation from any parameter named `cls`**, treating it as a
+  classmethod's implicit first argument. `validation.standalone_provider(cls: type[T], ...)`
+  had been shipping to consumers as `(cls, ...)` — untyped — for the life of the project.
+  Renaming to `provided_cls` fixed it; reformatting the signature did not. D-032.
+- Contracts must be `Generic` in their domain type or `mypy --strict` rejects every
+  domain-typed override as a Liskov violation. Verified both ways. D-031.
+- Gate after the change: 48 tests, `mypy --strict` clean on 46 source files, 14 audit checks
+  with 1 deliberate failure and 3 advisories — one fewer advisory than before, because the
+  `core → library` cycle is gone.
+
 ## 2026-09-17 — Bootstrap the agent instruction system, and fix the nine violations it found
 
 **What.**

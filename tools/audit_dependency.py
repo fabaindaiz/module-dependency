@@ -377,7 +377,10 @@ def check_package_markers(report: Report) -> None:
     undocumented for that reason until it was found by the docs build.
     Rule: docs/architecture.md, "Where a new file goes".
     """
-    for directory in sorted({p.parent for p in source_files()}):
+    example = ROOT / "src" / "example"
+    directories = {p.parent for p in source_files()}
+    directories |= {p.parent for p in example.rglob("*.py") if "__pycache__" not in p.parts}
+    for directory in sorted(directories):
         if not (directory / "__init__.py").exists():
             report.fail(
                 "package_markers",
@@ -386,19 +389,55 @@ def check_package_markers(report: Report) -> None:
             )
 
 
+# --------------------------------------------------- library stays undeclared
+
+FRAMEWORK_DECORATORS = {"component", "instance", "product", "module"}
+
+
+def check_library_undecorated(report: Report) -> None:
+    """Nothing in library/ may carry a framework decorator.
+
+    Declaration is a global import-time side effect and `Injectable.set_implementation`
+    is last-wins, so a component declared by a library would make the active
+    implementation depend on import order rather than on intent -- measured, see D-030.
+    library/ ships undecorated `Component` contracts and implementation mixins; the
+    application applies the decorators.
+    Rule: src/dependency/library/CLAUDE.md.
+    """
+    library = SRC / "library"
+    for path in sorted(library.rglob("*.py")):
+        if "__pycache__" in path.parts:
+            continue
+        tree = ast.parse(path.read_text(), filename=str(path))
+        for node in ast.walk(tree):
+            if not isinstance(node, (ast.ClassDef, ast.FunctionDef)):
+                continue
+            for decorator in node.decorator_list:
+                target = decorator.func if isinstance(decorator, ast.Call) else decorator
+                name = target.id if isinstance(target, ast.Name) else None
+                if name in FRAMEWORK_DECORATORS:
+                    report.fail(
+                        "library_undecorated",
+                        f"{path.relative_to(ROOT)}:{node.lineno} applies @{name} to "
+                        f"{node.name!r}. library/ must not declare providers -- ship an "
+                        f"undecorated Component contract and let the application declare it.",
+                    )
+
+
 # --------------------------------------------------------- layering (advisory)
 
 LAYER_ALLOWED = {
     "core.declaration": {"core.agrupation", "core.injection", "core.exceptions"},
-    "core.agrupation": {"core.injection", "core.resolution", "core.exceptions", "library"},
+    "core.agrupation": {"core.injection", "core.resolution", "core.exceptions", "core.utils"},
     "core.injection": {"core.resolution", "core.exceptions"},
     "core.resolution": {"core.injection", "core.utils", "core.exceptions"},
     "core.utils": set(),
-    "library": {"core.injection"},
+    # library depends on core, never the other way round (D-019, now one-directional)
+    "library": {"core", "core.injection", "core.utils"},
     "cli": set(),
     "core": {"core.agrupation", "core.declaration", "core.injection", "core.resolution", "core.exceptions"},
 }
-KNOWN_CYCLES = {("core.injection", "core.resolution"), ("core.agrupation", "library")}
+KNOWN_CYCLES = {("core.injection", "core.resolution")}
 
 
 def _layer(dotted: str) -> str:
@@ -432,7 +471,7 @@ def check_layering(report: Report) -> None:
     cycles = {tuple(sorted(pair)) for pair in edges if (pair[1], pair[0]) in edges}
     for cycle in sorted(cycles):
         if cycle in KNOWN_CYCLES or tuple(reversed(cycle)) in KNOWN_CYCLES:
-            report.advise("layering", f"accepted cycle {cycle[0]} <-> {cycle[1]} (D-018/D-019)")
+            report.advise("layering", f"accepted cycle {cycle[0]} <-> {cycle[1]} (D-018)")
         else:
             report.fail("layering", f"new dependency cycle {cycle[0]} <-> {cycle[1]}")
 
@@ -528,6 +567,7 @@ CHECKS = [
     check_changelog_version,
     check_hatch_scripts,
     check_package_markers,
+    check_library_undecorated,
     check_layering,
     check_name_collisions,
     check_api_snapshot,

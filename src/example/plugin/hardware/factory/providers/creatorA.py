@@ -15,7 +15,7 @@ from example.plugin.hardware.events import EventHardwareCreated
     provider=providers.Singleton,
 )
 class HardwareFactoryCreatorA(HardwareFactory):
-    def __init__(self):
+    def __init__(self) -> None:
         self.__observer: HardwareObserver = HardwareObserver.provide()
         print("FactoryCreatorA initialized")
 

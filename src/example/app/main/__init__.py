@@ -17,5 +17,5 @@ class MainApplication(Entrypoint):
             required=True
         )
         super().__init__(container, PLUGINS)
-        import example.app.main.imports # type: ignore
+        import example.app.main.imports
         super().initialize()

@@ -12,7 +12,7 @@ from example.plugin.reporter.factory.productA import ReporterA
     provider=providers.Singleton,
 )
 class ReporterFactory(Component):
-    def __init__(self):
+    def __init__(self) -> None:
         print("Factory initialized")
 
     def createProduct(self,

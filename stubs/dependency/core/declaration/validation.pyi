@@ -4,11 +4,11 @@ from typing import Any, TypeVar
 T = TypeVar('T', bound=Any)
 InstanceOrClass = T | type[T]
 
-def standalone_provider(cls, provider: type[providers.Provider[T]]) -> providers.Provider[T]:
+def standalone_provider(provided_cls: type[T], provider: type[providers.Provider[T]]) -> providers.Provider[T]:
     """Validate standalone provider and return an instance.
 
     Args:
-        cls (type): Instance class to be provided.
+        provided_cls (type[T]): Class whose instances the provider will build.
         provider (type[providers.Provider[Any]]): Provider class to validate.
 
     Raises:
@@ -17,11 +17,11 @@ def standalone_provider(cls, provider: type[providers.Provider[T]]) -> providers
     Returns:
         providers.Provider[Any]: Instance of the validated provider.
     """
-def validate_provider(cls, provider: InstanceOrClass[providers.Provider[T]]) -> providers.Provider[T]:
+def validate_provider(provided_cls: type[T], provider: InstanceOrClass[providers.Provider[T]]) -> providers.Provider[T]:
     """Validate provider and return an instance.
 
     Args:
-        cls (Any): Instance class to be provided.
+        provided_cls (type[T]): Class whose instances the provider will build.
         provider (InstanceOrClass[providers.Provider[Any]]): Provider to validate.
 
     Raises:

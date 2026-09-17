@@ -237,7 +237,9 @@ before any code is written — lives in
 
 The three features this project is working towards:
 
-- **Pre-defined components** for common patterns and use cases
+- **Pre-defined components** for common patterns and use cases — started:
+  `dependency.library.components` ships undecorated contracts and mixins that an
+  application declares itself
 - **CLI support** for scaffolding and inspecting projects that use the framework
 - **Pytest integration** for testing applications built on the framework
 

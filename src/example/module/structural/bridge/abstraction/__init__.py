@@ -4,9 +4,9 @@ from dependency.core import Component, component
 @component()
 class Abstraction(Component):
     @abstractmethod
-    def feature1(self):
+    def feature1(self) -> None:
         pass
 
     @abstractmethod
-    def feature2(self):
+    def feature2(self) -> None:
         pass

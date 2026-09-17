@@ -9,12 +9,12 @@ from example.module.structural.bridge.implementation import Implementation
     provider=providers.Singleton,
 )
 class AbstractionImplementation(Abstraction):
-    def __init__(self):
+    def __init__(self) -> None:
         self.implementation: Implementation = Implementation.provide()
 
-    def feature1(self):
+    def feature1(self) -> None:
         self.implementation.method1()
 
-    def feature2(self):
+    def feature2(self) -> None:
         self.implementation.method2()
         self.implementation.method3()

@@ -11,6 +11,6 @@ class BasePlugin(Plugin):
     config: BasePluginConfig
 
     @classmethod
-    def on_resolution(cls, container: Container):
+    def on_resolution(cls, container: Container) -> None:
         super().on_resolution(container)
         print(f"{cls.meta} resolved with config: {cls.config}")

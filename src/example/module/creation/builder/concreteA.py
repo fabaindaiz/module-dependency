@@ -2,7 +2,7 @@ from dependency.core import instance, providers
 from example.module.creation.builder import Builder, Product
 
 class Product1(Product):
-    def __init__(self):
+    def __init__(self) -> None:
         self._steps: list[str] = []
 
     def setStep(self, step: str) -> None:
@@ -15,7 +15,7 @@ class Product1(Product):
     provider=providers.Factory,
 )
 class ConcreteBuilder1(Builder):
-    def __init__(self):
+    def __init__(self) -> None:
         self.reset()
 
     def reset(self) -> None:

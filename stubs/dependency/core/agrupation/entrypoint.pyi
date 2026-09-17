@@ -3,7 +3,7 @@ from dependency.core.injection.injection import ProviderInjection as ProviderInj
 from dependency.core.resolution.container import Container as Container
 from dependency.core.resolution.resolver import InjectionResolver as InjectionResolver
 from dependency.core.resolution.strategy import ResolutionStrategy as ResolutionStrategy
-from dependency.library.threading import handle_exit as handle_exit
+from dependency.core.utils.threading import handle_exit as handle_exit
 from typing import Iterable
 
 class Entrypoint:

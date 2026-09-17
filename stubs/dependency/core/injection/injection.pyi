@@ -55,11 +55,15 @@ class ProviderInjection(BaseInjection):
     holds only the implementation binding (interface -> concrete class).
 
     Attributes:
-        imports: ProviderInjection nodes this provider depends on.
+        imports: ProviderInjection nodes this provider requires. A missing one
+            aborts expansion and cascades to this provider's dependents.
+        optional_imports: ProviderInjection nodes followed when implemented and
+            skipped silently otherwise. These never cause or propagate a failure.
         dependent: ProviderInjection nodes that depend on this provider.
         is_resolved: Whether this provider has been fully resolved.
-        partial_resolution: If True, imports outside the current set are not required.
-        strict_resolution: If False, resolution proceeds even without implementation.
+        strict_resolution: If False, a missing implementation is reported as a
+            warning during expansion instead of a failure. It does not affect
+            attachment eligibility — see should_resolve().
     """
     is_root: bool
     imports: set['ProviderInjection']

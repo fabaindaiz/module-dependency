@@ -3,6 +3,10 @@ import threading
 from functools import wraps
 from typing import Any, Callable, Optional, TypeVar
 
+# Re-exported for backward compatibility: handle_exit moved to core/utils/threading.py
+# so that core no longer imports from library. See D-019.
+from dependency.core.utils.threading import handle_exit
+
 logger = logging.getLogger("ThreadHelper")
 WRAP = TypeVar('WRAP', bound=Callable[..., Any])
 
@@ -32,13 +36,4 @@ def threaded(name: Optional[str] = None, daemon: bool = True) -> Callable[[WRAP]
         return wrapper # type: ignore
     return function
 
-def handle_exit(func: WRAP) -> WRAP:
-    @wraps(func)
-    def wrapper(*args: Any, **kwargs: Any) -> Any:
-        try:
-            func(*args, **kwargs)
-        except KeyboardInterrupt:
-            logger.info("Received keyboard interrupt, exiting...")
-            import os
-            os._exit(1)
-    return wrapper # type: ignore
+__all__ = ["excluded", "threaded", "handle_exit"]
