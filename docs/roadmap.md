@@ -166,7 +166,7 @@ Writing it found D-037: `@inject` silently does nothing on a module-level functi
 wiring is given the component classes rather than their modules. That is pinned by a test
 so it is not rediscovered the hard way.
 
-### A deprecation path for names leaving the public API
+### A deprecation path for names leaving the public API — **closed by decision**
 
 `tools/api_snapshot.json` catches a name leaving `dependency.core.__all__` and forces a major
 version. What does not exist is the **path between the two versions**: a consumer of
@@ -179,21 +179,21 @@ version. What does not exist is the **path between the two versions**: a consume
 **What is already in its favour.** The API snapshot makes the diff mechanical, so the set of
 names that would need a shim is computable rather than remembered.
 
-**What must be decided first.** Whether this library promises one at all. A library that
-ships a deprecation path owes it on every removal afterwards — that is a commitment, not a
-feature.
+**Decided: no** (D-057). A major release removes, and that is what a major means. Promising
+a path is a commitment owed on every removal afterwards; declining it in writing is cheaper
+and more honest than an unstated policy people discover by being broken. What stays is
+`check_api_snapshot`, which makes a removal impossible to ship *silently* — it just does not
+soften it.
 
-### Decide `py.typed` versus generated stubs
+### Decide `py.typed` versus generated stubs — **closed by decision**
 
-Today the `.pyi` files are the only type surface consumers see (D-015, PEP 561). Adding
-`py.typed` and deleting `stubs/` would be simpler and would remove an entire class of drift.
+D-058: the stubs stay. Whether any downstream project pins them is unknown, and an unknown
+is not a reason to move a public type surface. `check_stub_parity` caught four drifts in a
+single session, which is the argument that the current arrangement works.
 
-**What it collides with.** D-015, and the wheel layout — `dependency-stubs/` is force-included
-by hatchling. Removing it changes what consumers resolve types from, so it is a
-compatibility change, not a cleanup.
-
-**What must be decided first.** Whether any downstream project pins against the stubs.
-Unknown.
+**What it costs, named.** `src/example` cannot enter the gate — see that entry — because
+the one remaining mypy error would need an ignore inside generated output, and D-015
+forbids hand-editing `stubs/`. That cost is accepted, not overlooked.
 
 ---
 
@@ -232,20 +232,16 @@ nothing.
 
 ## Structure
 
-### Make the `reference` collision unrepresentable
+### Make the `reference` collision unrepresentable — **done**
 
-Two providers with the same class name under one container overwrite silently via `setattr`
-(D-020, measured). Rung 4 would be a `ContainerInjection.attach` that refuses.
+D-056. `attach` now refuses to let a second, different provider take a name another already
+holds under the same container. Re-attaching the same object stays legal, which is what
+keeps one module owning one sub-container across repeated resolution.
 
-**What it collides with.** It would turn a currently-silent condition into an error, and
-tests have 27 duplicate names today. They are in different containers so they should pass —
-but "should" is doing work in that sentence.
-
-**What is already in its favour.** `audit_dependency.py::check_name_collisions` reports the
-count, so the blast radius is known before the change.
-
-**What must be decided first.** Hard error or warning? A hard error is the honest choice and
-the riskier one.
+**What the risk turned out to be.** The entry said *"tests have 27 duplicate names today.
+They are in different containers so they should pass — but 'should' is doing work in that
+sentence."* It was not: all 161 tests pass unchanged, and three new ones pin the three
+cases — collision, idempotent re-attach, and the same name under two containers.
 
 ### Break the `injection ↔ resolution` cycle
 
@@ -271,7 +267,7 @@ message now names the consequence — the config will never be populated.
 
 ---
 
-### Put `src/example` in the gate
+### Put `src/example` in the gate — **blocked**
 
 Adding the nine missing `__init__.py` files let mypy see the example for the first time and
 found **28 errors**; 27 are fixed. The example is the teaching artefact, so it should not be
@@ -287,10 +283,13 @@ emit `class LazyWiring(_Marker, ABC)`, but mypy still reports the abstract attri
 does not add `metaclass=abc.ABCMeta` the way it does for `WiringMixin`, whose first base is
 `ABC`. Reverted, since the change bought nothing.
 
-**What must be decided first.** Whether to accept a narrowly scoped ignore in generated
-output — which means either post-processing `stubs/` or hand-editing it, and D-015 forbids
-the second. The honest alternative is to stop generating stubs and ship `py.typed` instead,
-which is the entry above.
+**Decided, and it stays open: blocked outside its own entry.** The alternative — stop
+generating stubs and ship `py.typed` — was considered and declined (D-058), so the
+remaining route is a narrowly scoped ignore inside generated output. That means
+post-processing `stubs/` in the build, since D-015 forbids hand-editing it. Nobody has
+priced that yet, and until someone does, `src/example` is type-checked by hand and not by
+the gate. **What would reopen it:** a `stubgen` release that emits `metaclass=abc.ABCMeta`
+for a class whose first base is not `ABC`, or a decision to post-process.
 
 ---
 

@@ -8,6 +8,37 @@ from dependency.core.exceptions import DeclarationError, ProvisionError
 _logger = logging.getLogger("dependency.loader")
 
 
+def _claim(
+    container: containers.Container,
+    name: str,
+    value: Any,
+    owner: object,
+) -> None:
+    """Attach `value` to `container` under `name`, refusing to displace anything else.
+
+    A provider's name is its class name, and the dot-path built from it is the wiring
+    reference a consumer writes down. Two different objects claiming one name under one
+    container used to overwrite silently via `setattr`: the runtime resolved one and every
+    caller of the other failed with an error naming neither (D-020). This makes that
+    unrepresentable instead of merely reported (D-056).
+
+    Re-attaching the **same** object is idempotent and allowed: one declared module owns one
+    sub-container, and resolving twice must not be an error.
+
+    Raises:
+        DeclarationError: If a different object already holds this name.
+    """
+    existing = getattr(container, name, None)
+    if existing is not None and existing is not value:
+        raise DeclarationError(
+            f"Two providers claim the name {name!r} under the same container: "
+            f"{existing!r} and {owner!r}. A provider's name is its class name and the "
+            f"reference consumers wire against, so one would silently replace the other. "
+            f"Rename one of the classes, or declare them under different modules."
+        )
+    setattr(container, name, value)
+
+
 class BaseInjection(ABC):
     """Base class for all nodes in the injection tree.
 
@@ -78,7 +109,7 @@ class ContainerInjection(BaseInjection):
         that dependency-injector uses for reference-based wiring.
         """
         if container is not None:
-            setattr(container, self.name, self.container)
+            _claim(container, self.name, self.container, self)
         for child in self.childs:
             child.attach(container=self.container)
 
@@ -226,7 +257,7 @@ class ProviderInjection(BaseInjection):
     def attach(self, container: Optional[containers.Container] = None) -> None:
         """Attach this provider to the dependency-injector container."""
         if container is not None and self.should_resolve():
-            setattr(container, self.name, self.provider)
+            _claim(container, self.name, self.provider, self)
 
     @override
     def collect_providers(self) -> Generator["ProviderInjection", None, None]:

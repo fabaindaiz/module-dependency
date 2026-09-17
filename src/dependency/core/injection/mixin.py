@@ -1,7 +1,11 @@
 from typing import Any, Callable, Generator, Iterable, Optional
 from dependency_injector import providers, containers
 from dependency.core.injection.injectable import Injectable
-from dependency.core.injection.injection import ContainerInjection, ProviderInjection
+from dependency.core.injection.injection import (
+    ContainerInjection,
+    ProviderInjection,
+    _claim,
+)
 from dependency.core.injection.wiring import WiringMixin
 from dependency.core.resolution.container import Container
 from dependency.core.exceptions import DeclarationError
@@ -39,7 +43,7 @@ class ContainerMixin:
     @classmethod
     def inject_container(cls, container: Container) -> None:
         """Attach this module's DynamicContainer to the application container."""
-        setattr(container, cls.injection.name, cls.injection.container)
+        _claim(container, cls.injection.name, cls.injection.container, cls.injection)
         cls.on_resolution(container=container)
 
     @classmethod

@@ -2,7 +2,7 @@ import pytest
 from dependency_injector import containers, providers
 from dependency_injector.wiring import Provide, inject
 from dependency.core.injection import ContainerInjection, ProviderInjection, Injectable
-from dependency.core.exceptions import ProvisionError
+from dependency.core.exceptions import DeclarationError, ProvisionError
 
 TEST_REFERENCE = "container1.container2.provider1"
 
@@ -77,3 +77,50 @@ def test_injection_orphan_reference_raises() -> None:
 
     with pytest.raises(ProvisionError):
         _ = orphan.reference
+
+
+# --------------------------------------------------------------------------------------
+# A name under a container belongs to exactly one provider (D-056). It used to be a silent
+# overwrite: the runtime resolved one and every caller of the other failed with an error
+# naming neither.
+# --------------------------------------------------------------------------------------
+
+
+def _named(name: str) -> ProviderInjection:
+    injectable = Injectable(interface_cls=type(name, (), {}))
+    injectable.set_implementation(implementation=injectable.interface_cls, modules_cls=())
+    node = ProviderInjection(name=name, injectable=injectable)
+    node.set_provider(providers.Singleton(injectable.interface_cls))
+    return node
+
+
+def test_two_providers_cannot_claim_one_name_under_one_container() -> None:
+    container = containers.DynamicContainer()
+    _named("Collide").attach(container=container)
+
+    with pytest.raises(DeclarationError) as failure:
+        _named("Collide").attach(container=container)
+
+    assert "Collide" in str(failure.value)
+
+
+def test_attaching_the_same_provider_twice_is_allowed() -> None:
+    """One declared module owns one sub-container; resolving twice is not an error."""
+    container = containers.DynamicContainer()
+    node = _named("Idempotent")
+
+    node.attach(container=container)
+    node.attach(container=container)
+
+    assert container.Idempotent is node.provider
+
+
+def test_the_same_name_under_different_containers_is_fine() -> None:
+    """The 27 duplicate class names across test files rely on exactly this."""
+    first = containers.DynamicContainer()
+    second = containers.DynamicContainer()
+
+    _named("Shared").attach(container=first)
+    _named("Shared").attach(container=second)
+
+    assert first.Shared is not second.Shared

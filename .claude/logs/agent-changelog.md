@@ -36,6 +36,45 @@ Earlier entries predate these two fields and are not rewritten.
 
 ---
 
+## 2026-09-17 — The name collision becomes unrepresentable, and three questions are closed
+
+**What.** `injection._claim` replaces every bare `setattr` that attaches something to a
+container, and refuses to let a second, different object take a name another already holds
+(D-056). Three decisions recorded and three roadmap entries closed: no deprecation path
+(D-057), the generated stubs stay (D-058), and `src/example` in the gate is now marked
+**blocked** with what would reopen it.
+
+**Areas.** `src/dependency/core/injection/{injection,mixin}.py`,
+`tests/core/test_injection.py`, `docs/decisions.md`, `docs/roadmap.md`.
+
+**Why.** D-020 measured the silent version: two providers with one class name under one
+container, the runtime resolving one, and every caller of the other failing with an error
+that named neither. It was rung 3 — reported by an advisory — and the roadmap wanted rung 4.
+
+**Architecture.** ✅ Complies. The rule is *a different object may not take the name*, not
+*the name is taken*: re-attaching the same object stays legal, because one declared module
+owns one sub-container and resolving twice must not be an error. Four `setattr` sites were
+guarded, including `ContainerMixin.inject_container`, which is how a plugin's container
+joins the application's and carries the same risk between two same-named plugins.
+
+**What went wrong on the way.** Nothing, and the interesting part is what did not. The
+roadmap entry said *"tests have 27 duplicate names today. They are in different containers
+so they should pass — but 'should' is doing work in that sentence."* It was not doing work:
+all 161 tests pass unchanged. The prediction was hedged and the measurement settled it.
+
+The citation check caught my own forward reference — `injection.py` cited D-056 before the
+row existed, and the gate failed on it. That is the check written this morning doing
+exactly its job on its author.
+
+**What was left undone.** The `src/example` gate entry is blocked rather than solved: with
+`py.typed` declined, the remaining route is post-processing `stubs/` in the build, which
+nobody has priced. Until then the example is type-checked by hand.
+
+**Measured.** 161 tests + 1 xfailed (was 158), 18 audit checks, 2 advisories, gate green,
+example boots and stops with zero warnings.
+
+---
+
 ## 2026-09-17 — The framework shuts its own resources down, and a friction earns promotion
 
 **What.** `ResolutionStrategy.shutdown` and `Entrypoint.shutdown` (D-055).
