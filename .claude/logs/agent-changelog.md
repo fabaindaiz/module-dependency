@@ -36,6 +36,35 @@ Earlier entries predate these two fields and are not rewritten.
 
 ---
 
+## 2026-09-17 — Settle the version at 2.0.0, which unblocks the gate
+
+**What.** `pyproject.toml` 1.1.7 -> 2.0.0, `tools/api_snapshot.json` rewritten as what
+2.0.0 publishes (22 names: `Registry` out, `ExpansionFailure` and `ExpansionResult` in),
+and `CHANGELOG.md`'s `[Unreleased]` section became `[v2.0.0]`.
+
+**Areas.** `pyproject.toml`, `tools/api_snapshot.json`, `CHANGELOG.md`.
+
+**Why.** Step 0 of the plan to remove process-global declaration state. Every later step
+changes `dependency.core.__all__`, and under D-013 that is impossible to do honestly while
+the version still claims to be the one that contained `Registry`. It was also the single
+open decision blocking the whole roadmap.
+
+**Architecture.** ✅ Complies. D-013 is satisfied rather than bypassed: the major bump is
+what makes the already-shipped removal legal.
+
+**What went wrong on the way.** Nothing. The failure this clears was deliberate and had
+been red since the resolution refactor.
+
+**What was left undone.** The migration guide the README has owed longest is still owed,
+and nothing is published — this bumps the version, it does not cut a release. The `release`
+skill has not been run.
+
+**Measured.** The gate goes from **1 failure across 14 checks** to **14 checks passed, 2
+advisories** — the first fully green audit of this session. 109 tests, `mypy --strict`
+clean on 48 files.
+
+---
+
 ## 2026-09-17 — The agent method goes from version 0 to version 7
 
 **What.** Updated this repository's copy of the method from the single unversioned

@@ -5,11 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [v2.0.0] - 2026-09-17
 
 **Breaking.** `Registry` was removed from the public API (`dependency.core.__all__`) and
-replaced by the expansion result types. Under semantic versioning the next release is
-`2.0.0`; the version has not been bumped yet.
+replaced by the expansion result types — `ExpansionFailure` and `ExpansionResult`. Under
+semantic versioning that is a major release, and this is it.
 
 ### Added
 
