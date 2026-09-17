@@ -231,21 +231,17 @@ This repository includes a practical example demonstrating how to use the framew
 
 ## Future Work
 
-This project is a work in progress, and there are several improvements and enhancements planned for the future.
+The full roadmap — what is planned, what each item collides with, and what must be decided
+before any code is written — lives in
+[docs/roadmap.md](https://github.com/fabaindaiz/module-dependency/blob/main/docs/roadmap.md).
 
-Some planned features are:
-- Add pre-defined components for common patterns and use cases
-- Dependency CLI support for easier interaction with the framework
-- Pytest testing framework integration for better test management
+The three features this project is working towards:
 
-Some new improvements that has been recently added:
-- Enhance documentation and examples for better understanding
-- Implement framework API and extension points for customization
-- Improve injection resolution and initialization process
-- Visualization tools for dependency graphs and relationships
+- **Pre-defined components** for common patterns and use cases
+- **CLI support** for scaffolding and inspecting projects that use the framework
+- **Pytest integration** for testing applications built on the framework
 
-Pending issues that eventually will be addressed:
-- Migration guide from previous versions (some breaking changes were introduced)
+A migration guide for the breaking changes is pending, and is tracked in the roadmap.
 
 ## Aknowledgements
 

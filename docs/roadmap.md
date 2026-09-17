@@ -12,7 +12,7 @@ Decision numbers refer to `decisions.md`.
 The resolution refactor (`cdf761c`, unreleased) replaced the global `Registry` and the
 `FallbackPlugin` with `ProviderExpansion` — a four-step BFS that discovers undeclared
 providers, adopts orphans into their importer's container, and cascades required-import
-failures. It is complete and tested (48 tests, 91% coverage on `core/`).
+failures. It is complete and tested: 48 tests, **95% coverage on `core/`**.
 
 It is **unreleased and breaking**: `Registry` left `dependency.core.__all__` and
 `ExpansionFailure`/`ExpansionResult` entered. The version is still `1.1.7`, which is the
@@ -22,10 +22,101 @@ this until the version is bumped — deliberately.
 **The immediate open question is the version number for the next release.** Under semver it
 is `2.0.0`. Nothing else blocks it.
 
-Four bugs found during the bootstrap audit are fixed: the Python floor (3.11 → 3.12),
-the unquoted forward references in `library/graph/models.py`, the undeclared `graphviz`
-dependency, and `src/graph.py` calling `generate_graph()` with no arguments. The CLI
-templates, which generated code that raised `TypeError` on import, are rewritten.
+`library/` is the opposite: **23%**, with `graph/` at 0 — the overall figure is 78%, not
+the 91% previously reported, which was inflated because two missing `__init__.py` files
+hid 127 statements from coverage entirely (D-029).
+
+Nine bugs found by the bootstrap audit are fixed: the Python floor (3.11 → 3.12), two
+unquoted forward references in `library/graph/models.py`, the undeclared `graphviz`
+dependency, `src/graph.py` calling `generate_graph()` with no arguments, three broken CLI
+templates, two `mypy --strict` errors, and the two missing package markers.
+
+---
+
+## Product direction
+
+The three features the README commits to, with what each one collides with. These are the
+project's stated goals; everything below this section is maintenance that serves them.
+
+### 1. Pre-defined components for common patterns
+
+**Where it actually is.** `library/patterns/` has `Composite`, `EventPublisher`/
+`EventSubscriber` and `StateHolder` — but they are **plain classes with no framework
+decorator**. Nothing in `library/` is a `@component`, so none of it participates in
+resolution. "Pre-defined components" does not exist yet; "pre-defined classes" does.
+
+**What it collides with.** D-001 and D-019. The moment a `library/` class is decorated with
+`@component`, `library/` starts declaring providers, and `core → library` stops being a
+one-line convenience edge and becomes a real dependency in the resolution path. The
+layering check would need rewriting, and a shipped component becomes public API under D-013
+forever.
+
+**What is already in its favour.** The example plugin already demonstrates the pattern:
+`plugin/hardware/observer/` wraps `EventPublisher` into a component. That wrapper is the
+template — the question is whether it moves into the library or stays as documentation.
+
+**What must be decided first.** Do pre-defined components ship as *declared components* (and
+join the public API and the resolution graph) or as *base classes an application decorates
+itself*? Those are different products. The second keeps `library/` out of the graph entirely
+and is reversible; the first is what the README's wording implies.
+
+### 2. Dependency CLI
+
+**Where it actually is.** Four generators and four templates exist and are tested. There is
+**no `[project.scripts]` entry**, so there is no installable command — the CLI is a library
+nobody can invoke. Its templates emitted keywords no decorator accepted until this pass.
+
+**What it collides with.** D-022 (frozen but usable) and D-013. Adding
+`[project.scripts] dependency = "..."` makes the command-line surface public API: flag
+names and output layout become things you cannot change without a major version.
+
+**What is already in its favour.** `check_cli_templates` now verifies generated code
+against the live decorator signatures with `inspect.signature`, so the generators cannot
+silently rot again. The models (`cli/models/base.py`) already describe the inputs a
+command would parse.
+
+**What must be decided first.** What the command actually does. "Generate a plugin
+skeleton" and "inspect the resolved graph of an installed app" are both defensible and
+share no code. Also: which argument parser, since that becomes a dependency.
+
+### 3. Pytest integration
+
+Covered under **Testing** below — it is the same item as the first-party plugin, and the
+measurement in D-023 is what makes it tractable.
+
+### 4. Migration guide — the one the README has owed the longest
+
+The README lists this under "pending issues that eventually will be addressed", and it is
+now the most urgent item in this document: the unreleased refactor removed `Registry` and
+the fallback plugin, which is a `2.0.0`.
+
+**What it collides with.** Nothing technical. It collides with the fact that `CHANGELOG.md`
+stopped at v1.1.5 while two releases shipped (D-026), so the raw material for the guide was
+never written down and has to be reconstructed from the diff.
+
+**What is already in its favour.** `tools/api_snapshot.json` records the exact public API of
+v1.1.7, so the removed and added names are now a mechanical diff rather than an archaeology
+exercise. `docs/decisions.md` explains *why* each thing changed, which is the half a
+changelog usually lacks.
+
+**What must be decided first.** Whether `Registry` gets a deprecation shim in a `1.2.0` that
+warns, or whether `2.0.0` removes it outright. A shim is friendlier and costs a release.
+
+---
+
+## Claims in the README that measurement contradicts
+
+The README lists these under "recently added". They are not finished, and the roadmap should
+say so rather than inherit the claim:
+
+| README claim | Measured state |
+|---|---|
+| "Visualization tools for dependency graphs" | Shipped **broken**: `NameError` on 3.12 and 3.13, `graphviz` undeclared, `build:graph` raised `TypeError`, and **zero tests** imported it. All fixed in this pass, still untested |
+| "Framework API and extension points for customization" | The hooks exist — `on_declaration`, `on_resolution`, `ResolutionStrategy`, `ResolutionConfig` — but are documented nowhere as an extension story. An extension point nobody can find is not one |
+| "Enhance documentation and examples" | `docs/` described `Registry`, `FallbackPlugin` and `partial_resolution`, none of which exist, and the docs build had been failing since the refactor |
+
+Not a criticism of the plan — a correction of the starting position, so the next estimate
+is made from where the code is.
 
 ---
 
@@ -179,6 +270,10 @@ constructed"?* (D-001)
 
 | Idea | Breaks it? |
 |---|---|
+| Pre-defined components **as declared components** | **Yes, potentially.** Shipping decorated components puts library code inside the resolution graph. A pre-defined component with a missing optional dependency would now be a startup concern for every consumer |
+| Pre-defined components **as base classes** | **No.** They stay outside the graph; the application decorates them |
+| Dependency CLI | **No.** It generates source and inspects; it never participates in a running graph |
+| Migration guide | **No.** Prose |
 | Contract test against `_Marker` | **No.** It protects the wiring the invariant depends on |
 | `py.typed` versus stubs | **No.** Type surface only, no runtime effect |
 | pytest plugin | **No — the reverse.** It would make the invariant testable in isolation rather than only via the example app |
@@ -187,3 +282,42 @@ constructed"?* (D-001)
 | Break the `injection ↔ resolution` cycle | **No**, but it changes a public hook signature, so it is gated on the major version |
 | `ruff` | **No.** Cosmetic |
 | pydantic mypy plugin | **No**, but it may block the gate until a backlog of type errors is cleared |
+
+---
+
+## Suggested order
+
+Not a schedule. An order, with the reason each step unblocks the next.
+
+**First — settle the version.** Everything downstream depends on it. `Registry` is gone from
+the public API and the version still says `1.1.7`; the audit fails until this is decided.
+Pick `2.0.0` (clean) or a `1.2.0` with a deprecation shim (friendlier, costs a release).
+Two lines once decided. Blocks: the migration guide, the CLI entry point, pre-defined
+components — every item that adds or removes public API.
+
+**Second — write the migration guide and release.** The README has owed it the longest, and
+`tools/api_snapshot.json` now makes the API diff mechanical. Releasing also clears
+`[Unreleased]` in `CHANGELOG.md` and turns the four bug fixes into something users get.
+
+**Third — pick one product feature, not three.** The three README features have very
+different shapes:
+
+| Feature | Blocked on a decision? | Size | Risk to the invariant |
+|---|---|---|---|
+| Pytest integration | No — D-023 measured the ground | Medium | None; it makes the invariant testable |
+| Pre-defined components | **Yes** — declared components or base classes? | Large | Real, if declared |
+| Dependency CLI | **Yes** — what does the command do? | Medium | None |
+
+**Pytest integration is the one to do first**, for three reasons: it needs no decision you
+have not already made, it is the one whose groundwork exists (the suite is proven to pass in
+a single process, so a fixture that resets state has a known-good baseline), and it is the
+prerequisite for testing the other two honestly. `library/` sits at 0–55% coverage and
+`graph/` has no tests at all; a test story makes that fixable rather than aspirational.
+
+**Fourth — the two contract gaps, whenever there is an hour.** The `_Marker` contract test
+and tests for `library/`. Neither needs a decision. Both protect things that already broke
+once.
+
+**Leave for last:** `ruff`, the pydantic mypy plugin, breaking the `injection ↔ resolution`
+cycle. The first two are noise-generating and better done on a quiet day; the third is gated
+on the major version anyway.
