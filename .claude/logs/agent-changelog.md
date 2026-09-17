@@ -36,6 +36,46 @@ Earlier entries predate these two fields and are not rewritten.
 
 ---
 
+## 2026-09-17 — The formatter enters the gate, and D-025 is superseded on its own terms
+
+**What.** `build:format` (`ruff format --check`, writes nothing) joins the gate, which is
+now **tests → typecheck → lint → format → audit → docs**. D-049 recorded; the roadmap's
+`Adopt ruff` entry is closed with what the question turned out to be.
+
+**Areas.** `pyproject.toml`, `docs/decisions.md`, `docs/roadmap.md`.
+
+**Why.** D-025 declined the formatter on a number — *"formatting 2941 LOC buries every
+meaningful diff"* — and a number is the only thing that should reopen it. Measured: the
+diff is **885 lines across 106 files**, and it shipped in a commit containing nothing else,
+so nothing was buried.
+
+**Architecture.** ✅ Complies. The gate runs `--check`, never the fixer or the formatter
+itself. This repo's own rule is that a formatter does not run on a tree it might be
+sharing, and the linter's `--fix` had already proved why in this same session.
+
+**What went wrong on the way.** I claimed in the reformat commit message that `stubgen`
+produced byte-identical stubs. **It did not** — four stubs changed. Not signatures, which
+were untouched, but docstrings: the formatter collapses `"""Text.\n"""` onto one line
+and `stubgen --include-docstrings` carries that through. The commit was local, so the
+message was amended to say what actually happened rather than what I expected.
+
+A second suspicion turned out to be unfounded, and is recorded because it was checked: the
+formatter moves `# pragma: no cover` from a `raise` onto its closing parenthesis, which
+looked like it would silently disable the exclusion. `declaration/validation.py` is still
+at 100% with no missing lines — coverage.py honours it there.
+
+**What was left undone.** `mypy` still covers only `src/dependency`; `tests/` and
+`src/example/` are unchecked, which is how seven undefined names survived in annotations.
+CI runs one interpreter per workflow, so 3.13 is covered locally by `ceiling:gate` and not
+in CI. `src/example` is still not in the gate (D-033).
+
+**Measured.** The complete gate — tests, typecheck, lint, format, 18 audit checks and the
+docs build — runs in **4.7 s** on 3.14 and **4.6 s** on 3.12, both green. It began this
+session as three steps in 3.7 s with one deliberate failure. Coverage after formatting is
+unchanged: `core/` 95.0%, total 95.1%.
+
+---
+
 ## 2026-09-17 — `ruff` adopted as a linter, and the fixer that deleted the framework's wiring
 
 **What.** `ruff` enters the gate as `build:lint` with a defect-only rule set

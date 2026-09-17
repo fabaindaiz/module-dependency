@@ -407,13 +407,21 @@ file named by `set` and fail if they differ. It was deliberately not taken durin
 that created the rule — writing the check and the rule it checks in the same pass is how a
 check ends up testing the wording rather than the repository.
 
-### Adopt `ruff`
+### Adopt `ruff` — **done**
 
-**What it collides with.** D-025 — formatting 2941 LOC buries every meaningful diff. It must
-be its own commit, and the commit must contain nothing else.
+Both halves, as two commits. The linter first (D-048), with a defect-only rule set and
+`imports.py` exempt from `F401` after `--fix` deleted every line of all six of them; then
+the formatter alone (D-049).
 
-**What must be decided first.** Format-only, or lint rules too? Lint rules on an unlinted
-codebase produce hundreds of findings and someone has to triage them.
+**What the question turned out to be.** The entry asked *format-only, or lint rules too?*
+and feared "hundreds of findings". Measured: **49** across `src`, `tests` and `tools` with
+the defect-only set, of which about ten were real defects — including a
+`ResolutionStrategy()` built once at import and shared by every caller that omitted it. The
+excluded families are `I` and `UP`: 119 mechanical rewrites that would regenerate every
+stub, which is the only type surface a consumer sees (D-015).
+
+**What the formatter actually cost.** 885 lines across 106 files, not the 2941 LOC D-025
+feared.
 
 ### Enable the pydantic mypy plugin — **done**
 
@@ -452,7 +460,7 @@ constructed"?* (D-001)
 | Break the `injection ↔ resolution` cycle | **No**, but it changes a public hook signature, so it is gated on the major version |
 | A deprecation path for removed names | **No.** Release process; it adds a shim, never a provider |
 | The method's own upkeep — the header check, the learnings owed upstream | **No.** Instruction system only; none of it participates in a running graph |
-| `ruff` | **No.** Cosmetic |
+| `ruff` | **No.** Cosmetic — **done**, and the linter found one shared-mutable-default that was not |
 | pydantic mypy plugin | **No**, but it may block the gate until a backlog of type errors is cleared |
 
 ---

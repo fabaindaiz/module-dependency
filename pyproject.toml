@@ -35,7 +35,10 @@ coverage = "pytest --cov src/dependency --cov-report html -n auto --dist=loadfil
 # `docs` shells out because mkdocs lives in its own env; the docs build used to run only
 # when a release was published, and it was broken for a long time before anyone found out.
 docs = "hatch run docs:build"
-gate = ["tests", "typecheck", "lint", "audit", "docs"]
+gate = ["tests", "typecheck", "lint", "format", "audit", "docs"]
+# --check writes nothing. Never the bare `ruff format` from the gate: this repo's
+# own rule is that a formatter does not run on a tree it might be sharing.
+format = "ruff format --check src tests tools"
 graph = "python src/graph.py"
 # Writes nothing. A fixer must never be run by the gate: `ruff check --fix` once deleted
 # every line of all six `imports.py` files, which is how implementations enter a build.
