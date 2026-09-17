@@ -85,6 +85,23 @@ Current rung-1 rules worth revisiting:
 - **D-020** (same-named providers overwrite silently) — advisory only. Rung 4 is on the
   roadmap.
 
+## 7. Is the method set itself still current, and is its header honest?
+
+The four documents in `docs/agents/` carry one header, identical in all four. Check three
+things, in this order:
+
+- **The header is the same in all four files.** A file whose header disagrees with its
+  siblings is worse than one with no header, because the update trusts it.
+- **`adapted` and `declined` still describe this repository.** Every renaming we made and
+  every delta we refused is in there with its reason. An adaptation that is not written
+  down gets re-proposed by the next update, and re-declined, forever (D-040).
+- **Nothing edited the method in place.** Changing those documents here is a fork and is
+  done as one (D-041). If a diff touched them without bumping `ancestry`, that is a finding.
+
+When a newer copy exists, `prompt-evaluate.md` is read-only and says whether this repo needs
+`prompt-update.md`. Run it here rather than in the middle of a feature: updating the method
+*after* the work means the work was done under the old method.
+
 ## Reporting
 
 One section per question, with the command output. End with: how many rules are on rung 1,

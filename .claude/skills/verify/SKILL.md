@@ -12,6 +12,18 @@ This repo had four shipped bugs that every green test run missed, because the te
 never imported the broken module and the gate never ran the type checker. Green is not the
 same as verified.
 
+## The four layers, and what each one answers
+
+The gate is the floor, not the ceiling. This repo has all four layers; they answer different
+questions, and a claim is only as strong as the layer that actually ran.
+
+| Layer | Answers | Here |
+|---|---|---|
+| The gate | did we break a rule we already knew about? | `hatch run build:gate` |
+| The invariant test | does the graph still validate before the first object is built? | `hatch run build:example`, which walks the full expansion path |
+| The pre-ship check | does it work **in the artefact we actually ship**? | the `release` skill — wheel, clean venv, minimum Python |
+| Looking at it | is what we produced any good? | read the example's log output, the generated file, the error text |
+
 ## The gate
 
 ```bash

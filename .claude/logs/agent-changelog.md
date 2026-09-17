@@ -18,8 +18,102 @@ Format:
 **Areas.** Files or folders.
 **Why.** The reason, including the request that prompted it.
 **Architecture.** ✅ Complies · ⚠️ Deviation · REVIEW — and why.
+**What went wrong on the way.** What the first attempt got wrong, and what caught it. Omit
+only if nothing did.
+**What was left undone.** Debt this change created or walked past, named, so the next
+session does not rediscover it as a surprise.
 **Measured.** The number, if a claim was made.
 ```
+
+**The last three fields are the ones that pay for the file.** A log of successes is
+bookkeeping. A log that says *"the first cut cascaded optional failures and only the example
+app showed it"*, or *"this file is one function from its line budget and splitting it is a
+structural call I did not make"*, is the only mechanism by which one session warns another.
+Write the failures in the same voice as the successes: an entry that hides a wrong turn
+sends the next session down it.
+
+Earlier entries predate these two fields and are not rewritten.
+
+---
+
+## 2026-09-17 — The agent method goes from version 0 to version 7
+
+**What.** Updated this repository's copy of the method from the single unversioned
+`bootstrap-prompt.md` (version 0 by content: 13 principles, no session loop, no header) to
+the four-document set at version 7, and applied the deltas that this repository actually
+needs. Thirty-six deltas were listed across v1–v7; the triage took 14, found 11 already
+here, and declined 3 with their reason recorded in the header.
+
+- The header is carried forward in all four documents, identical in each: `adopted`
+  2026-09-17, five `adapted` entries naming this repo's own shapes (the gate command, the
+  audit script, the skill names, the session loop living in a skill, the docs exclusion),
+  and three `declined` entries with reasons. D-040.
+- `workflow` skill: the five missing steps of the session loop — the opening brief (§0),
+  pick-and-price, the question protocol, looking at the output (§5), and the closing review
+  with the harvest routing table (§8). The skill went 96 → 216 lines; it is on demand, so
+  it costs nothing until a change starts.
+- `CLAUDE.md`: three lines only — the opening brief, test-first, and a document-map row for
+  `docs/agents/prompt-context.md`. 157 → 164 lines, inside the 200 budget. That row is not
+  decoration: `check_document_map` now fails if the method set is moved or deleted.
+- `tests/CLAUDE.md`: principle 18 with the four cases where test-first does not fit, and
+  four test properties this repo had never written down.
+- `.claude/logs/agent-changelog.md`: the format gained **What went wrong on the way** and
+  **What was left undone**. Earlier entries are not rewritten.
+- `docs/roadmap.md`: the five states declared and an entry with no marked state defined as
+  *planned*; `## Tooling` became `## Process and tooling` with a first-hit friction list
+  held below the promotion threshold; a new entry for a deprecation path.
+- `docs/decisions.md`: D-040 (the set is updated by running `prompt-update.md`, never by
+  pasting over it), D-041 (editing the method here **is** a fork), D-042 (a second agent
+  surface would be generated, never hand-maintained).
+- `verify` skill: the four evaluation layers this repo already had and never named.
+  `state-review` skill: a seventh question — is the method header still honest?
+- **Pruned `docs/agents/bootstrap-prompt.md`** (986 lines, read in full before the verdict).
+  Every section is covered by the new set and was checked one by one, not by title: the
+  enforcement ladder is carried over verbatim, principles 1–13 survive unrenumbered inside
+  1–19, the nine phases moved to `prompt-bootstrap.md`, and the stack tables were verified
+  piece by piece (GDScript, `sqlfluff`, Packwerk, *one gate command*, *pin the tooling
+  versions*). The worked example is deliberately less specific now — v4 anonymised it, and
+  the omission is the improvement. **It contained nothing about this repository**: zero
+  occurrences of every noun of this project, so nothing had to be moved out. One inbound
+  link exists, in this file's own 2026-09-17 bootstrap entry; it is session history and
+  correctly describes what existed then, so it stays and this entry is what makes it
+  navigable.
+
+**Areas.** `docs/agents/`, `CLAUDE.md`, `tests/CLAUDE.md`, `docs/roadmap.md`,
+`docs/decisions.md`, `.claude/skills/workflow`, `.claude/skills/verify`,
+`.claude/skills/state-review`, this file.
+
+**Why.** A newer copy of the method was dropped into `docs/agents/`. Overwriting without
+triaging gives a repository whose method document describes practices it does not follow,
+which is worse than being a version behind — it is being a version behind while claiming
+not to be.
+
+**Architecture.** ✅ Complies. No source file was touched; the gate's only failure is the
+pre-existing, deliberate `api_snapshot` one.
+
+**What went wrong on the way.** The new copies were dropped **on top of** the old one
+instead of at a scratch path, which is the one thing the update procedure says not to do —
+the old header is the only record of what a repository adapted and declined. It cost
+nothing here only because the old file had no header at all and was still in `HEAD`. Also
+found while writing the test properties: `tests/CLAUDE.md` still quoted the pre-D-029
+coverage figure of 91%. Corrected to 78%, which is the number D-029 measured.
+
+**What was left undone.** Three deltas were declined, not deferred: Workspaces (one repo),
+Models and cost (it governs how the method is run, not what this repo guarantees), and the
+pre-flight for this repo's own skills (they are short and reversible). The `digest` field
+cannot be verified — the set defines what it is but never says how it is computed, so a
+mismatched copy would not be detectable here. Two learnings were routed upstream rather
+than applied locally, because editing the method here would be a fork (D-041): the
+task-runner-is-an-untyped-surface rule, and *check the denominator before believing a
+coverage number*. One section of the pruned file was **covered worse** rather than covered —
+its argument that a document read once on demand may be long while a file loaded every
+session must not be — and it went upstream for the same reason instead of being lifted
+locally.
+
+**Measured.** Gate after the change: 109 tests pass in 1.17s, `mypy --strict` clean on 48
+files, audit 14 checks with 3 advisories and the one known `api_snapshot` failure that the
+roadmap documents as deliberate until the version is bumped. Unchanged from before this
+work — no check went from green to red.
 
 ---
 

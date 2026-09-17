@@ -5,6 +5,23 @@ one will collide, written now while it is clear.
 
 Decision numbers refer to `decisions.md`.
 
+This is a **ledger, not a wish list**: it is written to when work finishes as well as when it
+starts, and **no entry is ever deleted** — a deleted idea comes back next quarter with no
+memory of why it left. Every entry carries one of five states, written into its heading the
+way `— **done**` already is:
+
+| State | What the entry must then say |
+|---|---|
+| **Planned** | the collision, what is already in its favour, what must be decided first |
+| **Half done** | which half, and whether the missing half is mechanism or content — they are answered by different people |
+| **Done** | what it actually became, the measurement that closed it, and **what is still missing** |
+| **Closed by measurement** | the number that retired it — the section at the end of this file |
+| **Blocked outside** | what would reopen it, concretely |
+
+An entry with no marked state is **planned**. Finishing an item edits this file **in the
+same change that finishes it**: a roadmap that calls a feature planned while the feature is
+running is worse than no roadmap, because it is believed.
+
 ---
 
 ## Where we are
@@ -141,6 +158,23 @@ a wired injection resolves end to end. D-038.
 Writing it found D-037: `@inject` silently does nothing on a module-level function, because
 wiring is given the component classes rather than their modules. That is pinned by a test
 so it is not rediscovered the hard way.
+
+### A deprecation path for names leaving the public API
+
+`tools/api_snapshot.json` catches a name leaving `dependency.core.__all__` and forces a major
+version. What does not exist is the **path between the two versions**: a consumer of
+`Registry` got no warning, no shim and no window — the name simply stopped existing.
+
+**What it collides with.** Nothing structural. It collides with the version decision in
+*Where we are*: a shim is exactly what would make a `1.2.0` possible instead of a straight
+`2.0.0`.
+
+**What is already in its favour.** The API snapshot makes the diff mechanical, so the set of
+names that would need a shim is computable rather than remembered.
+
+**What must be decided first.** Whether this library promises one at all. A library that
+ships a deprecation path owes it on every removal afterwards — that is a commitment, not a
+feature.
 
 ### Decide `py.typed` versus generated stubs
 
@@ -295,7 +329,34 @@ Dependency order is the useful one and is already computed.
 
 ---
 
-## Tooling
+## Process and tooling
+
+The repository's way of working is under the same rules as its code: it has friction, the
+friction is measurable, and it is usually the cheapest thing here to improve. Each entry
+takes the same shape as any other, plus the arithmetic:
+
+> **cost per occurrence × how often it occurs × how many sessions live with it**, against
+> what it costs to fix once.
+
+**A single annoyance is noise; the second occurrence is data.** One hit is recorded in that
+session's changelog entry. Only on the second does it become an entry here — that threshold
+is what stops every small irritation turning into a refactor.
+
+### First hit — recorded, not promoted
+
+Neither of these has been hit twice yet. They are here so the second hit is recognised as a
+second hit instead of being met as a surprise.
+
+- **`hatch` expands `{...}` in script arguments as its own template syntax**, so a `-c`
+  one-liner containing an f-string or a dict literal fails for a reason that has nothing to
+  do with the Python in it. Cost: one confused debugging round per occurrence. The fix, if
+  it recurs, is not better escaping — it is that any script long enough to need a brace
+  becomes a file in `tools/`, where `check_hatch_scripts` can also see it.
+- **The gate's own scripts are an untyped surface.** `build:graph` once shipped calling a
+  function with a required argument missing, and nothing noticed until it ran. Already
+  fixed at rung 3 by `check_hatch_scripts`, which verifies existence and call arity; listed
+  here because the *class* of problem — the task runner is not type-checked — outlived the
+  instance.
 
 ### Adopt `ruff`
 
@@ -340,6 +401,7 @@ constructed"?* (D-001)
 | Tests for `library/` | **No.** `library/` is outside the resolution path entirely |
 | Unrepresentable `reference` collision | **No — the reverse.** It moves a silent overwrite into the class of things that cannot be expressed, which is where D-004 already put invalid providers |
 | Break the `injection ↔ resolution` cycle | **No**, but it changes a public hook signature, so it is gated on the major version |
+| A deprecation path for removed names | **No.** Release process; it adds a shim, never a provider |
 | `ruff` | **No.** Cosmetic |
 | pydantic mypy plugin | **No**, but it may block the gate until a backlog of type errors is cleared |
 

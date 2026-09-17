@@ -129,7 +129,13 @@ kept describing them, and the docs build has been failing since.
 
 ## Working style
 
+- **Open with the brief.** Before answering a request, read what is in motion, what is in
+  the tree, what constrains it and what is stale — then say it in six lines, where a line
+  with nothing in it says `nothing`. The format is in the `workflow` skill.
 - Explain the trade-off before making a structural change, and ask first.
+- **The test is written first.** An agent that writes the code first writes the test the
+  code passes, which ratifies the bug instead of catching it. The exceptions, and what
+  replaces the failing test in each, are in `tests/CLAUDE.md`.
 - **Extend before creating.** A second module doing a first module's job is how this
   codebase forgets what it decided.
 - Architectural integrity overrides the request. If asked for a shortcut that breaks a
@@ -154,4 +160,5 @@ kept describing them, and the docs build has been failing since.
 | Why does this test file look like that? | `tests/CLAUDE.md` |
 | How do I write a plugin? | `src/example/CLAUDE.md` |
 | What are the rules for the code generator? | `src/dependency/cli/CLAUDE.md` |
+| How is this instruction system itself updated? | `docs/agents/prompt-context.md` |
 | What may `library/` depend on? | `src/dependency/library/CLAUDE.md` |
