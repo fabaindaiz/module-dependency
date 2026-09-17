@@ -23,6 +23,8 @@ wheel does not declare. Four bugs shipped through exactly that gap:
 - `graphviz` imported but never declared — worked from the source tree, failed for every
   user who pip-installed.
 - `src/graph.py` calling `generate_graph()` with a required argument missing.
+- `dependency.testing` importing `pytest` at module level while `pytest` lives only in the
+  `testing` extra — caught by **this check**, at 2.0.0, before it shipped.
 
 None of these were visible from `git status`, and the test suite was green for all four.
 
@@ -48,7 +50,12 @@ rm -rf /tmp/mdcheck && "$PY" -m venv /tmp/mdcheck
 /tmp/mdcheck/bin/python -c "
 import importlib
 for m in ['dependency.core',
+          'dependency.cli.main',
+          'dependency.cli.inspection',
           'dependency.cli.generation.component',
+          'dependency.cli.generation.plugin',
+          'dependency.cli.generation.module',
+          'dependency.cli.generation.instance',
           'dependency.library.threading',
           'dependency.library.patterns.observer',
           'dependency.library.patterns.composite',
@@ -56,6 +63,31 @@ for m in ['dependency.core',
           'dependency.library.graph',
           'dependency.library.graph.generate']:
     importlib.import_module(m); print('OK  ', m)
+"
+
+# 4b. Every entry point must resolve **from the installed distribution**. An entry point is
+#     metadata no import exercises, so a typo is invisible from the source tree and fails
+#     inside whatever tool consumes it. The gate's check_entry_points covers the dev env;
+#     this covers the wheel.
+/tmp/mdcheck/bin/pip install -q "dist/module_dependency-<version>-py3-none-any.whl[testing]"
+/tmp/mdcheck/bin/python -c "
+import importlib.metadata as m
+for group, name in [('console_scripts', 'dependency'), ('pytest11', 'dependency')]:
+    found = [e for e in m.entry_points(group=group) if e.name == name]
+    assert found, (group, name)
+    found[0].load(); print('OK  ', group, name)
+"
+/tmp/mdcheck/bin/dependency version
+
+# 4c. Every extra must name itself when it is missing, never raise a bare
+#     ModuleNotFoundError. Install the PLAIN wheel in a second venv for this.
+/tmp/mdplain/bin/python -c "
+for mod, extra in [('dependency.library.graph', 'graph'), ('dependency.testing', 'testing')]:
+    try:
+        __import__(mod); raise SystemExit(f'{mod} imported without its extra')
+    except ModuleNotFoundError as e:
+        assert extra in str(e), e
+        print('OK  ', mod, 'names', extra)
 "
 
 # 5. Round-trip smoke test: declare, resolve, provide — from the INSTALLED package
@@ -76,9 +108,10 @@ App(); assert S.provide().hi() == 'ok'; print('ROUNDTRIP OK')
 "
 ```
 
-Also verify **without** the extra: installing the plain wheel and importing
-`dependency.library.graph` must fail with the message naming `module-dependency[graph]`,
-not with a bare `ModuleNotFoundError`.
+**When a module, an extra or an entry point is added, add it to the lists above in the same
+change.** This check is only as good as what it enumerates, and the bug it caught at 2.0.0
+— `dependency.testing` importing `pytest` outside its extra — existed because the module
+was new and the list was not updated.
 
 ## Before tagging
 

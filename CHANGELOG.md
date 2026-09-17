@@ -13,6 +13,18 @@ semantic versioning that is a major release, and this is it.
 
 ### Added
 
+- **The `dependency` command.** `check` expands and resolves a graph without wiring or
+  bootstrapping it, so it is safe in CI, and prints the same import chains a failed startup
+  would; `show` prints the injection tree with each bound implementation; `graph` renders
+  it to SVG; `new plugin|module|component|instance` scaffolds a file. Built on `argparse`,
+  so it adds no dependency
+- **A pytest plugin**, `pip install module-dependency[testing]`. Registers itself through
+  the `pytest11` entry point and provides a `dependency_container` fixture. Nothing is
+  autouse, so installing it changes no existing behaviour
+- `Entrypoint.shutdown()` and `ResolutionStrategy.shutdown()`: the framework now tears down
+  its own `Resource` providers, in reverse of the order it started them. Applications used
+  to have to walk the injection tree by hand, because the root container cannot reach
+  providers living in plugin sub-containers
 - `ProviderExpansion`: dependency graph expansion as an explicit four-step breadth-first
   walk, reporting `ExpansionResult` with both resolved providers and failures
 - `ExpansionFailure` and `ExpansionResult` are now public, carrying the full import chain
@@ -30,6 +42,22 @@ semantic versioning that is a major release, and this is it.
 
 ### Changed
 
+- **Bootstrap runs in dependency order.** A provider's required imports bootstrap before
+  it, and components ready together run in name order. Previously the framework iterated a
+  `set`, so the order was unspecified
+- **Two providers with the same class name under one container now raise** a
+  `DeclarationError` instead of silently overwriting each other. Same names under different
+  containers are unaffected
+- `Container.config` is per instance. It was assigned in the class body and `DynamicContainer`
+  does not copy providers per instance, so every container in a process shared one
+  configuration object
+- `ResolutionStrategy.injection` returns the resolution order instead of `None`;
+  `ResolutionStrategy.resolution` and `InjectionResolver.resolve_providers` return a `list`
+  in that order instead of a `set`
+- `Entrypoint(strategy=...)` defaults to `None` and builds a strategy per instance. The old
+  default was evaluated once at import and shared by every `Entrypoint` in the process
+- A plugin that declares no `config:` hint no longer warns. A hint that is not a `BaseModel`
+  still does, and now says what the consequence is
 - **Minimum Python is now 3.12.** The package declared `>=3.11` but used `typing.override`
   (3.12+, PEP 698) and could not be imported on 3.11 at all
 - `dependency_injector` is bounded to `>=4.48.2,<5`. 4.48.2 introduced the `warn_unresolved`
@@ -61,6 +89,13 @@ semantic versioning that is a major release, and this is it.
 - The internal fallback plugin for orphan providers
 - The `[tool.mypy]` block in `pyproject.toml`, which never applied — `.mypy.ini` takes
   precedence, so its pydantic plugin and `mypy_path` had no effect
+
+### Migrating
+
+See [docs/migration.md](docs/migration.md). **There is no deprecation path and there will
+not be one** — a major release removes, which is what a major means. What you get instead
+is that a removal can never ship silently: the public API is snapshotted and compared on
+every build, so a name leaving `dependency.core.__all__` forces a major bump first.
 
 ## [v1.1.7] - 2026-05-04
 

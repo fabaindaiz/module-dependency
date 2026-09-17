@@ -268,7 +268,7 @@ The three features this project is working towards:
 - **CLI support** for scaffolding and inspecting projects that use the framework
 - **Pytest integration** for testing applications built on the framework
 
-A migration guide for the breaking changes is pending, and is tracked in the roadmap.
+A migration guide for the breaking changes is in [docs/migration.md](docs/migration.md).
 
 ## Aknowledgements
 

@@ -36,6 +36,57 @@ Earlier entries predate these two fields and are not rewritten.
 
 ---
 
+## 2026-09-17 — 2.0.0 is prepared and verified against a real wheel, and not published
+
+**What.** `docs/migration.md` written and linked from the README and the mkdocs nav;
+`CHANGELOG.md`'s `[v2.0.0]` entry completed with this session's changes; the `release` skill
+run end to end against the built wheel on Python 3.12. `dependency/testing/plugin.py` now
+names its own extra. The `release` skill itself was extended.
+
+**Areas.** `docs/migration.md`, `CHANGELOG.md`, `README.md`, `mkdocs.yaml`,
+`src/dependency/testing/plugin.py`, `.claude/skills/release/SKILL.md`, `docs/roadmap.md`.
+
+**Why.** The migration guide is the thing the README has owed longest, and the version bump
+is not a release: preparing and verifying is work, publishing is a human's call.
+
+**Architecture.** ✅ Complies. Nothing is tagged and nothing is uploaded.
+
+**What went wrong on the way.** **The pre-ship check earned its keep on the first run.**
+Installing the wheel into a clean 3.12 venv and importing every public module failed:
+
+```
+File ".../dependency/testing/plugin.py", line 28, in <module>
+    import pytest
+ModuleNotFoundError: No module named 'pytest'
+```
+
+`dependency.testing` imported `pytest` at module level while `pytest` lives only in the
+`testing` extra — the same shape as the `graphviz` bug this repository has already shipped
+once, and invisible from a source tree where pytest is always installed. It now raises a
+`ModuleNotFoundError` naming `module-dependency[testing]`, matching what
+`library/graph/models.py` already did for its own extra.
+
+The second finding is about the check rather than the code: **the skill's module list was
+out of date**, and that is *why* the bug reached the wheel. It listed eight modules from
+before the CLI and the testing package existed. It now lists thirteen, verifies every
+entry point loads from the installed distribution, verifies each extra names itself when
+absent, and says in bold that a new module, extra or entry point goes into those lists in
+the same change.
+
+**What was left undone.** The guide is written against the diff, not against a real
+upgrade: nobody has taken an application from 1.1.7 to 2.0.0 by following it, and the first
+person who does will find the gap. Nothing is tagged or published.
+
+**Measured.** Wheel `module_dependency-2.0.0-py3-none-any.whl`, 113,722 bytes. On a clean
+Python **3.12.13** venv: 13 public modules import, the declare→resolve→provide→shutdown
+round trip passes, `dependency version` prints `2.0.0` and `dependency new plugin` renders.
+Both entry points — `console_scripts` and `pytest11` — resolve and load from the installed
+distribution. From a plain wheel with no extras, `dependency.library.graph` and
+`dependency.testing` each refuse with a message naming their extra, and `dependency.core`
+imports with none. Gate: 161 tests, 18 checks, 2 advisories.
+
+---
+
 ## 2026-09-17 — The name collision becomes unrepresentable, and three questions are closed
 
 **What.** `injection._claim` replaces every bare `setattr` that attaches something to a

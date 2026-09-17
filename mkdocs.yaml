@@ -47,6 +47,7 @@ exclude_docs: |
 nav:
   - Overview: index.md
   - Architecture: architecture.md
+  - Migrating to 2.0: migration.md
   - API Reference:
     - Core: reference/core.md
     - CLI: reference/cli.md

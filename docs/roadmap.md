@@ -117,24 +117,20 @@ cleanly; exiting 0 there would certify a build in which no `@instance` ever ran.
 Covered under **Testing** below — it is the same item as the first-party plugin, and the
 measurement in D-023 is what makes it tractable.
 
-### 4. Migration guide — the one the README has owed the longest
+### 4. Migration guide — **done**
 
-The README lists this under "pending issues that eventually will be addressed", and it is
-now the most urgent item in this document: the unreleased refactor removed `Registry` and
-the fallback plugin, which is a `2.0.0`.
+`docs/migration.md`, in the mkdocs nav, and the README now links it instead of promising
+it. Four sections in the order a reader hits them: `Registry` is gone; the two behaviours
+that changed (bootstrap order, and the name collision that now raises); the signature and
+packaging table; and what is new and optional.
 
-**What it collides with.** Nothing technical. It collides with the fact that `CHANGELOG.md`
-stopped at v1.1.5 while two releases shipped (D-026), so the raw material for the guide was
-never written down and has to be reconstructed from the diff.
+**What it says that is a decision, not a fact.** There is no deprecation path and there
+will not be one (D-057). The guide says so in its own section rather than leaving people to
+find out.
 
-**What is already in its favour.** `tools/api_snapshot.json` records the exact public API of
-v1.1.7, so the removed and added names are now a mechanical diff rather than an archaeology
-exercise. `docs/decisions.md` explains *why* each thing changed, which is the half a
-changelog usually lacks.
-
-**What must be decided first.** Whether `Registry` gets a deprecation shim in a `1.2.0` that
-warns, or whether `2.0.0` removes it outright. A shim is friendlier and costs a release.
-
+**What is still missing.** It is written against the diff, not against a real upgrade:
+nobody has taken an application from 1.1.7 to 2.0.0 by following it. The first person who
+does will find the gap.
 ---
 
 ## Claims in the README that measurement contradicts
@@ -480,9 +476,9 @@ Not a schedule. An order, with the reason each step unblocks the next.
 **First — settle the version. Done:** `2.0.0`, clean, no shim. It was the blocker under the
 migration guide, the CLI entry point and every item that adds or removes public API.
 
-**Second — write the migration guide and release.** The README has owed it the longest, and
-`tools/api_snapshot.json` now makes the API diff mechanical. Releasing also clears
-`[Unreleased]` in `CHANGELOG.md` and turns the four bug fixes into something users get.
+**Second — write the migration guide and release. The guide is done** and `CHANGELOG.md`
+has its `[v2.0.0]` entry. The pre-ship check has been run against the built wheel on the
+floor interpreter and passes. **Nothing is published:** the tag and PyPI are a human's.
 
 **Third — pick one product feature, not three.** The three README features have very
 different shapes:

@@ -25,7 +25,14 @@ destroys the coverage number for the whole package.
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
-import pytest
+
+try:
+    import pytest
+except ModuleNotFoundError as error:  # pragma: no cover
+    raise ModuleNotFoundError(
+        "dependency.testing requires the 'testing' extra. "
+        "Install it with: pip install module-dependency[testing]"
+    ) from error
 
 if TYPE_CHECKING:  # pragma: no cover
     from dependency.core.injection.mixin import ProviderMixin
