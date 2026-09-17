@@ -294,25 +294,24 @@ which is the entry above.
 
 ---
 
-### Let the root container see plugin providers
+### Let the root container see plugin providers — **half done**
 
-D-034. `container.shutdown_resources()` and `init_resources()` both silently do nothing
-because plugin providers live in sub-containers the root does not track — its `.providers`
-is `['__self__']`. `ResolutionConfig.init_container` therefore gates two calls that are
-both no-ops, and every application has to shut its own resources down by hand.
+**The half that is done.** Resource teardown. `ResolutionStrategy.shutdown` walks the
+resolution order in reverse and shuts down every `Resource`, and `Entrypoint.shutdown`
+exposes it (D-055). `src/example` deleted its hand-rolled version — a dozen lines that
+belonged in the framework, and the TODO in `tests/core/test_resource.py` is gone with it.
 
-**What it collides with.** D-005 records `check_dependencies()` as a no-op for a different
-reason; this is the same root cause and would close both. `tests/core/test_resource.py`
-already carries a TODO saying `shutdown_resources()` "no está funcionando correctamente" —
-it has been known and unexplained for a while.
+**The half that is not.** The root `Container` still cannot see plugin providers: its own
+`.providers` is `['__self__']` (D-034), so `container.check_dependencies()` and
+`init_resources()` remain the no-ops D-005 records, and `ResolutionConfig.init_container`
+still gates two calls that do nothing.
 
-**What is already in its favour.** `MonitoringStation.stop()` in the example shows exactly
-what the framework should be doing: walk `collect_providers()` and shut down each
-`di.Resource`. It is a dozen lines.
+**Which half is missing: mechanism.** Registering sub-containers with the root would make
+dependency-injector's own machinery work and would close D-005 too. It is tidier and it
+risks surprising interactions with wiring, which is why the cheaper half was taken first.
 
-**What must be decided first.** Whether to register sub-containers with the root so
-dependency-injector's own machinery works, or to keep the tree ours and do the walk in
-`ResolutionStrategy`. The first is tidier and risks surprising interactions with wiring.
+**What must be decided first.** Whether `init_container` should keep gating two no-ops, or
+whether those calls should be replaced the way `shutdown` replaced `shutdown_resources`.
 
 ### Make bootstrap order deterministic — **done**
 
@@ -340,16 +339,33 @@ takes the same shape as any other, plus the arithmetic:
 session's changelog entry. Only on the second does it become an entry here — that threshold
 is what stops every small irritation turning into a refactor.
 
+### `hatch` eats braces in `-c` one-liners — **hit twice, promoted**
+
+**What happens now.** `hatch run build:python -c "..."` passes the argument through hatch's
+own template layer before the shell sees it, so `{...}` is expanded as a hatch context
+field. An f-string or a dict literal fails with something like `Unknown context field 't'`
+— a message with no relationship to the Python in it. You lose a round working out that
+the error is not about your code.
+
+**Cost.** ~2 minutes per occurrence × every session that writes a throwaway probe × the
+life of the repo. Two sessions have now hit it; the note in `CLAUDE.md` §Commands exists
+because of the first.
+
+**The fix.** Not better escaping. `hatch run build:python - <<'EOF'` — a heredoc on stdin
+never reaches the template layer, and it is also what you want for anything longer than one
+line. Worth a line in `CLAUDE.md` §Commands saying *use a heredoc*, next to the warning
+that currently only says braces are dangerous.
+
+**Seen in.** The bootstrap session, which wrote the warning; and the gate session, which
+hit it while reading a coverage total.
+
 ### First hit — recorded, not promoted
 
 Neither of these has been hit twice yet. They are here so the second hit is recognised as a
 second hit instead of being met as a surprise.
 
-- **`hatch` expands `{...}` in script arguments as its own template syntax**, so a `-c`
-  one-liner containing an f-string or a dict literal fails for a reason that has nothing to
-  do with the Python in it. Cost: one confused debugging round per occurrence. The fix, if
-  it recurs, is not better escaping — it is that any script long enough to need a brace
-  becomes a file in `tools/`, where `check_hatch_scripts` can also see it.
+- **The gate's own scripts are an untyped surface** — moved to its own entry below now
+  that it has been hit twice.
 - **The gate's own scripts are an untyped surface.** `build:graph` once shipped calling a
   function with a required argument missing, and nothing noticed until it ran. Already
   fixed at rung 3 by `check_hatch_scripts`, which verifies existence and call arity; listed

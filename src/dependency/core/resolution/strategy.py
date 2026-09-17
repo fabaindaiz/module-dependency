@@ -1,4 +1,5 @@
 import logging
+from dependency_injector import providers as providers_module
 from pydantic import BaseModel
 from typing import Iterable, Optional
 from dependency.core.injection.injection import ProviderInjection
@@ -43,12 +44,12 @@ class ResolutionStrategy:
         self,
         providers: set[ProviderInjection],
         container: Container,
-    ) -> set[ProviderInjection]:
+    ) -> list[ProviderInjection]:
         providers = self.expand(providers)
         order = self.injection(providers=providers)
         self.wiring(providers=providers, container=container)
         self.initialize(providers=order)
-        return providers
+        return order
 
     def injection(
         self,
@@ -89,6 +90,31 @@ class ResolutionStrategy:
             unresolved = layer_unresolved
 
         return order
+
+    def shutdown(
+        self,
+        providers: Iterable[ProviderInjection],
+    ) -> None:
+        """Shut down every `Resource`-backed provider, in reverse of the order given.
+
+        The mirror of `initialize`: pass the list `resolution` returned and a provider is
+        torn down before the providers it imports, which is the only order in which a
+        dependency is still alive while its dependents stop using it.
+
+        This exists because the root `Container` cannot reach plugin providers — its own
+        `.providers` is `['__self__']`, since plugin providers live in nested
+        sub-containers attached with `setattr` — so `container.shutdown_resources()`
+        silently reaches none of them (D-034). Every application had to walk the tree by
+        hand; now the framework does (D-055).
+        """
+        _logger.info("Shutting down resources...")
+        for provider in reversed(list(providers)):
+            if not isinstance(provider.provider, providers_module.Resource):
+                continue
+            try:
+                provider.provider.shutdown()
+            except Exception as error:  # noqa: BLE001 - one bad teardown must not strand the rest
+                _logger.warning(f"Injectable {provider} shutdown failed: {error}")
 
     def wiring(
         self,

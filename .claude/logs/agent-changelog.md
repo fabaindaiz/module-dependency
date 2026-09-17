@@ -36,6 +36,56 @@ Earlier entries predate these two fields and are not rewritten.
 
 ---
 
+## 2026-09-17 — The framework shuts its own resources down, and a friction earns promotion
+
+**What.** `ResolutionStrategy.shutdown` and `Entrypoint.shutdown` (D-055).
+`resolution` and `resolve_providers` now return the resolution **order** rather than the
+set, so teardown can run in reverse of it. `src/example` deleted its hand-rolled walk and
+`tests/core/test_resource.py` lost its TODO. The `hatch` brace friction was hit a second
+time and is promoted out of the first-hit list.
+
+**Areas.** `src/dependency/core/resolution/{strategy,resolver}.py`,
+`src/dependency/core/agrupation/entrypoint.py`, `src/example/app/main/__init__.py`,
+`tests/core/test_resource.py`, `tests/cli/`, `tests/testing/`, `CLAUDE.md`,
+`docs/decisions.md`, `docs/roadmap.md`, `stubs/`.
+
+**Why.** `container.shutdown_resources()` reaches nothing: plugin providers live in
+sub-containers attached with `setattr`, and the root's `.providers` is `['__self__']`
+(D-034). So every application had to walk the injection tree by hand, and `src/example`
+did — a dozen lines that were a framework's job. The roadmap entry said exactly what to
+write; it was already written, in the wrong place.
+
+**Architecture.** ✅ Complies. Reverse of the order `initialize` used is the only correct
+teardown order: a provider is torn down while the things it imports are still alive. A
+failing `shutdown` is logged and the rest continue — one bad teardown must not strand every
+other resource.
+
+**What went wrong on the way.** Nothing broke, but two things are worth recording.
+
+The **coverage floor failed the gate**, at 93.9% against 94, because the new CLI added
+statements faster than tests. That is the floor doing its job on its first real chance, and
+the honest answer was five more tests rather than a lower number — coverage is back to
+95.0%.
+
+And the `hatch` brace trap **hit a second time**: reading a coverage total with
+`hatch run build:python -c "...{t['x']}..."` failed with `Unknown context field 't'`,
+which says nothing about the code. Per principle 17 the second occurrence is data, so it
+left the first-hit list and became an entry with its arithmetic — and the fix turned out
+not to be better escaping but a heredoc, which never reaches hatch's template layer.
+`CLAUDE.md` §Commands now says that instead of only warning that braces are dangerous.
+
+**What was left undone.** The other half of D-034: the root container still cannot *see*
+plugin providers, so `check_dependencies()` and `init_resources()` remain the no-ops D-005
+records and `ResolutionConfig.init_container` still gates them. That half is mechanism, and
+the roadmap now says so.
+
+**Measured.** 158 tests + 1 xfailed (was 152), coverage 95.0%, 18 audit checks, 2
+advisories, green on **3.12 and 3.14**. The example prints `Shutting down resources...`
+from the framework where it used to run its own loop, and boots and stops with zero
+warnings.
+
+---
+
 ## 2026-09-17 — Bootstrap order becomes a contract, and a plugin without config stops apologising
 
 **What.** `ResolutionStrategy.injection` now returns the order it resolved in, and

@@ -31,6 +31,11 @@ class PlugServiceImpl(PlugService):
     pass
 
 
+@component(module=PlugPlugin)
+class PlugUnprovided(Component):
+    """Declared and never implemented, which is legal."""
+
+
 def test_dependency_container_is_a_fresh_container(
     dependency_container: Container,
 ) -> None:
@@ -75,3 +80,19 @@ def test_resolving_leaves_no_trace_on_the_declared_classes() -> None:
     strategy.injection(providers=strategy.expand(set(PlugPlugin.collect_providers())))
 
     assert declaration_state(PlugService) == before
+
+
+def test_the_package_re_exports_the_helper() -> None:
+    """`dependency.testing` is the import users are told to use."""
+    import dependency.testing as testing
+
+    assert testing.declaration_state is declaration_state
+    assert "declaration_state" in testing.__all__
+
+
+def test_declaration_state_reports_none_for_an_unprovided_component() -> None:
+    """A component with no implementation has no provider, and that is not an error."""
+    state = declaration_state(PlugUnprovided)
+
+    assert state["PlugUnprovided.provider"] is None
+    assert state["PlugUnprovided.implementation"] is None

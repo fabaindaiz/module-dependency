@@ -2,9 +2,7 @@ import asyncio
 import logging
 from pathlib import Path
 from typing import Optional
-from dependency_injector import providers as di
 from dependency.core import Container, Entrypoint
-from dependency.core.injection import ProviderInjection
 from dependency.core.utils.threading import handle_exit
 from example.plugin.runtime.clock import Clock
 from example.plugin.runtime.modes import StationMode
@@ -90,12 +88,12 @@ class MonitoringStation(Entrypoint):
             self.stop()
 
     def stop(self) -> None:
-        """Shut down resource-backed providers and the async loop.
+        """Shut down the async loop, then hand resource teardown to the framework.
 
-        The application has to do this itself. Measured: the root Container's own
-        .providers is just ['__self__'] because plugin providers live in nested
-        sub-containers, so container.shutdown_resources() reaches none of them. See
-        D-034.
+        This used to walk the injection tree by hand, because the root Container cannot
+        reach providers living in plugin sub-containers (D-034). `Entrypoint.shutdown`
+        does that walk now, in reverse resolution order (D-055); what is left here is the
+        part that is genuinely this application's: draining the in-flight events.
         """
         self.__state.transition(StationMode.STOPPED)
 
@@ -106,15 +104,6 @@ class MonitoringStation(Entrypoint):
         deferred: DeferredService = DeferredService.provide()
         deferred.run(_drain(), timeout=1.0)
 
-        for injection in self.__resource_providers():
-            injection.provider.shutdown()  # type: ignore[attr-defined]
+        self.shutdown()
 
         deferred.shutdown()
-
-    def __resource_providers(self) -> list[ProviderInjection]:
-        return [
-            injection
-            for plugin in self.modules
-            for injection in plugin.collect_providers()
-            if isinstance(injection.provider, di.Resource)
-        ]

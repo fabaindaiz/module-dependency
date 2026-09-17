@@ -6,6 +6,7 @@ exits 0 when nothing was registered is worse than no command at all.
 """
 
 from pathlib import Path
+import shutil
 import subprocess
 import sys
 
@@ -123,3 +124,35 @@ def test_show_marks_every_provider_with_its_implementation(
     out = capsys.readouterr().out
     assert "SensorsPlugin/" in out
     assert "[ok] Clock -> SystemClock" in out
+
+
+def test_graph_renders_an_svg(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    graphviz = pytest.importorskip("graphviz")
+    if not shutil.which("dot"):
+        pytest.skip("the graphviz 'dot' binary is not installed; pip install graphviz does not ship it")
+    assert graphviz is not None
+    target = tmp_path / "tree"
+
+    assert main(["graph", EXAMPLE, "-i", REGISTRATIONS, "-c", CONFIG, "-o", str(target)]) == 0
+
+    assert target.with_suffix(".svg").exists()
+    assert "wrote" in capsys.readouterr().out
+
+
+def test_an_unknown_registration_module_is_reported(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    assert main(["check", EXAMPLE, "-i", "nosuchmodule.imports"]) == 1
+
+    assert "cannot import" in capsys.readouterr().err
+
+
+def test_a_malformed_config_file_is_reported(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    broken = tmp_path / "config.json"
+    broken.write_text("{ not json")
+
+    assert main(["check", EXAMPLE, "-i", REGISTRATIONS, "-c", str(broken)]) == 1
+
+    assert str(broken) in capsys.readouterr().err

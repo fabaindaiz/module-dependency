@@ -27,6 +27,8 @@ class Entrypoint:
     ) -> None:
         self.init_time: float = time.time()
         self.modules: list[type[Plugin]] = list(plugins)
+        # The resolution order, kept so shutdown can run in reverse of it.
+        self.providers: list[ProviderInjection] = []
         # Built here, not in the signature: a default argument is evaluated once at import
         # and shared by every Entrypoint in the process, config included.
         self.strategy: ResolutionStrategy = strategy or ResolutionStrategy()
@@ -50,13 +52,22 @@ class Entrypoint:
             modules=self.modules,
             extra=extra,
         )
-        self.resolver.resolve_providers(
+        self.providers = self.resolver.resolve_providers(
             providers=providers,
             strategy=self.strategy,
         )
         _logger.info(
             f"Application initialized in {time.time() - self.init_time} seconds"
         )
+
+    def shutdown(self) -> None:
+        """Shut down every `Resource`-backed provider, in reverse resolution order.
+
+        Applications used to have to do this themselves: the root `Container` cannot reach
+        providers that live in plugin sub-containers, so `shutdown_resources()` reaches
+        none of them (D-034, D-055).
+        """
+        self.strategy.shutdown(providers=self.providers)
 
     @handle_exit
     def main_loop(self) -> None:

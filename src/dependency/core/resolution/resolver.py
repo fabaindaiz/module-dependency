@@ -19,7 +19,7 @@ class InjectionResolver:
         self,
         modules: Iterable[type[ContainerMixin]],
         strategy: Optional[ResolutionStrategy] = None,
-    ) -> set[ProviderInjection]:
+    ) -> list[ProviderInjection]:
         strategy = strategy or ResolutionStrategy()
         self.resolve_modules(modules=modules)
         providers = self.resolve_injectables(modules=modules)
@@ -56,7 +56,7 @@ class InjectionResolver:
         self,
         providers: set[ProviderInjection],
         strategy: Optional[ResolutionStrategy] = None,
-    ) -> set[ProviderInjection]:
+    ) -> list[ProviderInjection]:
         strategy = strategy or ResolutionStrategy()
         return strategy.resolution(
             container=self.container,

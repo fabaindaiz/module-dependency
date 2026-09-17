@@ -20,7 +20,7 @@ class ResolutionStrategy:
 
         Raises ResolutionError if any required dependency could not be resolved.
         """
-    def resolution(self, providers: set[ProviderInjection], container: Container) -> set[ProviderInjection]: ...
+    def resolution(self, providers: set[ProviderInjection], container: Container) -> list[ProviderInjection]: ...
     def injection(self, providers: set[ProviderInjection]) -> list[ProviderInjection]:
         """Resolve all providers in dependency order (layer by layer).
 
@@ -32,6 +32,19 @@ class ResolutionStrategy:
 
         Returns:
             list[ProviderInjection]: Dependency order, then name order within a layer.
+        """
+    def shutdown(self, providers: Iterable[ProviderInjection]) -> None:
+        """Shut down every `Resource`-backed provider, in reverse of the order given.
+
+        The mirror of `initialize`: pass the list `resolution` returned and a provider is
+        torn down before the providers it imports, which is the only order in which a
+        dependency is still alive while its dependents stop using it.
+
+        This exists because the root `Container` cannot reach plugin providers — its own
+        `.providers` is `['__self__']`, since plugin providers live in nested
+        sub-containers attached with `setattr` — so `container.shutdown_resources()`
+        silently reaches none of them (D-034). Every application had to walk the tree by
+        hand; now the framework does (D-055).
         """
     def wiring(self, providers: Iterable[ProviderInjection], container: Container) -> None:
         """Wire providers against the application container."""

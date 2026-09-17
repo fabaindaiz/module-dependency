@@ -99,8 +99,10 @@ Every `python <file>` script above is checked for existence and call arity by
 `audit_dependency.py::check_hatch_scripts` — `build:graph` once shipped calling a function
 with a required argument missing.
 
-Note: hatch expands `{...}` inside script arguments as its own template syntax. Escape
-braces or avoid f-strings in `-c` one-liners.
+Note: hatch expands `{...}` inside script arguments as its own template syntax, so an
+f-string or a dict literal in `-c` fails with `Unknown context field`, which says nothing
+about your code. **Use a heredoc instead** — `hatch run build:python - <<'EOF'` — which
+never reaches the template layer. Hit twice; see the roadmap's process area.
 
 ## Verification
 

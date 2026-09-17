@@ -36,12 +36,27 @@ def test_resource() -> None:
     injectables: set[ProviderInjection] = set(TPlugin.collect_providers())
     assert not TInstance.initialized
 
-    strategy.resolution(injectables, container)
+    order = strategy.resolution(injectables, container)
     component: TComponent = TComponent.provide()
     assert component.initialized
 
-    # TODO: Esto no está funcionando correctamente
-    # container.shutdown_resources()
-    TComponent.provider().shutdown()  # type: ignore
+    # `container.shutdown_resources()` reaches nothing here: plugin providers live in
+    # sub-containers the root does not track (D-034). The framework walks the tree itself
+    # now, in reverse resolution order (D-055).
+    strategy.shutdown(providers=order)
     assert not component.initialized
     assert injectables == {TComponent.injection}
+
+
+def test_entrypoint_shuts_its_own_resources_down() -> None:
+    """The framework walks the tree; the application no longer has to (D-055)."""
+    from dependency.core.agrupation import Entrypoint
+
+    application = Entrypoint(container=Container(), plugins=[TPlugin])
+    application.initialize()
+    component: TComponent = TComponent.provide()
+    assert component.initialized
+
+    application.shutdown()
+
+    assert not component.initialized
