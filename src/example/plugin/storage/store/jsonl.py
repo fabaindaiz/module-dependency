@@ -1,7 +1,7 @@
 import json
 from collections import deque
 from pathlib import Path
-from typing import Iterator, TextIO
+from typing import TextIO
 from dependency.core import instance, providers
 from example.plugin.sensors.interfaces import Reading
 from example.plugin.storage import StoragePlugin

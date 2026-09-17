@@ -61,7 +61,9 @@ class Plugin(Module):
         try:
             config_cls = get_type_hints(cls).get("config", object)
             if issubclass(config_cls, BaseModel):
-                setattr(cls, "config", config_cls.model_validate(container.config()))
+                # noqa B010: `config` is declared as a type hint on the subclass and does
+                # not exist on Plugin, so plain assignment does not type-check.
+                setattr(cls, "config", config_cls.model_validate(container.config()))  # noqa: B010
             else:
                 _logger.warning(f"Plugin {cls.meta} configuration class is not a subclass of BaseModel")
         except ValidationError as e:

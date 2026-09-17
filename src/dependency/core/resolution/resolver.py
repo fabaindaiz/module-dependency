@@ -1,4 +1,4 @@
-from typing import Iterable
+from typing import Iterable, Optional
 from dependency.core.injection.injection import ProviderInjection
 from dependency.core.injection.mixin import ContainerMixin
 from dependency.core.resolution.container import Container
@@ -15,8 +15,9 @@ class InjectionResolver:
 
     def resolve_dependencies(self,
         modules: Iterable[type[ContainerMixin]],
-        strategy: ResolutionStrategy = ResolutionStrategy()
+        strategy: Optional[ResolutionStrategy] = None
     ) -> set[ProviderInjection]:
+        strategy = strategy or ResolutionStrategy()
         self.resolve_modules(modules=modules)
         providers = self.resolve_injectables(modules=modules)
         return self.resolve_providers(providers=providers, strategy=strategy)
@@ -48,8 +49,9 @@ class InjectionResolver:
 
     def resolve_providers(self,
         providers: set[ProviderInjection],
-        strategy: ResolutionStrategy = ResolutionStrategy()
+        strategy: Optional[ResolutionStrategy] = None
     ) -> set[ProviderInjection]:
+        strategy = strategy or ResolutionStrategy()
         return strategy.resolution(
             container=self.container,
             providers=providers,

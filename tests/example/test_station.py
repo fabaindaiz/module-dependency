@@ -4,6 +4,8 @@ These tests are also the example's own regression guard: if a core API changes,
 src/example breaks here before it breaks for a reader.
 """
 import pytest
+from dataclasses import FrozenInstanceError
+from dependency.core.exceptions import CancelInitialization
 from example.app.main import MonitoringStation
 from example.plugin.display.panel import StatusPanel
 from example.plugin.runtime.modes import StationMode
@@ -41,7 +43,7 @@ def test_absent_probe_cancels_without_failing_the_graph(station: MonitoringStati
     raises, which is the signal SensorGroup uses to leave the channel out.
     """
     assert PressureSensor.injection.is_resolved
-    with pytest.raises(Exception):
+    with pytest.raises(CancelInitialization):
         PressureSensor.provide()
 
 
@@ -66,7 +68,7 @@ def test_sampling_stores_one_reading_per_fitted_probe(station: MonitoringStation
 def test_readings_are_immutable(station: MonitoringStation) -> None:
     reading = ReadingStore.provide().recent(limit=1)[0]
     assert isinstance(reading, Reading)
-    with pytest.raises(Exception):
+    with pytest.raises(FrozenInstanceError):
         reading.value = 0.0  # type: ignore[misc]
 
 

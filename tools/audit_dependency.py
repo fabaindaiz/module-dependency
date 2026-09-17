@@ -476,7 +476,7 @@ def check_entry_points(report: Report) -> None:
                 continue
             try:
                 found[0].load()
-            except Exception as exc:  # pragma: no cover
+            except Exception as exc:  # noqa: BLE001 - loading third-party code; report, never crash
                 report.fail("entry_points", f"{group}:{name} -> {target} failed to import: {exc}")
 
 
@@ -527,7 +527,7 @@ def check_hatch_scripts(report: Report) -> None:
                         "hatch_scripts",
                         f"{match.group(1)}:{node.lineno} calls {node.func.id}(): {exc}",
                     )
-                except Exception as exc:  # pragma: no cover
+                except Exception as exc:  # noqa: BLE001 - importing arbitrary scripts; report, never crash
                     report.advise("hatch_scripts", f"cannot check {dotted}: {exc}")
 
 

@@ -16,7 +16,7 @@ class Entrypoint:
     modules: list[type[Plugin]]
     strategy: ResolutionStrategy
     resolver: InjectionResolver
-    def __init__(self, container: Container, plugins: Iterable[type[Plugin]], strategy: ResolutionStrategy = ...) -> None: ...
+    def __init__(self, container: Container, plugins: Iterable[type[Plugin]], strategy: ResolutionStrategy | None = None) -> None: ...
     def initialize(self, extra: Iterable[ProviderInjection] = ()) -> None:
         """Initialize the application."""
     @handle_exit

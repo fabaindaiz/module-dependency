@@ -1,12 +1,17 @@
-from typing import Iterable
+from typing import Collection, Iterable
 from dependency.core.injection import ContainerInjection, ProviderInjection
 from dependency.core.injection.mixin import ContainerMixin
 from dependency.library.graph.models import Graph, Cluster, Node, Edge
 
+# A module-level constant, not a literal in the signature: a set literal in a default
+# is built once and shared by every call, so one caller mutating it changes the default
+# for every other caller in the process.
+_DEFAULT_IGNORED: frozenset[str] = frozenset({"BasePlugin"})
+
 def generate_graph(
     plugins: Iterable[type[ContainerMixin]],
     output: str = "build/output",
-    ignore_modules: set[str] = {"BasePlugin"},
+    ignore_modules: Collection[str] = _DEFAULT_IGNORED,
 ) -> None:
     """Generate a graph visualization of the dependency tree.
 
@@ -25,7 +30,7 @@ def generate_graph(
 def process_container(
     graph: Graph,
     container: ContainerInjection,
-    ignore_modules: set[str] = {"BasePlugin"},
+    ignore_modules: Collection[str] = _DEFAULT_IGNORED,
 ) -> Cluster:
     cluster = Cluster(name=container.name)
     for child in container.childs:
@@ -38,7 +43,7 @@ def process_container(
 def process_provider(
     graph: Graph,
     provider: ProviderInjection,
-    ignore_modules: set[str] = {"BasePlugin"},
+    ignore_modules: Collection[str] = _DEFAULT_IGNORED,
 ) -> Node:
     if provider.parent is not None and str(provider.parent) in ignore_modules:
         return Node(name=provider.name)

@@ -1,6 +1,6 @@
+from dependency.core.injection import ProviderInjection
 from dependency.core.agrupation import Plugin, PluginMeta, module
 from dependency.core.declaration import Component, component, instance, providers
-from dependency.core.injection import Injectable
 from dependency.core.resolution import Container, ResolutionStrategy
 
 @module()
@@ -31,14 +31,14 @@ def test_resource() -> None:
 
     TPlugin.resolve_container(container)
     injectables: set[ProviderInjection] = set(TPlugin.collect_providers())
-    assert TInstance.initialized == False
+    assert not TInstance.initialized
 
     strategy.resolution(injectables, container)
     component: TComponent = TComponent.provide()
-    assert component.initialized == True
+    assert component.initialized
 
     # TODO: Esto no está funcionando correctamente
     #container.shutdown_resources()
     TComponent.provider().shutdown() # type: ignore
-    assert component.initialized == False
+    assert not component.initialized
     assert injectables == {TComponent.injection}

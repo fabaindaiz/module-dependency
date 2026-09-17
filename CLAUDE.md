@@ -87,6 +87,7 @@ hatch run floor:gate       # the same gate on Python 3.12, the minimum. What CI 
 hatch run ceiling:gate     # the same gate on 3.13, which nothing else exercises.
 hatch run build:tests      # pytest -n auto --dist=loadfile
 hatch run build:typecheck  # mypy --strict src/dependency
+hatch run build:lint       # ruff, defect rules only — writes nothing, never --fix (D-048)
 hatch run build:audit      # tools/audit_dependency.py — the structural rules
 hatch run build:coverage   # pytest --cov, HTML report
 hatch run build:stubs      # regenerate stubs/ — run after any signature change

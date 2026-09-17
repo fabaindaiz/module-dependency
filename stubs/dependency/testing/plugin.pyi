@@ -1,5 +1,4 @@
 import pytest
-from dependency.core.exceptions import DeclarationError as DeclarationError
 from dependency.core.injection.mixin import ProviderMixin as ProviderMixin
 from dependency.core.resolution.container import Container as Container
 from typing import Any

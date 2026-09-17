@@ -1,9 +1,9 @@
 import pytest
 from pydantic import BaseModel
+from dependency.core.injection import ProviderInjection
 from dependency.core.agrupation import Plugin, PluginMeta, module
 from dependency.core.resolution import Container, ResolutionStrategy
 from dependency.core.declaration import Component, component, instance
-from dependency.core.injection import Injectable
 from dependency.core.exceptions import ProvisionError
 
 class PluginConfig(BaseModel):

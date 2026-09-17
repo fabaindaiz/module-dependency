@@ -1,9 +1,9 @@
 import pytest
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 from dependency_injector import providers
+from dependency.core.injection import ProviderInjection
 from dependency.core.agrupation import Module, module
 from dependency.core.declaration import Component, component, instance
-from dependency.core.injection import Injectable
 from dependency.core.resolution import Container
 from dependency.core.exceptions import DeclarationError
 

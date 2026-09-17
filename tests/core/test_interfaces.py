@@ -1,9 +1,9 @@
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 from dependency_injector import providers
 from dependency_injector.wiring import inject
 from dependency.core.agrupation import Module, module
 from dependency.core.declaration import Component, component
-from dependency.core.injection import Injectable, LazyProvide
+from dependency.core.injection import ProviderInjection, LazyProvide
 from dependency.core.resolution import Container
 
 @module()

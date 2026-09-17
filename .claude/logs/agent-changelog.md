@@ -36,6 +36,60 @@ Earlier entries predate these two fields and are not rewritten.
 
 ---
 
+## 2026-09-17 — `ruff` adopted as a linter, and the fixer that deleted the framework's wiring
+
+**What.** `ruff` enters the gate as `build:lint` with a defect-only rule set
+(`E4,E7,E9,F,B,BLE`), `imports.py` exempt from `F401`. Twenty-five findings fixed across
+`src/`, `tests/` and `tools/`. D-048 recorded. `.ruff_cache` ignored.
+
+**Areas.** `pyproject.toml`, `.gitignore`, `CLAUDE.md`, `docs/decisions.md`, four files in
+`src/dependency/`, one in `src/example/`, ten test files, `stubs/`.
+
+**Why.** D-025 declined the **formatter** — *"formatting 2941 LOC buries every meaningful
+diff"* — and never ruled on the linter. They are not the same question, and the linter is
+the half that finds defects.
+
+**Architecture.** ✅ Complies. `I` and `UP` are deliberately excluded: 119 mechanical
+rewrites of imports and annotations, and every annotation change regenerates the stubs,
+which are the only type surface a consumer sees (D-015). `SIM` and `C4` reported zero, so
+they buy nothing.
+
+**What went wrong on the way.** `ruff check --fix` **deleted every line of all six
+`imports.py` files.** Those files exist to import modules for their registration side
+effect — the documented mechanism by which an implementation enters a build (D-008) — and
+to `F401` they are files of unused imports. The comment explaining why they were there
+survived the deletion, sitting above nothing. The example application stopped resolving
+with *"Provider Clock has no implementation (imported via: TemperatureSensor → Clock)"*.
+
+The suite caught it in one run, and the attribution was checked rather than assumed: the
+tree passed 131 tests before the fix and failed with 8 errors after. Reverted, and the
+incident is now a rule — `[tool.ruff.lint.per-file-ignores]` with the measurement written
+beside it — rather than a memory. **The gate never runs a fixer**; `build:lint` writes
+nothing.
+
+**What the findings were worth.** Not style. Three `B008` on
+`strategy: ResolutionStrategy = ResolutionStrategy()` in `entrypoint.py` and `resolver.py`:
+one strategy object, built at import, **shared by every caller that omits the argument**,
+carrying a mutable `ResolutionConfig`. That is the sixth instance this session of the leak
+family the 2.0.0 redesign exists to close, and nothing else in the repository could see it.
+Three `B006` mutable defaults in `library/graph/generate.py`. Seven `F821` — annotations
+naming `ProviderInjection` in test files that never imported it, invisible because local
+annotations are not evaluated and **`mypy` only runs on `src/dependency`**. One `F811`
+where `providers` was imported twice and the second silently shadowed the first. Two `B017`
+`pytest.raises(Exception)`, and naming the real exception found that `Reading` is a frozen
+**dataclass**, not a pydantic model — the broad assertion had been hiding which contract
+protects immutability.
+
+**What was left undone.** `mypy` still only covers `src/dependency`; `tests/` and
+`src/example/` are unchecked, which is how seven undefined names lived in annotations. The
+formatter is next, in a commit containing nothing else.
+
+**Measured.** Gate green on **3.12 and 3.14**: 131 passed + 1 xfailed, `mypy --strict`
+clean on 53 files, `ruff` all checks passed, 18 audit checks, 2 advisories. Lint findings
+before: 49 across `src tests tools`; after: 0.
+
+---
+
 ## 2026-09-17 — The gate gains docs, coverage floors and citation checks — and catches a regression from yesterday
 
 **What.** `build:gate` is now `tests + typecheck + audit + docs`. Three new audit checks —

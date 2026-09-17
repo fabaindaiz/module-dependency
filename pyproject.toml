@@ -22,6 +22,7 @@ dependencies = [
   "pytest-asyncio",
   "pytest-cov",
   "pytest-xdist",
+  "ruff",
   "uvloop",
 ]
 
@@ -34,8 +35,11 @@ coverage = "pytest --cov src/dependency --cov-report html -n auto --dist=loadfil
 # `docs` shells out because mkdocs lives in its own env; the docs build used to run only
 # when a release was published, and it was broken for a long time before anyone found out.
 docs = "hatch run docs:build"
-gate = ["tests", "typecheck", "audit", "docs"]
+gate = ["tests", "typecheck", "lint", "audit", "docs"]
 graph = "python src/graph.py"
+# Writes nothing. A fixer must never be run by the gate: `ruff check --fix` once deleted
+# every line of all six `imports.py` files, which is how implementations enter a build.
+lint = "ruff check src tests tools"
 example = "python src/main.py"
 stubs = "stubgen src/dependency -o stubs --include-docstrings"
 # The json report is what `audit_dependency.py::check_coverage_floors` reads. Without it
@@ -69,6 +73,26 @@ PYTHONPATH = "src"
 [tool.hatch.envs.docs.scripts]
 build = "mkdocs build"
 serve = "mkdocs serve"
+
+[tool.ruff]
+# stubs/ is generated (D-015) and site/build/dist are output.
+extend-exclude = ["stubs", "site", "build", "dist"]
+
+[tool.ruff.lint]
+# D-025 declined the *formatter* and said nothing about the linter. This set is the part
+# that finds defects rather than restyling: pyflakes, the error subset of pycodestyle,
+# flake8-bugbear and blind-except. `I` and `UP` are deliberately absent -- they would
+# rewrite imports and annotations across the tree, and every annotation change regenerates
+# the stubs, which are the only type surface a consumer sees (D-015).
+select = ["E4", "E7", "E9", "F", "B", "BLE"]
+
+[tool.ruff.lint.per-file-ignores]
+# An `imports.py` exists to import modules for their registration side effect. That is the
+# documented mechanism by which an implementation enters a build (D-008), and F401 reads
+# every line of one as an unused import. Measured: `ruff check --fix` deleted every line of
+# all six of them in a single command, the comment explaining why they were there survived,
+# and the example application stopped resolving with "Provider Clock has no implementation".
+"**/imports.py" = ["F401"]
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]

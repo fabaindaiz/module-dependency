@@ -1,7 +1,7 @@
 import logging
 import time
 from threading import Event
-from typing import Iterable
+from typing import Iterable, Optional
 from dependency.core.agrupation.plugin import Plugin
 from dependency.core.injection.injection import ProviderInjection
 from dependency.core.resolution.container import Container
@@ -19,11 +19,13 @@ class Entrypoint:
     def __init__(self,
         container: Container,
         plugins: Iterable[type[Plugin]],
-        strategy: ResolutionStrategy = ResolutionStrategy(),
+        strategy: Optional[ResolutionStrategy] = None,
     ) -> None:
         self.init_time: float = time.time()
         self.modules: list[type[Plugin]] = list(plugins)
-        self.strategy: ResolutionStrategy = strategy
+        # Built here, not in the signature: a default argument is evaluated once at import
+        # and shared by every Entrypoint in the process, config included.
+        self.strategy: ResolutionStrategy = strategy or ResolutionStrategy()
 
         self.resolver: InjectionResolver = InjectionResolver(container=container)
 

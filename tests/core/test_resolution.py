@@ -1,10 +1,9 @@
 import pytest
-from dependency_injector import providers
+from dependency.core.injection import ProviderInjection
 from dependency.core.agrupation import Plugin, PluginMeta, module
 from dependency.core.declaration import Component, component, instance, providers
-from dependency.core.injection import Injectable
-from dependency.core.resolution import Container, InjectionResolver, ResolutionStrategy
-from dependency.core.exceptions import CancelInitialization, ResolutionError
+from dependency.core.resolution import Container, InjectionResolver
+from dependency.core.exceptions import CancelInitialization
 
 BOOTSTRAPED: list[str] = []
 

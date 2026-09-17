@@ -1,7 +1,7 @@
 import pytest
 from dependency_injector import providers
 from dependency.core.agrupation import Plugin, PluginMeta, module
-from dependency.core.declaration import Component, component, instance
+from dependency.core.declaration import Component, component
 from dependency.core.resolution import Container, ResolutionStrategy
 from dependency.core.exceptions import ResolutionError
 

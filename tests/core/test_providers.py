@@ -1,8 +1,8 @@
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 from dependency_injector import containers, providers
+from dependency.core.injection import ProviderInjection
 from dependency.core.agrupation import Module, module
 from dependency.core.declaration import Component, component
-from dependency.core.injection import Injectable
 
 @module()
 class TModule(Module):
