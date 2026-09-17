@@ -31,11 +31,16 @@ PYTHONPATH = "src"
 [tool.hatch.envs.build.scripts]
 audit = "python tools/audit_dependency.py"
 coverage = "pytest --cov src/dependency --cov-report html -n auto --dist=loadfile"
-gate = ["tests", "typecheck", "audit"]
+# `docs` shells out because mkdocs lives in its own env; the docs build used to run only
+# when a release was published, and it was broken for a long time before anyone found out.
+docs = "hatch run docs:build"
+gate = ["tests", "typecheck", "audit", "docs"]
 graph = "python src/graph.py"
 example = "python src/main.py"
 stubs = "stubgen src/dependency -o stubs --include-docstrings"
-tests = "pytest -n auto --dist=loadfile"
+# The json report is what `audit_dependency.py::check_coverage_floors` reads. Without it
+# the floors are unenforceable and the audit says so rather than passing quietly.
+tests = "pytest -n auto --dist=loadfile --cov src/dependency --cov-report=json:.coverage.json"
 typecheck = "mypy --strict src/dependency"
 
 # The gate on the MINIMUM supported Python. The default build env uses whatever the

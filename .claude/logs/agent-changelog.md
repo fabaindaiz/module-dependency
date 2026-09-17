@@ -36,6 +36,59 @@ Earlier entries predate these two fields and are not rewritten.
 
 ---
 
+## 2026-09-17 — The gate gains docs, coverage floors and citation checks — and catches a regression from yesterday
+
+**What.** `build:gate` is now `tests + typecheck + audit + docs`. Three new audit checks —
+`check_coverage_floors`, `check_decision_citations` — join yesterday's two, for **18
+checks** total. `build:tests` writes `.coverage.json`, which the audit reads. D-044 to
+D-047 recorded; `CLAUDE.md` and `docs/roadmap.md` updated.
+
+**Areas.** `pyproject.toml`, `tools/audit_dependency.py`,
+`src/dependency/testing/plugin.py`, `CLAUDE.md`, `docs/decisions.md`, `docs/roadmap.md`.
+
+**Why.** To define the gate completely and validate it, rather than assume it.
+
+**Architecture.** ✅ Complies. Every new check is a failure, not an advisory, and each one
+was proved to fail on fabricated input before being trusted: a version of 9.9.9, an entry
+point that does not resolve, a `D-999` citation, and a floor raised to 99%.
+
+**What went wrong on the way.** The coverage number was **wrong, and I had it backwards**.
+Per-package figures read `core/` at 59% against the roadmap's claim of 95%, and I reported
+the roadmap as stale. It was not. The cause was
+`dependency/testing/plugin.py`, added in this same session: pytest loads entry-point
+plugins **before `pytest-cov` starts measuring**, so every module-level import in that
+plugin — the whole `dependency.core` chain — executed unmeasured and was then reported as
+never run.
+
+| | `core/` | total | `core/__init__.py` |
+|---|---|---|---|
+| plugin loaded | 59% | 67% | 0% |
+| plugin disabled | 95% | 94% | 100% |
+
+A 36-point silent loss on `core/`, introduced hours earlier by a change that had nothing to
+do with coverage, and invisible until coverage entered the gate. Fixed by deferring every
+framework import into the function that needs it, with the measurement written into the
+module docstring so the next session does not tidy them back to the top. D-044.
+
+Also corrected: `docs/roadmap.md` claimed `library/` was at 23% and the total 78%, long
+after the library tests landed. Real figures are 99% and 95%. That is the **third** coverage
+number in this repository to outlive its measurement, after the 91% D-029 killed and the
+59% above — which is the argument for the floors being in a script rather than a sentence.
+
+**What was left undone.** `ruff` is measured but not decided — 922 lines would move under
+the formatter and there are 135 lint findings, of which ~110 are syntax modernisation and
+about ten are genuine defect signals, including three `B006` mutable-argument-defaults and
+one `BLE001` blind-except in a repository whose `CLAUDE.md` calls swallowing exceptions
+during bootstrap non-negotiable. CI still runs a single interpreter; 3.13 is covered
+locally by `ceiling:gate` and not in CI.
+
+**Measured.** The full gate — tests, typecheck, 18 audit checks and the docs build — runs in
+**4.0 s**, up from 3.7 s for the old three-step gate. Green on **3.12 and 3.14**: 131 passed
++ 1 xfailed, `mypy --strict` clean on 53 files, 2 advisories. Coverage after the fix:
+`core/` **95%**, `library/` **99%**, `cli/` 100%, total **95%**.
+
+---
+
 ## 2026-09-17 — The gate runs on the floor, and now checks the environment it runs in
 
 **What.** Two new hatch environments, `floor` (3.12, the minimum) and `ceiling` (3.13,

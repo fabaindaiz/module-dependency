@@ -317,6 +317,116 @@ def check_changelog_version(report: Report) -> None:
         )
 
 
+# ------------------------------------------------------------ decision citations
+
+CITATION = re.compile(r"\bD-(\d{3})\b")
+
+# Where a citation is a live claim. The session log is history: a number cited there was
+# right when it was written, and rewriting history to match a renumbering would be worse
+# than the dangling reference. docs/agents/ is the portable method and carries no decisions.
+CITING_FILES = ("CLAUDE.md", "docs", "src", "tools", ".claude/skills")
+CITATION_SKIP = (".claude/logs", "docs/agents", "site", "build", "dist", "__pycache__")
+
+
+def check_decision_citations(report: Report) -> None:
+    """Every `D-0xx` cited anywhere must be a decision that exists.
+
+    A wrong citation is worse than no citation: it sends the reader to a decision that
+    confidently says something else. Measured: seven citations pointed at the wrong
+    decision across four files, and one of them was this script's own docstring -- the
+    check and the rule it enforced disagreed about which rule that was.
+    Rule: CLAUDE.md, "The documents, and which one answers what".
+    """
+    decisions = (DOCS / "decisions.md").read_text()
+    known = set(CITATION.findall(decisions))
+    if not known:  # pragma: no cover
+        report.fail("citations", "docs/decisions.md declares no decisions -- is it the right file?")
+        return
+
+    candidates: list[Path] = []
+    for entry in CITING_FILES:
+        target = ROOT / entry
+        if target.is_file():
+            candidates.append(target)
+        elif target.is_dir():
+            candidates.extend(target.rglob("*.md"))
+            candidates.extend(target.rglob("*.py"))
+
+    for path in sorted(set(candidates)):
+        relative = path.relative_to(ROOT).as_posix()
+        if any(part in relative for part in CITATION_SKIP) or path.name == "decisions.md":
+            continue
+        for number in sorted(set(CITATION.findall(path.read_text()))):
+            if number not in known:
+                report.fail(
+                    "citations",
+                    f"{relative} cites D-{number}, which is not in docs/decisions.md",
+                )
+
+
+# --------------------------------------------------------------- coverage floors
+
+# Measured floors, one point below the figure when they were set (core 95, library 99,
+# testing 57, total 95), so an honest refactor does not trip them and a real regression
+# does. Raise a floor when the number rises; never lower one without a changelog entry
+# saying what was given up.
+#
+# These numbers are only meaningful because the measurement itself is guarded: a pytest
+# plugin that imports the framework at module level is loaded before pytest-cov starts,
+# and silently reported core/ at 59% instead of 95%. See dependency/testing/plugin.py.
+COVERAGE_FLOORS = {
+    "core": 94,
+    "library": 98,
+    "testing": 55,
+    "TOTAL": 94,
+}
+
+
+def check_coverage_floors(report: Report) -> None:
+    """Coverage must not silently fall, and its denominator must be believed.
+
+    Coverage is a smoke detector, not a goal -- but an unwatched one ratchets downward.
+    The denominator is the part that lies: D-029 records two missing `__init__.py` files
+    hiding 127 statements and inflating the reported figure by 13 points, and the figure
+    moved again when this package gained modules. So the floors are per package and the
+    totals are recorded here, where a change to them is a diff.
+    Rule: CLAUDE.md, "Verification".
+    """
+    data_file = ROOT / ".coverage.json"
+    if not data_file.exists():
+        report.advise(
+            "coverage",
+            "no .coverage.json -- run `hatch run build:tests`, which writes it. "
+            "The floors are unenforced in this run.",
+        )
+        return
+
+    data = json.loads(data_file.read_text())
+    groups: dict[str, list[int]] = {name: [0, 0] for name in COVERAGE_FLOORS if name != "TOTAL"}
+    for path, info in data["files"].items():
+        parts = path.replace("\\", "/").split("src/dependency/")[-1].split("/")
+        group = parts[0]
+        if group in groups:
+            groups[group][0] += info["summary"]["covered_lines"]
+            groups[group][1] += info["summary"]["num_statements"]
+
+    groups["TOTAL"] = [data["totals"]["covered_lines"], data["totals"]["num_statements"]]
+
+    for name, floor in sorted(COVERAGE_FLOORS.items()):
+        covered, statements = groups.get(name, [0, 0])
+        if statements == 0:
+            report.fail("coverage", f"{name} reports 0 statements -- the denominator is wrong, not the code")
+            continue
+        percent = covered / statements * 100
+        if percent < floor:
+            report.fail(
+                "coverage",
+                f"{name} is at {percent:.0f}% ({covered}/{statements}), below its floor of "
+                f"{floor}%. Either add the tests or lower the floor in COVERAGE_FLOORS and "
+                f"say in the changelog what was given up.",
+            )
+
+
 # ------------------------------------------------------- the environment itself
 
 def check_installed_version(report: Report) -> None:
@@ -625,6 +735,8 @@ CHECKS = [
     check_changelog_version,
     check_installed_version,
     check_entry_points,
+    check_coverage_floors,
+    check_decision_citations,
     check_hatch_scripts,
     check_package_markers,
     check_library_undecorated,

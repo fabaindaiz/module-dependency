@@ -117,6 +117,11 @@ braces or avoid f-strings in `-c` one-liners.
   reach only in pieces.
 - After touching `pyproject.toml`, `library/`, or anything that changes an import:
   run the `release` skill. The gate does not build a wheel.
+- **Coverage has per-package floors and they are part of the gate** (D-045). `build:tests`
+  writes `.coverage.json` and the audit enforces it. A number in a document is not a floor;
+  three coverage figures in this repo have already outlived their measurement.
+- **Every `D-0xx` cited in any document, skill or docstring must exist** (D-046). Enforced
+  in `audit_dependency.py::check_decision_citations`.
 - **A performance or behaviour claim needs a measurement in the same message.** "This is
   faster" without a number is not a finding. Record the number in the document that owns
   it, and record what it killed.

@@ -29,7 +29,8 @@ running is worse than no roadmap, because it is believed.
 The resolution refactor (`cdf761c`, unreleased) replaced the global `Registry` and the
 `FallbackPlugin` with `ProviderExpansion` — a four-step BFS that discovers undeclared
 providers, adopts orphans into their importer's container, and cascades required-import
-failures. It is complete and tested: 48 tests, **95% coverage on `core/`**.
+failures. It is complete and tested: **131 tests, 95% coverage on `core/`** — and that 95%
+is now a floor the gate enforces, not a figure in a document.
 
 It is **unreleased and breaking**: `Registry` left `dependency.core.__all__` and
 `ExpansionFailure`/`ExpansionResult` entered. The version is still `1.1.7`, which is the
@@ -44,9 +45,13 @@ mypy plugin, and the example rewrite.
 What remains in this document is, without exception, **blocked on a decision** — each entry
 says which one.
 
-`library/` is the opposite: **23%**, with `graph/` at 0 — the overall figure is 78%, not
-the 91% previously reported, which was inflated because two missing `__init__.py` files
-hid 127 statements from coverage entirely (D-029).
+`library/` was the opposite at **23%** with `graph/` at 0; it is now at **99%** and the
+overall figure is **95%**. The paragraph that used to sit here quoted the 23% long after
+the library tests landed, which is the third time a coverage figure in this repository has
+outlived its measurement — after the 91% that D-029 killed, and after a pytest plugin
+silently dropped `core/` to 59% by importing the framework before `pytest-cov` started
+(D-044). The numbers are enforced in `audit_dependency.py::COVERAGE_FLOORS` now, where
+changing one is a diff.
 
 Nine bugs found by the bootstrap audit are fixed: the Python floor (3.11 → 3.12), two
 unquoted forward references in `library/graph/models.py`, the undeclared `graphviz`
