@@ -23,6 +23,7 @@ start, and the error names the offending provider and its import chain.**
 | D-005 | `container.check_dependencies()` is kept although it validates nothing here | It only inspects `providers.Dependency`, which D-004 makes impossible to construct. Measured: 0 such providers in the full example-app tree. Kept for the `init_resources()` call beside it | — |
 | D-006 | The import chain is part of the contract, not a nicety | Without it, a missing provider names neither the importer nor the cause. This is the single most expensive diagnostic to lose | `ExpansionResult.raise_if_failed` |
 | D-007 | `CancelInitialization` is the only sanctioned way to abort one component | A component may give up without taking the application down; any other exception means the graph is wrong | `ResolutionStrategy.initialize` |
+| D-043 | `Container.config` is assigned per instance in `__init__`, never in the class body | `Container` extends `DynamicContainer`, which does **not** copy providers per instance, so a class-body `config` was one object shared by every container in the process. Measured: `a = Container.from_dict({'x': 1})`, `b = Container.from_dict({'y': 2})` gave `a.config is b.config` and `a.config()` returning `{'x': 1, 'y': 2}` — and `config` was not in `container.providers` at all, so it was never a container provider. The suite's stated isolation boundary (D-023, one `Container` per test) did not hold for configuration | `tests/core/test_container.py` |
 
 ## Wiring
 

@@ -36,6 +36,41 @@ Earlier entries predate these two fields and are not rewritten.
 
 ---
 
+## 2026-09-17 — Container configuration stops being process-wide
+
+**What.** `Container.config` moved from a class-body assignment to per-instance assignment
+in `__init__`. New `tests/core/test_container.py` with the two assertions that were false
+before. D-043.
+
+**Areas.** `src/dependency/core/resolution/container.py`, `tests/core/test_container.py`,
+`docs/decisions.md`, `stubs/dependency/core/resolution/container.pyi`.
+
+**Why.** Step 1 of removing process-global declaration state. `Container` extends
+`DynamicContainer`, which does not copy providers per instance, so one `providers.
+Configuration` object was shared by every container in the interpreter. The suite's whole
+stated isolation boundary — one `Container` per test, D-023 — did not hold for
+configuration, and nobody knew.
+
+**Architecture.** ✅ Complies. It closes a gap in D-023 rather than changing it.
+
+**What went wrong on the way.** Nothing in the fix. The bug itself had been invisible
+because no test ever built two containers with different config and compared them — the
+suite proved isolation for providers and assumed it for config.
+
+**What was left undone.** `Plugin.config` is still a class attribute written by
+`setattr` at build time (`plugin.py:64`), and the example reads it in public as
+`SensorsPlugin.config.sensors.sample_interval_s`. That is the same family of problem and is
+deliberately deferred to step 5 of the plan, when the builder exists and the real cost is
+visible.
+
+**Measured.** Before: `a = Container.from_dict({'x': 1})`, `b = Container.from_dict({'y': 2})`
+gave `a.config is b.config` → `True` and `a.config()` → `{'x': 1, 'y': 2}`; `config` was not
+in `container.providers` at all. After: distinct objects, `{'x': 1}` and `{'y': 2}`, and
+`config` is a registered provider. Gate: 111 tests (was 109), `mypy --strict` clean, 14
+checks passed.
+
+---
+
 ## 2026-09-17 — Settle the version at 2.0.0, which unblocks the gate
 
 **What.** `pyproject.toml` 1.1.7 -> 2.0.0, `tools/api_snapshot.json` rewritten as what

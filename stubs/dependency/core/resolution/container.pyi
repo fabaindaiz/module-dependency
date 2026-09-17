@@ -8,6 +8,14 @@ class Container(containers.DynamicContainer):
         config (providers.Configuration): Configuration provider for the container.
     """
     config: providers.Configuration
+    def __init__(self) -> None:
+        """Build a container with its own configuration provider.
+
+        Assigned per instance, never in the class body: `DynamicContainer` does not copy
+        providers per instance, so a class-body `config` is one object shared by every
+        container in the process. Measured before the fix: two containers built from
+        different dicts returned the same merged config. D-043.
+        """
     @staticmethod
     def from_dict(config: dict[str, Any], required: bool = False) -> Container:
         """Create a Container instance from a dictionary configuration.
