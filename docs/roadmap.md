@@ -358,6 +358,50 @@ second hit instead of being met as a surprise.
   here because the *class* of problem — the task runner is not type-checked — outlived the
   instance.
 
+### Two learnings owed upstream to the method
+
+Both passed the generality test during the version 7 update — they can be stated without a
+single noun from this project — and neither has a home in the method, because editing the
+set here would be a fork (D-041). They live here until someone carries them to the lineage
+root, and this entry is the only thing standing between them and being re-derived by the
+next repository that adopts the method.
+
+- **A task runner is an untyped surface.** A script the gate invokes can be missing, or
+  called with the wrong arity, and nothing notices until that branch runs — usually on
+  release day. Verify the existence and the signature of everything the task runner invokes,
+  from the gate. Here: D-027, `audit_dependency.py::check_hatch_scripts`.
+- **A coverage figure can be measuring fewer files than you think.** Check the denominator
+  before believing the number. Here: D-029, where two missing package markers hid 127
+  statements and turned a real 78% into a reported 91%, quoted in two documents.
+
+**Also owed upstream, as a defect rather than a learning.** The method defines `digest` as a
+content fingerprint of the set but never says how it is computed, so a copy whose header
+lies cannot be detected by the repository receiving it.
+
+**What it collides with.** Nothing here. D-041 is what keeps it from being applied locally:
+lifting either one into `docs/agents/` would fork this lineage for a paragraph.
+
+**What must be decided first.** Nothing. It needs an occasion — the next time a copy of the
+method is exchanged with whoever holds `m-7c41a9`.
+
+### Give the method header an enforcer
+
+The four documents in `docs/agents/` must carry an identical header. A file whose header
+disagrees with its siblings is worse than one with no header, because the update procedure
+trusts it and computes the wrong set of deltas.
+
+**What it collides with.** Nothing. It is a pure addition to the audit.
+
+**What is already in its favour.** `check_document_map` already fails if the set is moved or
+deleted, because `CLAUDE.md` names `docs/agents/prompt-context.md` (D-040). What is missing
+is only the identity check between the four headers, which today is a human reading question
+7 of `state-review` — rung 1, for a rule whose failure costs one silent wrong triage.
+
+**What must be decided first.** Nothing. Roughly ten lines: parse the YAML block from each
+file named by `set` and fail if they differ. It was deliberately not taken during the update
+that created the rule — writing the check and the rule it checks in the same pass is how a
+check ends up testing the wording rather than the repository.
+
 ### Adopt `ruff`
 
 **What it collides with.** D-025 — formatting 2941 LOC buries every meaningful diff. It must
@@ -402,6 +446,7 @@ constructed"?* (D-001)
 | Unrepresentable `reference` collision | **No — the reverse.** It moves a silent overwrite into the class of things that cannot be expressed, which is where D-004 already put invalid providers |
 | Break the `injection ↔ resolution` cycle | **No**, but it changes a public hook signature, so it is gated on the major version |
 | A deprecation path for removed names | **No.** Release process; it adds a shim, never a provider |
+| The method's own upkeep — the header check, the learnings owed upstream | **No.** Instruction system only; none of it participates in a running graph |
 | `ruff` | **No.** Cosmetic |
 | pydantic mypy plugin | **No**, but it may block the gate until a backlog of type errors is cleared |
 

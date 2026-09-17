@@ -67,6 +67,11 @@ here, and declined 3 with their reason recorded in the header.
   surface would be generated, never hand-maintained).
 - `verify` skill: the four evaluation layers this repo already had and never named.
   `state-review` skill: a seventh question — is the method header still honest?
+- `docs/roadmap.md` §Process and tooling also gained the two entries that had no home
+  anywhere else: the two learnings owed upstream to the method, written out in full so they
+  survive this session, and the missing enforcer for the method header. Both were floating
+  in a session report, which is the definition of a learning that dies with the context
+  window.
 - **Pruned `docs/agents/bootstrap-prompt.md`** (986 lines, read in full before the verdict).
   Every section is covered by the new set and was checked one by one, not by title: the
   enforcement ladder is carried over verbatim, principles 1–13 survive unrenumbered inside
@@ -102,12 +107,13 @@ coverage figure of 91%. Corrected to 78%, which is the number D-029 measured.
 Models and cost (it governs how the method is run, not what this repo guarantees), and the
 pre-flight for this repo's own skills (they are short and reversible). The `digest` field
 cannot be verified — the set defines what it is but never says how it is computed, so a
-mismatched copy would not be detectable here. Two learnings were routed upstream rather
-than applied locally, because editing the method here would be a fork (D-041): the
+mismatched copy would not be detectable here. Two learnings are owed upstream rather than applied
+locally, because editing the method here would be a fork (D-041): the
 task-runner-is-an-untyped-surface rule, and *check the denominator before believing a
-coverage number*. One section of the pruned file was **covered worse** rather than covered —
+coverage number*. Both are written out in `docs/roadmap.md` §Process and tooling, with the
+`digest` gap beside them — not left in a report. One section of the pruned file was **covered worse** rather than covered —
 its argument that a document read once on demand may be long while a file loaded every
-session must not be — and it went upstream for the same reason instead of being lifted
+session must not be — and it is owed upstream for the same reason instead of being lifted
 locally.
 
 **Measured.** Gate after the change: 109 tests pass in 1.17s, `mypy --strict` clean on 48
