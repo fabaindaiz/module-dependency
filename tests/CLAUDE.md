@@ -15,11 +15,11 @@ What does **not** protect you, despite appearances:
 - **`--dist=loadfile` is not isolation.** It only guarantees that tests in one file run
   in the same worker. With 18 files and 6 workers each worker runs ~3 files in one
   interpreter, sharing the global state. Measured: the suite passes serially in a single
-  process (0.18s), with `-n 1`, and with `--dist=load`. See D-015.
+  process (0.18s), with `-n 1`, and with `--dist=load`. See D-023.
 - **Unique class names are not the protection either.** There are 27 duplicate class
   names across test files today (`TPlugin` in 7 files). They are harmless *only* because
   each lives in a different `Container`. Put two of them in one container and the second
-  silently overwrites the first — `reference` collides at `setattr`. See D-018.
+  silently overwrites the first — `reference` collides at `setattr`. See D-020.
 
 ## Writing a test
 

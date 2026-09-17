@@ -36,6 +36,38 @@ Earlier entries predate these two fields and are not rewritten.
 
 ---
 
+## 2026-09-17 — The layering doc claimed a cycle that had been closed
+
+**What.** Seven decision citations were wrong across four files. `core/CLAUDE.md` said
+**two** cycles exist and cited D-016/D-017 (graphviz and forward references); there is one,
+D-018, and the `core → library` cycle it described was closed by D-019 — `entrypoint.py`
+imports `core.utils.threading`, not `library`. `KNOWN_CYCLES` has held exactly one pair all
+along. Also: the name-collision rule cited D-018 in three places instead of D-020, and
+`tests/CLAUDE.md` cited D-015 (the stubs decision) for the `--dist=loadfile` measurement
+instead of D-023.
+
+**Areas.** `src/dependency/core/CLAUDE.md`, `tests/CLAUDE.md`,
+`tools/audit_dependency.py` (two docstrings).
+
+**Why.** Found while verifying the layering before adding a `testing` layer in the next
+step. A wrong citation is worse than none: it sends the reader to a decision that says
+something else, confidently.
+
+**Architecture.** ✅ Complies. No behaviour changed; the documents now match
+`LAYER_ALLOWED` and `KNOWN_CYCLES`.
+
+**What went wrong on the way.** Nothing, but the finding itself is the point: the audit's
+own docstring was one of the wrong ones, so the check and the rule it enforces disagreed
+about which rule that was.
+
+**What was left undone.** No script checks that a `D-0xx` citation points at a decision
+that exists, let alone the right one. A check that every cited number appears in
+`docs/decisions.md` would be cheap and would have caught four of these seven.
+
+**Measured.** Gate unchanged: 111 tests, `mypy --strict` clean, 14 checks passed.
+
+---
+
 ## 2026-09-17 — Container configuration stops being process-wide
 
 **What.** `Container.config` moved from a class-body assignment to per-instance assignment

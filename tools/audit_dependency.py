@@ -450,8 +450,9 @@ def _layer(dotted: str) -> str:
 def check_layering(report: Report) -> None:
     """Report the dependency direction between core subpackages and library.
 
-    ADVISORY: two cycles are accepted (D-016, D-017). A third is not -- it is reported
-    as a failure. Rule: src/dependency/core/CLAUDE.md.
+    ADVISORY: one cycle is accepted, core.injection <-> core.resolution (D-018). A second
+    is not -- it is reported as a failure. The core -> library cycle is closed (D-019).
+    Rule: src/dependency/core/CLAUDE.md.
     """
     edges: set[tuple[str, str]] = set()
     for path in source_files():
@@ -487,7 +488,7 @@ def check_name_collisions(report: Report) -> None:
     """Two providers with the same class name under one container overwrite silently.
 
     ADVISORY for tests, where each test owns its Container and collisions are harmless.
-    Rule: tests/CLAUDE.md, src/dependency/core/CLAUDE.md. See D-018.
+    Rule: tests/CLAUDE.md, src/dependency/core/CLAUDE.md. See D-020.
     """
     seen: dict[str, list[str]] = {}
     for path in sorted((ROOT / "tests").rglob("*.py")):

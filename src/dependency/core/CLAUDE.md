@@ -17,15 +17,21 @@ declaration  ──▶  agrupation  ──▶  injection  ◀──▶  resoluti
                                     library
 ```
 
-Two cycles exist and are **accepted, not endorsed** — see D-016 and D-017:
+**One** cycle exists, and it is **accepted, not endorsed** — D-018:
 
 - `injection ↔ resolution`: `injection/mixin.py` imports `resolution.container.Container`
-  because `ContainerMixin.on_resolution` takes it in its signature.
-- `core → library`: `agrupation/entrypoint.py` imports `library.threading.handle_exit`.
+  because `ContainerMixin.on_resolution` takes it in its signature. Breaking it means
+  changing a public signature, so it is gated on a major version.
 
-`audit_dependency.py::check_layering` reports these as **advisories**. Do not add a
-third cycle: a new one is a failure, not an advisory. If you break either existing one,
-promote the check to a failure in the same commit.
+There was a second, `core → library`, and **it is closed** (D-019): `handle_exit` moved to
+`core/utils/threading.py` and `library/threading.py` re-exports it, so `agrupation/
+entrypoint.py` imports from `core.utils`, not from `library`. `library` is no longer in
+`core.agrupation`'s allowed set.
+
+`audit_dependency.py::check_layering` reports the accepted cycle as an **advisory**, and
+`KNOWN_CYCLES` holds exactly that one pair. Do not add a second: a new one is a failure,
+not an advisory. If you break the existing one, promote the check to a failure in the same
+commit.
 
 ## The one thing to understand before changing resolution
 
@@ -67,4 +73,4 @@ docstring on `should_resolve` says so explicitly.
   defaults to `False` and exists for compatibility; new code should not rely on it.
 - Provider `name` comes from `cls.__name__`, and `reference` is the dot-path built from
   the parent chain. Two same-named providers under one container silently overwrite via
-  `setattr`. See D-018.
+  `setattr`. See D-020.
