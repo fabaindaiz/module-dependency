@@ -21,7 +21,8 @@ import re
 import sys
 import tomllib
 from dataclasses import dataclass, field
-from importlib.metadata import packages_distributions
+from importlib.metadata import PackageNotFoundError, entry_points, packages_distributions
+from importlib.metadata import version as installed_version
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -316,6 +317,59 @@ def check_changelog_version(report: Report) -> None:
         )
 
 
+# ------------------------------------------------------- the environment itself
+
+def check_installed_version(report: Report) -> None:
+    """The installed distribution must match the source tree being tested against.
+
+    An environment whose install is stale reports a different version, a different public
+    API and a different entry-point set than the code under test, so the gate is grading
+    something other than what you wrote. Measured: a dev env kept a 1.1.7 install of a
+    2.0.0 tree straight through the version bump, which hid the `pytest11` entry point
+    added in that same tree -- the suite passed only because a conftest registered the
+    plugin by hand, while a clean install failed outright with a duplicate registration.
+    Rule: CLAUDE.md, "Verification".
+    """
+    declared = pyproject()["project"]["version"]
+    try:
+        present = installed_version("module-dependency")
+    except PackageNotFoundError:  # pragma: no cover
+        report.advise("installed_version", "module-dependency is not installed in this environment")
+        return
+    if present != declared:
+        report.fail(
+            "installed_version",
+            f"the installed distribution is {present} but the source tree declares "
+            f"{declared}. This environment is testing stale metadata: entry points, "
+            f"extras and the public API may all differ. Recreate it "
+            f"(`hatch env remove build`).",
+        )
+
+
+def check_entry_points(report: Report) -> None:
+    """Every entry point this package declares must import in this environment.
+
+    An entry point is metadata: it is not exercised by any import, so a typo or a moved
+    module is invisible from the source tree and fails in whatever tool consumes it.
+    Rule: CLAUDE.md, "Packaging and compatibility".
+    """
+    declared = pyproject()["project"].get("entry-points", {})
+    for group, entries in declared.items():
+        for name, target in entries.items():
+            found = [e for e in entry_points(group=group) if e.name == name]
+            if not found:
+                report.fail(
+                    "entry_points",
+                    f"{group}:{name} is declared in pyproject.toml but is not registered "
+                    f"in this environment -- the install is stale or the extra is missing",
+                )
+                continue
+            try:
+                found[0].load()
+            except Exception as exc:  # pragma: no cover
+                report.fail("entry_points", f"{group}:{name} -> {target} failed to import: {exc}")
+
+
 # ------------------------------------------------------------- hatch scripts
 
 def check_hatch_scripts(report: Report) -> None:
@@ -569,6 +623,8 @@ CHECKS = [
     check_document_map,
     check_cli_templates,
     check_changelog_version,
+    check_installed_version,
+    check_entry_points,
     check_hatch_scripts,
     check_package_markers,
     check_library_undecorated,

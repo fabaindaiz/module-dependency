@@ -38,6 +38,18 @@ stubs = "stubgen src/dependency -o stubs --include-docstrings"
 tests = "pytest -n auto --dist=loadfile"
 typecheck = "mypy --strict src/dependency"
 
+# The gate on the MINIMUM supported Python. The default build env uses whatever the
+# developer has, which is newer, and that is the blind spot D-017 was found in: unquoted
+# forward references work on 3.14 and raise NameError on 3.12 and 3.13. Green here is what
+# CI means by green.
+[tool.hatch.envs.floor]
+template = "build"
+python = "3.12"
+
+[tool.hatch.envs.ceiling]
+template = "build"
+python = "3.13"
+
 [tool.hatch.envs.docs]
 skip-install = true
 dependencies = [

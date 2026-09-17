@@ -47,6 +47,10 @@ is that compiler.
 - The public API is `dependency.core.__all__`. Removing or renaming a name in it is a
   breaking change and needs a major version. Enforced in
   `audit_dependency.py::check_api_snapshot` against `tools/api_snapshot.json`.
+- Every entry point declared in `pyproject.toml` must import in the environment. An entry
+  point is metadata that no import exercises, so a typo or a moved module is invisible from
+  the source tree and fails inside whatever tool consumes it. Enforced in
+  `audit_dependency.py::check_entry_points`.
 - Every third-party import in `src/dependency/` is declared in `[project.dependencies]`
   or in a declared extra. An undeclared import works from the source tree and fails on
   the user's machine. Enforced in `audit_dependency.py::check_declared_imports`.
@@ -79,6 +83,8 @@ is that compiler.
 
 ```bash
 hatch run build:gate       # tests + typecheck + audit — THE GATE. Run before saying done.
+hatch run floor:gate       # the same gate on Python 3.12, the minimum. What CI means by green.
+hatch run ceiling:gate     # the same gate on 3.13, which nothing else exercises.
 hatch run build:tests      # pytest -n auto --dist=loadfile
 hatch run build:typecheck  # mypy --strict src/dependency
 hatch run build:audit      # tools/audit_dependency.py — the structural rules
@@ -98,6 +104,14 @@ braces or avoid f-strings in `-c` one-liners.
 ## Verification
 
 - `hatch run build:gate` is the gate. CI runs it on every PR to `main`.
+- **Green on your machine is not green on CI.** `build:gate` runs on whatever interpreter
+  you have; the floor is **3.12** and that is what CI uses. The difference is not
+  cosmetic — D-017 exists because unquoted forward references work on 3.14 and raise
+  `NameError` on 3.12. Run `hatch run floor:gate` before claiming a change is done.
+- **An environment that lies about what it contains fails the gate.** The installed
+  distribution must match the version in `pyproject.toml`; a stale install has different
+  entry points, extras and public API than the code under test. Enforced in
+  `audit_dependency.py::check_installed_version`. Fix with `hatch env remove build`.
 - After touching `core/resolution/` or `core/injection/`: run the gate **and**
   `hatch run build:example`, which exercises the full expansion path that unit tests
   reach only in pieces.

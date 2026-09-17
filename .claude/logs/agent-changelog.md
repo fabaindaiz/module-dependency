@@ -36,6 +36,50 @@ Earlier entries predate these two fields and are not rewritten.
 
 ---
 
+## 2026-09-17 — The gate runs on the floor, and now checks the environment it runs in
+
+**What.** Two new hatch environments, `floor` (3.12, the minimum) and `ceiling` (3.13,
+which nothing exercised), both templated from `build`. Two new audit checks:
+`check_installed_version` and `check_entry_points`. `tests/conftest.py` deleted. Rules
+written into `CLAUDE.md` §Commands, §Verification and §Packaging.
+
+**Areas.** `pyproject.toml`, `tools/audit_dependency.py`, `CLAUDE.md`, `tests/conftest.py`.
+
+**Why.** The gate was grading the wrong thing in two different ways, and the first run of
+the new environment proved both.
+
+**Architecture.** ✅ Complies. Both checks are failures rather than advisories: neither has
+a legitimate exception.
+
+**What went wrong on the way.** This is the entry. The floor environment failed on its
+first run with `ValueError: Plugin already registered under a different name:
+dependency.testing.plugin`. The cause: `floor` installed the project cleanly, so the
+`pytest11` entry point added yesterday actually existed there — and `tests/conftest.py` was
+registering the same plugin a second time by hand. **It had worked in the dev environment
+only because that environment still held a 1.1.7 install of a 2.0.0 tree**, where the entry
+point did not exist. So yesterday's conftest was not a complement to the entry point, it
+was a patch over a stale environment, and on a correctly installed machine — every user's —
+it was a hard error.
+
+Deleting the conftest fixed it, and the fixtures now load through the mechanism a user
+actually gets. `hatch env remove build` brought the dev environment to 2.0.0, at which
+point `importlib.metadata` reports the entry point for the first time.
+
+Both new checks were then proved to fail when they should, not merely to pass: a probe fed
+`check_installed_version` a fabricated 9.9.9 and `check_entry_points` a target that does
+not resolve, and both reported.
+
+**What was left undone.** CI still runs one interpreter per workflow (3.12), so 3.13 is
+covered locally and not in CI. The `ruff` question (D-025) is measured but not decided, and
+the docs build, the citation check and the coverage floors are still outstanding from this
+same session's list.
+
+**Measured.** The gate is green on **three interpreters**: 3.12, 3.13 and 3.14 — 131 passed
++ 1 xfailed, `mypy --strict` clean on 53 files, **16 checks** (was 14), 2 advisories, on
+each. Gate wall time 3.7 s. `CLAUDE.md` 164 → 178 lines, budget 200.
+
+---
+
 ## 2026-09-17 — A graph built from declarations, matching the one the decorators mutate
 
 **What.** `core/injection/graph.py` (`ApplicationGraph`) and `core/injection/builder.py`
