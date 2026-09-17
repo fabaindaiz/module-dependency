@@ -15,33 +15,3 @@ class StateHolder(Generic[T]):
     @state.setter
     def state(self, state: T) -> None:
         self.__state = state
-
-
-if __name__ == '__main__':
-    class PlayerState(ABC):
-        @abstractmethod
-        def action(self) -> None:
-            pass
-
-    class HasPlayerState(StateHolder[PlayerState]):
-        pass
-
-    class PlayerState1(PlayerState):
-        def action(self) -> None:
-            print("PlayerState1 action")
-
-    class PlayerState2(PlayerState):
-        def action(self) -> None:
-            print("PlayerState2 action")
-
-    class Player(HasPlayerState):
-        def __init__(self) -> None:
-            super().__init__(initial_state=PlayerState1())
-
-        def action(self) -> None:
-            self.state.action()
-
-    instance = Player()
-    instance.action()
-    instance.state = PlayerState2()
-    instance.action()

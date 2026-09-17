@@ -38,32 +38,3 @@ class EventPublisher:
         async with asyncio.TaskGroup() as tg:
             for subscriber in subscribers:
                 tg.create_task(subscriber.update(context))
-
-
-if __name__ == '__main__':
-    class EventA(EventContext):
-        def __init__(self, parameter: str) -> None:
-            self.parameterA = parameter
-
-    class EventB(EventContext):
-        def __init__(self, parameter: str) -> None:
-            self.parameterB = parameter
-
-    class Observer():
-        def __init__(self) -> None:
-            self.publisher = EventPublisher()
-
-            @self.publisher.subscribe(EventSubscriber)
-            async def listen_event_a(context1: EventA) -> None:
-                print(f"Event A triggered with parameter: {context1.parameterA}")
-
-            @self.publisher.subscribe(EventSubscriber)
-            async def listen_event_b(context2: EventB) -> None:
-                print(f"Event B triggered with parameter: {context2.parameterB}")
-
-    async def execute() -> None:
-        instance = Observer()
-        await instance.publisher.update(EventA("Hello World!"))
-        await instance.publisher.update(EventB("Goodbye World!"))
-
-    asyncio.run(execute())

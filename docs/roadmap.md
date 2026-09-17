@@ -51,8 +51,9 @@ import order, not on intent.**
 `EventPublisherMixin[CONTEXT]`, and `plugin/hardware/observer/` refactored onto them as the
 worked case: 15 lines of per-domain boilerplate became 4.
 
-**What is left.** Contracts for the other two primitives — `Composite` and `StateHolder` —
-following the same shape. Neither needs a new decision.
+**What is left.** Nothing structural. `ObserverComponent`, `CompositeComponent` and
+`StateComponent` all ship, each with its mixin, each covered by tests that assert the
+contract carries no declaration of its own.
 
 **What to watch.** Contracts must be `Generic` in their domain type (D-031) or every
 domain-typed override becomes a `mypy --strict` error. And nothing in `library/` may carry a
@@ -172,17 +173,15 @@ know the current state is sound and any regression is attributable.
 mutates class attributes with no teardown path. That question decides whether this is a
 fixture or a redesign.
 
-### Tests for `library/`
+### Tests for `library/` — **done**
 
-`patterns/` and `threading.py` sit at 55% coverage; `library/graph/` has **no test at all**
-and does not even appear as a row in the coverage report, while the total reads 91%. The
-`NameError` that broke `graph` on every supported Python shipped through that gap.
+`library/` went from 23% to **94%**; `graph/`, which had no test at all, is at 96–100%.
+32 new tests. The render test needs the graphviz `dot` binary, which `pip install graphviz`
+does not provide, so it skips itself when absent — and CI now installs it so that it
+actually runs there rather than skipping silently.
 
-**What it collides with.** Nothing structural. `graph/` needs the `[graph]` extra installed
-in the test environment.
-
-**What must be decided first.** Whether `library/` deserves the same coverage bar as `core/`,
-given it is explicitly "part of the product but not primordial".
+Remaining gap: `threading.py` at 63%. `excluded` and `threaded` are untested, and both are
+concurrency helpers whose failure modes only show under contention.
 
 ---
 

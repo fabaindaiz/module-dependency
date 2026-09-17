@@ -20,6 +20,10 @@ replaced by the expansion result types. Under semantic versioning the next relea
 - Optional imports via `optional=` on `@component`, `@instance` and `@product`: followed
   when implemented, skipped silently otherwise, and never cascading a failure
 - `[graph]` optional extra for dependency graph rendering: `pip install module-dependency[graph]`
+- `dependency.library.components`: reusable, **undecorated** `Component` contracts with
+  their implementation mixins — `ObserverComponent`, `CompositeComponent` and
+  `StateComponent`. The application applies `@component` and `@instance` itself, so the
+  module, provider, imports and domain types stay where the domain is
 - Agent instruction system: `CLAUDE.md`, area guides, skills, `docs/decisions.md`,
   `docs/references.md`, `docs/roadmap.md`
 - `tools/audit_dependency.py`, twelve structural checks, wired into `hatch run build:gate`
@@ -49,6 +53,10 @@ replaced by the expansion result types. Under semantic versioning the next relea
 
 ### Removed
 
+- `Composite.getChildren()` is now the `children` property, matching `StateHolder.state`
+  and the framework's snake_case convention
+- The `if __name__ == '__main__'` demo blocks in `library/patterns/`, superseded by the
+  test suite and the example application
 - `Registry` and the global registry validation pass, superseded by `ProviderExpansion`
 - The internal fallback plugin for orphan providers
 - The `[tool.mypy]` block in `pyproject.toml`, which never applied — `.mypy.ini` takes
