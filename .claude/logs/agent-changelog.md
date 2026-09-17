@@ -36,6 +36,61 @@ Earlier entries predate these two fields and are not rewritten.
 
 ---
 
+## 2026-09-17 — A graph built from declarations, matching the one the decorators mutate
+
+**What.** `core/injection/graph.py` (`ApplicationGraph`) and `core/injection/builder.py`
+(`GraphBuilder`), both unused by the framework. `tests/core/test_builder.py` characterises
+them against the class-attribute path.
+
+**Areas.** `src/dependency/core/injection/{graph,builder}.py`, `tests/core/test_builder.py`,
+`stubs/`.
+
+**Why.** Step 4. The graph must be buildable from declarations, and *demonstrably
+equivalent*, before the class-attribute path can be deleted.
+
+Three findings worth keeping:
+
+- **No declaration registry is needed at all.** Every declared module is a subclass of
+  `ContainerMixin` and every declared component a subclass of `ProviderMixin`, and both
+  live in `injection/` — so Python's own subclass links are the index, and the builder
+  needs no import from `agrupation` or `declaration`. A class that was never imported has
+  no subclass entry and is correctly invisible, which is exactly what an `imports.py` is
+  for. The plan had assumed an explicit ledger might be required; it is not.
+- **Binding must be scoped to what the build can reach**, not to everything declared in the
+  process. The first version bound every component in the interpreter, which made
+  `tests/core/test_validation.py` — two `@instance` on one component, deliberately — fail
+  an unrelated test's build. Scope is now: declared under this build's roots, plus the
+  transitive import closure. That is the same universe `ProviderExpansion._seed` already
+  walks.
+- **Reaching into `graph._nodes` from the builder** was the first shape and was wrong;
+  `ApplicationGraph.add_node` is the method.
+
+**Architecture.** ✅ Complies. Additive; nothing in the framework calls either class. The
+duplicate-implementation `DeclarationError` is written and tested here, in isolation,
+before anything depends on it.
+
+**What went wrong on the way.** Besides the scoping bug above, nothing. Note the honest
+labelling: `test_builder.py` is a **characterisation** test (`tests/CLAUDE.md`, fourth row)
+— it records present behaviour, not desired behaviour, and is meant to die with the path it
+characterises. The one exception is
+`test_two_implementations_for_one_component_are_rejected`, which is a specification: that
+behaviour does not exist in the old path, where the last `@instance` imported wins silently
+(D-030).
+
+**What was left undone.** Nothing reads the graph yet — `Entrypoint`, `InjectionResolver`
+and `ProviderExpansion` still walk class attributes. The `ContextVar`, the two-phase
+`Entrypoint` and `graph.provide()` are step 6, and the mechanical `X.injection` → `X.node()`
+rename is step 5, which exists solely to keep step 6 reviewable.
+
+**Measured.** A throwaway probe built the **real example application's** graph from specs
+and compared it field by field against the decorator-built one: **5 roots, 5 modules, 12
+components, 0 mismatches** across name, parent, imports, optional imports,
+`strict_resolution` and bound implementation — while sharing **0 node objects** and **0
+provider objects** with it. Gate: 131 passed + 1 xfailed (was 123), `mypy --strict` clean on
+53 files, 14 checks. `hatch run build:example` still boots with 0 errors.
+
+---
+
 ## 2026-09-17 — Declarations become frozen specs, written but not yet read
 
 **What.** New `core/injection/spec.py` with `ModuleSpec`, `ComponentSpec` and
