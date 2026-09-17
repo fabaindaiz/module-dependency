@@ -32,18 +32,14 @@ providers, adopts orphans into their importer's container, and cascades required
 failures. It is complete and tested: **131 tests, 95% coverage on `core/`** — and that 95%
 is now a floor the gate enforces, not a figure in a document.
 
-It is **unreleased and breaking**: `Registry` left `dependency.core.__all__` and
-`ExpansionFailure`/`ExpansionResult` entered. The version is still `1.1.7`, which is the
-version that *contained* `Registry`. `audit_dependency.py::check_api_snapshot` fails on
-this until the version is bumped — deliberately.
+It was **unreleased and breaking**: `Registry` left `dependency.core.__all__` and
+`ExpansionFailure`/`ExpansionResult` entered. **The version is now `2.0.0`** and
+`api_snapshot.json` records what that release publishes, so `check_api_snapshot` passes.
+That was the decision blocking everything else in this document, and it is taken: a clean
+major, no `1.2.0` shim.
 
-**The immediate open question is the version number for the next release.** Under semver it
-is `2.0.0`. Nothing else blocks it, and everything below that does not need a decision has
-been done: the library contracts, their tests, the upstream contract test, the pydantic
-mypy plugin, and the example rewrite.
-
-What remains in this document is, without exception, **blocked on a decision** — each entry
-says which one.
+**Nothing is now published.** Bumping the version is not releasing; the migration guide and
+the release itself are the next items, and they are no longer blocked on anything.
 
 `library/` was the opposite at **23%** with `graph/` at 0; it is now at **99%** and the
 overall figure is **95%**. The paragraph that used to sit here quoted the 23% long after
@@ -91,24 +87,30 @@ semantics — something like `@instance(overrides=LibraryDefault)` instead of la
 shipping defaults from the library would become safe and the trade-off would change. That is
 a change in the core, not in `library/`.
 
-### 2. Dependency CLI
+### 2. Dependency CLI — **done**
 
-**Where it actually is.** Four generators and four templates exist and are tested. There is
-**no `[project.scripts]` entry**, so there is no installable command — the CLI is a library
-nobody can invoke. Its templates emitted keywords no decorator accepted until this pass.
+**What it became.** `dependency`, declared in `[project.scripts]`, on `argparse` (D-050).
+The open question was *"generate a plugin skeleton" or "inspect the resolved graph"*; the
+answer is **both**, because they are the two halves of interacting with this framework from
+a shell and they cost one parser between them.
 
-**What it collides with.** D-022 (frozen but usable) and D-013. Adding
-`[project.scripts] dependency = "..."` makes the command-line surface public API: flag
-names and output layout become things you cannot change without a major version.
+- `new plugin|module|component|instance` — the four generators, which until now nothing
+  could invoke.
+- `check` — expands and resolves, **without wiring or bootstrapping** (D-051), so it is
+  safe to point at somebody else's application in CI. Its whole value is that it surfaces
+  the import-chain diagnostic (D-006) to a shell: *"Provider Clock has no implementation
+  (imported via: TemperatureSensor → Clock)"*.
+- `show` — the injection tree with each provider's bound implementation.
+- `graph` — the SVG, via the `[graph]` extra.
 
-**What is already in its favour.** `check_cli_templates` now verifies generated code
-against the live decorator signatures with `inspect.signature`, so the generators cannot
-silently rot again. The models (`cli/models/base.py`) already describe the inputs a
-command would parse.
+**What is still missing.** No `--json` output, so the commands are for humans and exit
+codes rather than for another program to parse. No `new` command writes a package layout —
+one file at a time, to stdout or to `-o`. And `graph` still requires the graphviz `dot`
+binary, which `pip install graphviz` does not provide.
 
-**What must be decided first.** What the command actually does. "Generate a plugin
-skeleton" and "inspect the resolved graph of an installed app" are both defensible and
-share no code. Also: which argument parser, since that becomes a dependency.
+**The trap it now guards.** `check` fails when it resolved **zero** providers (D-052). A
+component with no implementation is not an error on its own, so an empty graph expands
+cleanly; exiting 0 there would certify a build in which no `@instance` ever ran.
 
 ### 3. Pytest integration
 
@@ -142,9 +144,9 @@ say so rather than inherit the claim:
 
 | README claim | Measured state |
 |---|---|
-| "Visualization tools for dependency graphs" | Shipped **broken**: `NameError` on 3.12 and 3.13, `graphviz` undeclared, `build:graph` raised `TypeError`, and **zero tests** imported it. All fixed in this pass, still untested |
+| "Visualization tools for dependency graphs" | Shipped **broken**: `NameError` on 3.12 and 3.13, `graphviz` undeclared, `build:graph` raised `TypeError`, and **zero tests** imported it. All fixed, and `graph/` is now at 96–100% coverage |
 | "Framework API and extension points for customization" | The hooks exist — `on_declaration`, `on_resolution`, `ResolutionStrategy`, `ResolutionConfig` — but are documented nowhere as an extension story. An extension point nobody can find is not one |
-| "Enhance documentation and examples" | `docs/` described `Registry`, `FallbackPlugin` and `partial_resolution`, none of which exist, and the docs build had been failing since the refactor |
+| "Enhance documentation and examples" | `docs/` described `Registry`, `FallbackPlugin` and `partial_resolution`, none of which exist, and the docs build had been failing since the refactor. Both fixed; **the docs build is in the gate now**, so it cannot fail unnoticed again |
 
 Not a criticism of the plan — a correction of the starting position, so the next estimate
 is made from where the code is.
@@ -216,7 +218,7 @@ fixture or a redesign.
 
 ### Tests for `library/` — **done**
 
-`library/` went from 23% to **94%**; `graph/`, which had no test at all, is at 96–100%.
+`library/` went from 23% to **99%**; `graph/`, which had no test at all, is at 96–100%.
 32 new tests. The render test needs the graphviz `dot` binary, which `pip install graphviz`
 does not provide, so it skips itself when absent — and CI now installs it so that it
 actually runs there rather than skipping silently.
@@ -250,9 +252,11 @@ the riskier one.
 D-018. `ContainerMixin.on_resolution` takes a `Container`, which is what forces
 `injection/mixin.py` to import from `resolution/`.
 
-**What it collides with.** `on_resolution` is a public hook — `example/plugin/base/__init__.py`
-overrides it. Changing its signature is a breaking change, so it belongs with the 2.0.0
-release or never.
+**What it collides with.** Less than this entry used to claim. It said
+`example/plugin/base/__init__.py` overrides `on_resolution`; **that file no longer exists,
+and nothing in `src/` or `tests/` overrides either hook** — verified. `on_resolution` is
+still public API, so changing its signature is still breaking, which means the `2.0.0`
+window is exactly now.
 
 **What must be decided first.** Whether a `Protocol` in `injection/` that `Container`
 structurally satisfies is enough, or whether the hook signature has to change.
@@ -450,7 +454,7 @@ constructed"?* (D-001)
 |---|---|
 | Pre-defined components **as declared components** | **Yes, potentially.** Shipping decorated components puts library code inside the resolution graph. A pre-defined component with a missing optional dependency would now be a startup concern for every consumer |
 | Pre-defined components **as base classes** | **No.** They stay outside the graph; the application decorates them |
-| Dependency CLI | **No.** It generates source and inspects; it never participates in a running graph |
+| Dependency CLI | **No** — **done.** It generates source and inspects; `check` runs expansion and the topological pass, never wiring or bootstrap |
 | Migration guide | **No.** Prose |
 | Contract test against `_Marker` | **No.** It protects the wiring the invariant depends on |
 | `py.typed` versus stubs | **No.** Type surface only, no runtime effect |
@@ -469,11 +473,8 @@ constructed"?* (D-001)
 
 Not a schedule. An order, with the reason each step unblocks the next.
 
-**First — settle the version.** Everything downstream depends on it. `Registry` is gone from
-the public API and the version still says `1.1.7`; the audit fails until this is decided.
-Pick `2.0.0` (clean) or a `1.2.0` with a deprecation shim (friendlier, costs a release).
-Two lines once decided. Blocks: the migration guide, the CLI entry point, pre-defined
-components — every item that adds or removes public API.
+**First — settle the version. Done:** `2.0.0`, clean, no shim. It was the blocker under the
+migration guide, the CLI entry point and every item that adds or removes public API.
 
 **Second — write the migration guide and release.** The README has owed it the longest, and
 `tools/api_snapshot.json` now makes the API diff mechanical. Releasing also clears
@@ -494,9 +495,15 @@ a single process, so a fixture that resets state has a known-good baseline), and
 prerequisite for testing the other two honestly. `library/` sits at 0–55% coverage and
 `graph/` has no tests at all; a test story makes that fixable rather than aspirational.
 
-**Fourth — the two contract gaps, whenever there is an hour.** The `_Marker` contract test
-and tests for `library/`. Neither needs a decision. Both protect things that already broke
-once.
+**Fourth — the two contract gaps. Done:** the `_Marker` contract test (D-038) and tests for
+`library/`, which went 23% → 99%.
+
+**What changed the shape of this list.** The pytest-integration row above says *"blocked on
+a decision? No"* and names the open question as *is the declaration registry resettable at
+all?* That question is answered — **no**, and it is answered by a measurement rather than an
+opinion: `tests/testing/test_plugin.py` carries a strict `xfail` that says exactly what
+cannot be reset. The answer turned it from a fixture into a redesign, which is the plan now
+under way.
 
 **Leave for last:** `ruff`, the pydantic mypy plugin, breaking the `injection ↔ resolution`
 cycle. The first two are noise-generating and better done on a quiet day; the third is gated

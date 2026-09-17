@@ -80,10 +80,11 @@ which turned a real 78% into a reported 91% (D-029).
 
 ## Known gap
 
-`tests/cli/test_generation.py` calls all four generators and **asserts nothing**. It
-passes while the templates emit code that raises `TypeError` on import. A generator test
-must execute or at least `ast.parse` + signature-check what it generated, not merely
-render it. Covered by `audit_dependency.py::check_cli_templates` until the test is fixed.
+`tests/cli/test_generation.py` used to call all four generators and **assert nothing**,
+so it passed while the templates emitted code that raised `TypeError` on import. It now
+`ast.parse`s every rendered file and asserts the classes, bases and decorator keywords it
+declares, and `compile()`s all four. `tests/cli/test_command.py` covers the command surface,
+including both ways `check` must fail.
 
 `src/dependency/library/graph/` is imported by **no test at all**: `library/` sits at 23%
 and `graph/` at 0, against 95% on `core/`. The 91% this file used to quote was the inflated

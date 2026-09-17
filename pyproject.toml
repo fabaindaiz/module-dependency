@@ -135,6 +135,9 @@ classifiers = [
 graph = ["graphviz"]
 testing = ["pytest>=8.0"]
 
+[project.scripts]
+dependency = "dependency.cli.main:main"
+
 [project.entry-points.pytest11]
 dependency = "dependency.testing.plugin"
 

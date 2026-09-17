@@ -36,6 +36,62 @@ Earlier entries predate these two fields and are not rewritten.
 
 ---
 
+## 2026-09-17 — The CLI becomes a command, and it can answer the invariant from a shell
+
+**What.** `dependency`, declared in `[project.scripts]`, on `argparse` (D-050).
+`cli/main.py` and `cli/inspection.py` are new; `tests/cli/test_command.py` covers the
+surface and `tests/cli/test_generation.py` was rewritten to actually assert. D-050 to
+D-052. The roadmap entry is closed, and `docs/roadmap.md` §Where we are is no longer
+claiming the version is unsettled.
+
+**Areas.** `src/dependency/cli/`, `tests/cli/`, `pyproject.toml`,
+`tools/audit_dependency.py`, `src/dependency/cli/CLAUDE.md`, `tests/CLAUDE.md`,
+`docs/decisions.md`, `docs/roadmap.md`, `stubs/`.
+
+**Why.** The generators existed, were tested and shipped in the wheel, and **nothing could
+invoke them** — no console entry point was declared. Beyond scaffolding, the framework has
+one thing to say that no general-purpose tool can: *does this dependency graph hold?* That
+answer belonged in a shell.
+
+**Architecture.** ✅ Complies. `check` runs expansion and the topological pass and **never**
+wiring or bootstrap (D-051), so it is safe to point at somebody else's application in CI:
+wiring patches modules, bootstrap runs user code, and a verification command may do
+neither. `LAYER_ALLOWED["cli"]` was `set()` — correct when the CLI was a pure generator,
+wrong the moment it consumed `core` — and is now declared. Nothing imports `cli`, so no
+cycle.
+
+**What went wrong on the way.** Three things, all caught by running the thing rather than
+reading it.
+
+A missing config file came out as a **traceback** instead of a message. `main()` now turns
+`OSError` and `JSONDecodeError` into one line on stderr.
+
+`check` reported *"0 provider(s) resolved"* and **exited 0** when no registration module had
+been imported. That is the worst failure a verification command can have: it certifies a
+build in which no `@instance` ever ran. A component with no implementation is not an error
+on its own (D-002), so the empty graph expands cleanly and proves nothing. Now it fails and
+names the cause (D-052).
+
+And the test for that failure passed alone and failed in the suite, because an earlier test
+had already imported the registrations — **declaration is process-global with no teardown**,
+so the assertion is only true in a clean interpreter. It runs in a subprocess, following the
+precedent `tests/example/test_station_headless.py` already set for the same reason. That is
+the fourth time this session that the global declaration state has changed what a test
+means.
+
+**What was left undone.** No `--json` output, so the commands are for humans and exit codes,
+not for another program to parse. `new` writes one file at a time and lays out no package.
+`graph` still needs the graphviz `dot` binary, which `pip install graphviz` does not ship.
+
+**Measured.** 148 tests + 1 xfailed (was 131), gate green on **3.12 and 3.14**, 18 audit
+checks, back to 2 advisories. Verified through the installed console script rather than the
+module: `dependency version` prints `2.0.0` and `dependency check` on the example resolves
+**12 providers across 5 plugins**; with only one registration module imported it prints the
+import chains — *"Provider Clock has no implementation (imported via: TemperatureSensor →
+Clock)"* — and exits 1.
+
+---
+
 ## 2026-09-17 — The formatter enters the gate, and D-025 is superseded on its own terms
 
 **What.** `build:format` (`ruff format --check`, writes nothing) joins the gate, which is

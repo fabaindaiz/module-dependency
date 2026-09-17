@@ -526,7 +526,12 @@ def check_entry_points(report: Report) -> None:
     module is invisible from the source tree and fails in whatever tool consumes it.
     Rule: CLAUDE.md, "Packaging and compatibility".
     """
-    declared = pyproject()["project"].get("entry-points", {})
+    project = pyproject()["project"]
+    declared = dict(project.get("entry-points", {}))
+    # [project.scripts] is the console_scripts group spelled differently. A console script
+    # that does not import is a command that fails on the user's first run.
+    if project.get("scripts"):
+        declared["console_scripts"] = project["scripts"]
     for group, entries in declared.items():
         for name, target in entries.items():
             found = [e for e in entry_points(group=group) if e.name == name]
@@ -687,7 +692,10 @@ LAYER_ALLOWED = {
     "core.utils": set(),
     # library depends on core, never the other way round (D-019, now one-directional)
     "library": {"core", "core.injection", "core.utils"},
-    "cli": set(),
+    # cli was a pure generator and imported nothing; `dependency check` made it a consumer
+    # of core and library. Nothing imports cli, so this adds no cycle.
+    "cli": {"core", "core.agrupation", "core.injection", "core.resolution",
+            "core.exceptions", "library"},
     # testing imports core freely; nothing in core may import testing, so no new cycle
     "testing": {
         "core",
