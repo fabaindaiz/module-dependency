@@ -1,3 +1,20 @@
 {
-    "config": true
+    "runtime": {
+        "thread_pool_workers": 4
+    },
+    "sensors": {
+        "sample_interval_s": 0.2,
+        "warmup_samples": 2,
+        "thresholds": {
+            "temperature": 60.0,
+            "humidity": 80.0
+        }
+    },
+    "storage": {
+        "path": "build/readings.jsonl",
+        "keep_last": 100
+    },
+    "telemetry": {
+        "alert_prefix": "ALERT"
+    }
 }

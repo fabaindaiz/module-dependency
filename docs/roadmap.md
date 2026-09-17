@@ -247,6 +247,44 @@ stubgen says so, or to accept a narrowly scoped ignore. Both need checking again
 
 ---
 
+### Let the root container see plugin providers
+
+D-034. `container.shutdown_resources()` and `init_resources()` both silently do nothing
+because plugin providers live in sub-containers the root does not track — its `.providers`
+is `['__self__']`. `ResolutionConfig.init_container` therefore gates two calls that are
+both no-ops, and every application has to shut its own resources down by hand.
+
+**What it collides with.** D-005 records `check_dependencies()` as a no-op for a different
+reason; this is the same root cause and would close both. `tests/core/test_resource.py`
+already carries a TODO saying `shutdown_resources()` "no está funcionando correctamente" —
+it has been known and unexplained for a while.
+
+**What is already in its favour.** `MonitoringStation.stop()` in the example shows exactly
+what the framework should be doing: walk `collect_providers()` and shut down each
+`di.Resource`. It is a dozen lines.
+
+**What must be decided first.** Whether to register sub-containers with the root so
+dependency-injector's own machinery works, or to keep the tree ours and do the walk in
+`ResolutionStrategy`. The first is tidier and risks surprising interactions with wiring.
+
+### Make bootstrap order deterministic
+
+D-035. `ResolutionStrategy.initialize` iterates a `set`, so which `bootstrap=True`
+component runs first is unspecified. The example works around it by sequencing the
+sampler's warm-up from the entrypoint.
+
+**What it collides with.** Nothing, but it is a behaviour change: today's order is
+arbitrary, and code may accidentally depend on the arbitrary order it happens to get.
+
+**What is already in its favour.** The resolution layers already compute a valid
+topological order in `ResolutionStrategy.injection` — it is discarded rather than reused.
+
+**What must be decided first.** Whether bootstrap follows dependency order (a provider's
+imports bootstrap before it, which is what most people would assume) or declaration order.
+Dependency order is the useful one and is already computed.
+
+---
+
 ## Tooling
 
 ### Adopt `ruff`

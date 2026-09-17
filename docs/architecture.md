@@ -41,9 +41,9 @@ from the application `Container` during resolution, via `get_type_hints`.
 
 ```python
 @module()
-class HardwarePlugin(Plugin):
-    meta = PluginMeta(name="HardwarePlugin", version="0.1.0")
-    config: HardwarePluginConfig   # a type hint, not a method
+class SensorsPlugin(Plugin):
+    meta = PluginMeta(name="SensorsPlugin", version="1.0.0")
+    config: SensorsConfig   # a type hint, not a method
 ```
 
 ### Module
@@ -52,8 +52,8 @@ Groups related components under a plugin, and may nest. Carries no logic; its on
 to define scope and namespace within the injection tree.
 
 ```python
-@module(module=HardwarePlugin)
-class HardwareFactoryModule(Module):
+@module(module=SensorsPlugin)
+class ProbesModule(Module):
     pass
 ```
 
@@ -65,10 +65,10 @@ framework guarantees a concrete implementation exists before they run. A compone
 provided until an `Instance` implements it.
 
 ```python
-@component(module=HardwarePlugin)
-class HardwareFactory(Component):
-    @abstractmethod
-    def createHardware(self, product: str) -> Hardware: ...
+@component(module=SensorsPlugin)
+class TemperatureSensor(SensorReader, Component):
+    """SensorReader is a plain ABC: a station has several probes, and a component
+    has exactly one implementation."""
 ```
 
 ### Instance
@@ -79,12 +79,12 @@ the last one registered wins and a warning is logged.
 
 ```python
 @instance(
-    imports=[HardwareObserver, HardwareA, HardwareB],
+    imports=[Clock],
     provider=providers.Singleton,
 )
-class HardwareFactoryCreatorA(HardwareFactory):
+class SimulatedTemperature(TemperatureSensor):
     def __init__(self) -> None:
-        self.__observer: HardwareObserver = HardwareObserver.provide()
+        self.__clock: Clock = Clock.provide()
 ```
 
 ### Product
@@ -94,11 +94,11 @@ semantic: products are instantiated on demand, typically by a factory or service
 than consumed directly as long-lived services.
 
 ```python
-@product(module=HardwarePlugin, imports=[NumberService], provider=providers.Factory)
-class HardwareA(Hardware, Product):
+@product(module=SensorsPlugin, imports=[Clock], provider=providers.Factory)
+class Sample(Product):
     @inject
-    def doStuff(self, operation: str,
-                number: NumberService = LazyProvide[NumberService.reference]) -> None:
+    def stamp(self, value: float,
+              clock: Clock = LazyProvide[Clock.reference]) -> Reading:
         ...
 ```
 
@@ -120,7 +120,7 @@ Entrypoint                          ContainerInjection (Plugin)
 ```
 
 Each node knows its parent, and the dot-separated path from root to node is the
-`reference` string `dependency-injector` wires against (e.g. `HardwarePlugin.HardwareFactory`).
+`reference` string `dependency-injector` wires against (e.g. `SensorsPlugin.TemperatureSensor`).
 
 **A `reference` is a contract.** Renaming a class or moving it between modules changes it.
 Two providers with the same class name under one container collide: the second silently
@@ -171,12 +171,19 @@ The result is an `ExpansionResult` carrying both `resolved` and `failures`.
 - **`wiring`** calls `container.wire(modules=..., warn_unresolved=True)` per provider, then
   `check_dependencies()` and `init_resources()` if `ResolutionConfig.init_container`.
 
-  Note: `check_dependencies()` validates **nothing** in this framework — it only inspects
-  `providers.Dependency`, which `validation._PROVIDERS` makes impossible to construct.
-  Measured: zero such providers in the example app. See D-005.
+  Note: **neither call does anything here.** `check_dependencies()` only inspects
+  `providers.Dependency`, which `validation._PROVIDERS` makes impossible to construct
+  (D-005); and `init_resources()` reaches no provider at all, because the root container's
+  own `.providers` is `['__self__']` — plugin providers live in nested sub-containers it
+  does not track (D-034). The same cause makes `shutdown_resources()` a no-op, so an
+  application must shut its own `Resource` providers down.
 - **`initialize`** runs the `bootstrap` callable of every provider declared with
   `bootstrap=True`. `CancelInitialization` skips one with a warning; any other exception
   becomes `InitializationError`.
+
+  **Order is unspecified** — it iterates a `set`. A bootstrapped component cannot assume
+  another has already run; sequence anything order-dependent from the entrypoint, after
+  `initialize()` returns. See D-035.
 
 ---
 
@@ -185,7 +192,7 @@ The result is an `ExpansionResult` carrying both `resolved` and `failures`.
 **Direct provision** — call `.provide()` on the component class:
 
 ```python
-factory: HardwareFactory = HardwareFactory.provide()
+store: ReadingStore = ReadingStore.provide()
 ```
 
 It raises `DeclarationError` if the provider was not resolved. This is the mechanism that
@@ -196,8 +203,8 @@ and the Seemann entry in `references.md`.
 
 ```python
 @inject
-def doStuff(self, operation: str,
-            number: NumberService = LazyProvide[NumberService.reference]) -> None:
+def stamp(self, value: float,
+          clock: Clock = LazyProvide[Clock.reference]) -> Reading:
     ...
 ```
 
@@ -245,10 +252,11 @@ Each plugin collects its implementation imports in `imports.py`, and the applica
 `imports.py` imports those:
 
 ```python
-# example/plugin/hardware/imports.py
-import example.plugin.hardware.bridge.bridgeA
-import example.plugin.hardware.factory.providers.creatorA
-import example.plugin.hardware.observer.publisherA
+# example/plugin/sensors/imports.py
+import example.plugin.sensors.probes.temperature
+import example.plugin.sensors.probes.humidity
+import example.plugin.sensors.group.fitted
+import example.plugin.sensors.sampler.periodic
 ```
 
 Import **modules**, never individual functions — `dependency-injector` cannot patch an

@@ -225,9 +225,34 @@ class SomeProduct(Interface, Product):
 - Remember to declare all the dependencies you need in the `imports` parameter of the `@instance` or `@product` decorator.
 - Read the documentation carefully and refer to the examples to understand the framework's behavior.
 
-## Usage Examples
+## The example application
 
-This repository includes a practical example demonstrating how to use the framework. You can find this example in the `example` directory. It showcases the implementation of the core components and how they interact to manage dependencies effectively in a sample application.
+`src/example/` is a working monitoring station, and the best way to see what the framework
+is for. It samples sensor probes on a cadence, stores the readings, raises alerts when a
+threshold is crossed, and shows them on a front panel — if the unit has one.
+
+```bash
+hatch run build:example     # Ctrl-C to stop
+```
+
+It is built from five plugins, and each one exists to show something:
+
+| Plugin | Shows |
+|---|---|
+| `runtime` | the clock, the async loop and the station state as injected services |
+| `sensors` | several probes over one plain ABC, grouped by a composite, sampled on a cadence |
+| `storage` | swapping an in-memory store for a file-backed one by editing a single import |
+| `telemetry` | events published without blocking the sampling loop |
+| `display` | an **optional** front panel |
+
+That last one is the part worth reading first. `telemetry` declares the panel under
+`optional=` rather than `imports=`, so a unit built without a screen starts anyway and the
+alert path keeps working. Drop `DisplayPlugin` from `app/main/plugins.py` and run it again
+— nothing else changes.
+
+The station also shows a probe that is not fitted on this build declining to start with
+`CancelInitialization`: the station reports `DEGRADED`, leaves that channel out, and keeps
+running rather than refusing to boot.
 
 ## Future Work
 

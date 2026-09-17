@@ -23,6 +23,54 @@ Format:
 
 ---
 
+## 2026-09-17 — The example is an application now, not a catalogue of patterns
+
+**What.** Replaced `src/example` with a working monitoring station, and finished the two
+library items that needed no further decision.
+
+*Library.* `CompositeComponent`/`CompositeMixin` and `StateComponent`/`StateMixin`, joining
+the observer pair. `Composite.getChildren()` became the `children` property.
+`library/` went from 23% to 94% coverage over 32 new tests; `graph/`, which had none, is at
+96–100%. Removed the `if __name__ == '__main__'` demo blocks.
+
+*The example.* Five plugins — `runtime` (clock, async loop, station state), `sensors`
+(probes over a plain ABC, a composite group, a sampler), `storage` (memory or JSONL),
+`telemetry` (events, observer, alerts) and `display` (**optional**). Deleted the GoF
+catalogue under `module/`. Every framework feature now has one place that demonstrates it,
+and `tests/example/` fails if any of it stops working.
+
+**Areas.** `src/dependency/library/`, `src/example/` (rewritten), `tests/library/`,
+`tests/example/`, `docs/`, `src/main.py`, `src/graph.py`, `stubs/`.
+
+**Why.** Requested: continue the roadmap, and make the example genuinely an application of
+the kind this library targets. The GoF catalogue showed patterns, not what the framework
+is for — a reader could not tell from it why they would choose it.
+
+**Architecture.** ✅ Complies. No framework behaviour changed. Two limits were *found*, not
+introduced, and are documented rather than worked around silently.
+
+**Measured.**
+
+- **Building the example found two framework limits.** `container.shutdown_resources()`
+  and `init_resources()` both do nothing: the root container's `.providers` is
+  `['__self__']` because plugin providers live in nested sub-containers it does not track.
+  That is the same root cause as D-005, and it explains the unexplained TODO in
+  `tests/core/test_resource.py`. D-034.
+- **Bootstrap order is unspecified** — `ResolutionStrategy.initialize` iterates a `set`. The
+  first draft sampled during `__init__` and published warm-up readings before the alert
+  sink had subscribed, intermittently. The warm-up is now sequenced from the entrypoint.
+  D-035.
+- **`optional=` verified both ways.** With `DisplayPlugin` the panel is wired and mirrors
+  alerts; without it the station logs *"no status panel on this unit"* and keeps sampling.
+  The headless case runs in a subprocess, because declaration is process-global and the two
+  stations cannot coexist in one interpreter.
+- Tests: **48 → 87**. `mypy --strict` clean on 48 source files, and `src/example` now has
+  one known error left, the `LazyWiring` stub interaction.
+- `Sampler.warmup()` exists solely because of D-035. Do not move it back into `__init__`.
+
+**Not done.** The version is still `1.1.7`; `check_api_snapshot` fails deliberately until
+that is decided. `LazyWiring` keeps `src/example` out of the gate's typecheck.
+
 ## 2026-09-17 — Reusable building blocks: library ships contracts, not declarations
 
 **What.** Answered the open product question from the roadmap — whether "pre-defined

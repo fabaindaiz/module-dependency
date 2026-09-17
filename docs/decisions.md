@@ -51,7 +51,7 @@ start, and the error names the offending provider and its import chain.**
 | D-018 | The `injection ↔ resolution` cycle is accepted, not endorsed | `ContainerMixin.on_resolution` takes a `Container` in its signature. Breaking it means changing that signature, which is public. A **third** cycle is a failure, not an advisory | `audit_dependency.py::check_layering` (advisory) |
 | D-019 | `library` depends on `core`, never the reverse. **The cycle is closed** | It used to be accepted: `agrupation/entrypoint.py` imported `library.threading.handle_exit`. Shipping contracts in `library/components/` needed `Component` from `core`, which would have made a one-line convenience into a genuine two-way cycle. `handle_exit` moved to `core/utils/threading.py` and `library/threading.py` re-exports it, so the old import path still works | `audit_dependency.py::check_layering` (`library` is no longer in `core.agrupation`'s allowed set) |
 | D-020 | Provider `name` is `cls.__name__`, and two same-named providers under one container overwrite silently | Measured: two distinct `TPlugin` classes produce the identical reference `TPlugin.TService`, and the second wins via `setattr`. Harmless today because each test owns its `Container`. Making it unrepresentable is a roadmap item | `audit_dependency.py::check_name_collisions` (advisory) |
-| D-021 | `src/example/` uses `camelCase`; `src/dependency/` uses `snake_case` | The example's method names are its published teaching surface. Not worth churning; **do not copy the style into the framework** | — |
+| D-021 | ~~`src/example/` uses `camelCase`~~ — **closed**. The rewrite (D-036) is `snake_case` throughout, matching the framework | The inconsistency existed because the old example predated the convention. There was nothing to preserve once the example was replaced | — |
 | D-022 | `dependency.cli` is frozen but must stay usable | Its templates emitted `interface=` and `component=`, which no decorator accepts — the generated code raised `TypeError` on import while the test suite was green, because the test only rendered and asserted nothing | `audit_dependency.py::check_cli_templates` |
 
 ## Reusable building blocks
@@ -69,6 +69,14 @@ start, and the error names the offending provider and its import chain.**
 | D-026 | Every released version has a `CHANGELOG.md` entry | v1.1.6 and v1.1.7 shipped without one, so the only narrative record of what changed stopped at v1.1.5 while two releases went to PyPI | `audit_dependency.py::check_changelog_version` |
 | D-027 | A task-runner script must point at code that exists and is called correctly | `hatch run build:graph` called `generate_graph()` with its required `plugins` argument missing. Nothing ran it, so nothing noticed | `audit_dependency.py::check_hatch_scripts` |
 | D-028 | Every directory holding modules is a regular package, never an implicit namespace package | `core/utils/` and `library/` had no `__init__.py`. mkdocstrings could not collect from them, so `utils` went undocumented; coverage could not discover them either, which inflated the reported figure by 13 points | `audit_dependency.py::check_package_markers` |
+
+## Framework limits found by building the example
+
+| # | Decision | Why | Enforced in |
+|---|---|---|---|
+| D-034 | The root `Container` cannot reach plugin providers; an application shuts its own resources down | Measured: the root container's `.providers` is `['__self__']`. Plugin providers live in nested sub-containers attached with `setattr`, which the root does not track. So `container.shutdown_resources()` reaches nothing and `init_resources()` initialises nothing — `Resource` providers are lazy, on first `.provide()`. This also explains D-005 from the same cause. `MonitoringStation.stop()` walks the injection tree instead | — (roadmap; `src/example/app/main` shows the workaround) |
+| D-035 | Bootstrap order is unspecified; anything order-dependent is sequenced from the entrypoint | `ResolutionStrategy.initialize` iterates a `set`, so a `bootstrap=True` component cannot assume another has already run. The example's sampler would otherwise publish its warm-up readings before the alert sink had subscribed — intermittently, depending on set iteration | — (roadmap; `Sampler.warmup()` is called from `MonitoringStation.__init__`) |
+| D-036 | `src/example` is a monitoring station, not a catalogue of design patterns | The old example was `abstract_factory`, `builder` and `bridge` under `module/`, plus a sketch of an app. It showed GoF patterns, not what the framework is for. A reader could not tell from it why they would choose this library | `tests/example/`, which fails if the example stops working |
 
 ## Closed by measurement
 
