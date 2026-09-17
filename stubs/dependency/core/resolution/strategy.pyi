@@ -21,9 +21,24 @@ class ResolutionStrategy:
         Raises ResolutionError if any required dependency could not be resolved.
         """
     def resolution(self, providers: set[ProviderInjection], container: Container) -> set[ProviderInjection]: ...
-    def injection(self, providers: set[ProviderInjection]) -> None:
-        """Resolve all providers in dependency order (layer by layer)."""
+    def injection(self, providers: set[ProviderInjection]) -> list[ProviderInjection]:
+        """Resolve all providers in dependency order (layer by layer).
+
+        Returns the order it resolved them in, which this method has always computed and
+        used to throw away: every provider appears after all of its required imports, and
+        providers that became resolvable together are ordered by name so two runs of the
+        same graph produce the same sequence. `initialize` consumes it, which is what makes
+        bootstrap order a contract instead of `set` iteration (D-053).
+
+        Returns:
+            list[ProviderInjection]: Dependency order, then name order within a layer.
+        """
     def wiring(self, providers: Iterable[ProviderInjection], container: Container) -> None:
         """Wire providers against the application container."""
     def initialize(self, providers: Iterable[ProviderInjection]) -> None:
-        """Execute bootstrap callables for eagerly-instantiated providers."""
+        """Execute bootstrap callables in the order given.
+
+        Pass the list `injection` returned: a provider's required imports then bootstrap
+        before it, which is what most people assume and what nothing guaranteed before
+        (D-053). Passing a `set` restores the old unspecified order.
+        """

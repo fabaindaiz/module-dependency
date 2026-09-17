@@ -45,19 +45,29 @@ class ResolutionStrategy:
         container: Container,
     ) -> set[ProviderInjection]:
         providers = self.expand(providers)
-        self.injection(providers=providers)
+        order = self.injection(providers=providers)
         self.wiring(providers=providers, container=container)
-        self.initialize(providers=providers)
+        self.initialize(providers=order)
         return providers
 
     def injection(
         self,
         providers: set[ProviderInjection],
-    ) -> None:
-        """Resolve all providers in dependency order (layer by layer)."""
+    ) -> list[ProviderInjection]:
+        """Resolve all providers in dependency order (layer by layer).
+
+        Returns the order it resolved them in, which this method has always computed and
+        used to throw away: every provider appears after all of its required imports, and
+        providers that became resolvable together are ordered by name so two runs of the
+        same graph produce the same sequence. `initialize` consumes it, which is what makes
+        bootstrap order a contract instead of `set` iteration (D-053).
+
+        Returns:
+            list[ProviderInjection]: Dependency order, then name order within a layer.
+        """
         _logger.info("Resolving dependencies...")
         unresolved: set[ProviderInjection] = providers.copy()
-        resolved: set[ProviderInjection] = set()
+        order: list[ProviderInjection] = []
 
         while unresolved:
             layer_resolved: set[ProviderInjection] = set()
@@ -75,8 +85,10 @@ class ResolutionStrategy:
                     unresolved=list(unresolved),
                 )
 
-            resolved.update(layer_resolved)
+            order.extend(sorted(layer_resolved, key=lambda provider: provider.name))
             unresolved = layer_unresolved
+
+        return order
 
     def wiring(
         self,
@@ -98,7 +110,12 @@ class ResolutionStrategy:
         self,
         providers: Iterable[ProviderInjection],
     ) -> None:
-        """Execute bootstrap callables for eagerly-instantiated providers."""
+        """Execute bootstrap callables in the order given.
+
+        Pass the list `injection` returned: a provider's required imports then bootstrap
+        before it, which is what most people assume and what nothing guaranteed before
+        (D-053). Passing a `set` restores the old unspecified order.
+        """
         _logger.info("Initializing dependencies...")
         for provider in providers:
             if not provider.is_resolved:

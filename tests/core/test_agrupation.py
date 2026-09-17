@@ -1,3 +1,5 @@
+import logging
+
 import pytest
 from pydantic import BaseModel
 from dependency.core.agrupation import Plugin, PluginMeta, Module, module
@@ -51,3 +53,38 @@ def test_agrupation_nested_module_reference() -> None:
     """Módulo anidado construye el reference correcto."""
     assert TChildModule.injection.parent == TPlugin.injection
     assert TChildModule.injection.reference == "TPlugin.TChildModule"
+
+
+# --------------------------------------------------------------------------------------
+# A plugin that needs no configuration is the ordinary case, not a mistake (D-054).
+# --------------------------------------------------------------------------------------
+
+
+@module()
+class QuietPlugin(Plugin):
+    meta = PluginMeta(name="quiet_plugin", version="0.1.0")
+
+
+@module()
+class WrongConfigPlugin(Plugin):
+    meta = PluginMeta(name="wrong_config_plugin", version="0.1.0")
+    config: int
+
+
+def test_a_plugin_without_config_does_not_warn(
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    with caplog.at_level(logging.WARNING, logger="dependency.loader"):
+        QuietPlugin.resolve_container(Container.from_dict({}))
+
+    assert caplog.records == []
+
+
+def test_a_config_hint_that_is_not_a_basemodel_warns(
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    with caplog.at_level(logging.WARNING, logger="dependency.loader"):
+        WrongConfigPlugin.resolve_container(Container.from_dict({}))
+
+    assert len(caplog.records) == 1
+    assert "never be populated" in caplog.records[0].message

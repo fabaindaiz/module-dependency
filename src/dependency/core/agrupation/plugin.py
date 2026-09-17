@@ -62,14 +62,21 @@ class Plugin(Module):
             ResolutionError: If the configuration is invalid.
         """
         try:
-            config_cls = get_type_hints(cls).get("config", object)
+            hints = get_type_hints(cls)
+            if "config" not in hints:
+                # A plugin that needs no configuration is ordinary. Warning about it made
+                # the first thing a new user saw a complaint about nothing (D-054).
+                _logger.debug(f"Plugin {cls.meta} declares no configuration")
+                return
+            config_cls = hints["config"]
             if issubclass(config_cls, BaseModel):
                 # noqa B010: `config` is declared as a type hint on the subclass and does
                 # not exist on Plugin, so plain assignment does not type-check.
                 setattr(cls, "config", config_cls.model_validate(container.config()))  # noqa: B010
             else:
                 _logger.warning(
-                    f"Plugin {cls.meta} configuration class is not a subclass of BaseModel"
+                    f"Plugin {cls.meta} declares config: {config_cls!r}, which is not a "
+                    f"BaseModel — it will never be populated"
                 )
         except ValidationError as e:
             raise ProvisionError(

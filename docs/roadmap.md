@@ -263,17 +263,11 @@ structurally satisfies is enough, or whether the hook signature has to change.
 
 ---
 
-### A plugin without config logs a warning
+### A plugin without config logs a warning — **done**
 
-`Plugin.resolve_container` logs at WARNING level when the `config:` type hint is absent or
-is not a `BaseModel`. A plugin that genuinely needs no configuration is a normal case, so
-the first thing a new user sees is a warning about nothing.
-
-**What it collides with.** Nothing structural. It is one branch in
-`agrupation/plugin.py::resolve_container`.
-
-**What must be decided first.** Whether "no config" and "config of the wrong type" should
-stay one message. They are different situations: the second is a real mistake.
+D-054. They were one message and they are two situations: no `config:` hint at all is the
+ordinary case and now logs at DEBUG; a hint that is not a `BaseModel` still warns, and the
+message now names the consequence — the config will never be populated.
 
 ---
 
@@ -320,21 +314,16 @@ what the framework should be doing: walk `collect_providers()` and shut down eac
 dependency-injector's own machinery works, or to keep the tree ours and do the walk in
 `ResolutionStrategy`. The first is tidier and risks surprising interactions with wiring.
 
-### Make bootstrap order deterministic
+### Make bootstrap order deterministic — **done**
 
-D-035. `ResolutionStrategy.initialize` iterates a `set`, so which `bootstrap=True`
-component runs first is unspecified. The example works around it by sequencing the
-sampler's warm-up from the entrypoint.
+D-053, superseding D-035. `injection` was already resolving layer by layer and discarding
+the layering; it now returns that order and `resolution` hands it to `initialize`. A
+provider's required imports bootstrap before it, and each layer is sorted by name so two
+runs of the same graph produce the same sequence.
 
-**What it collides with.** Nothing, but it is a behaviour change: today's order is
-arbitrary, and code may accidentally depend on the arbitrary order it happens to get.
-
-**What is already in its favour.** The resolution layers already compute a valid
-topological order in `ResolutionStrategy.injection` — it is discarded rather than reused.
-
-**What must be decided first.** Whether bootstrap follows dependency order (a provider's
-imports bootstrap before it, which is what most people would assume) or declaration order.
-Dependency order is the useful one and is already computed.
+**What is still missing.** `MonitoringStation.__init__` still sequences the sampler's
+warm-up by hand, which was the workaround for exactly this. It may now be unnecessary —
+that is a small, checkable follow-up in the example, not in the framework.
 
 ---
 

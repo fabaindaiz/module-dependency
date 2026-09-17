@@ -36,6 +36,47 @@ Earlier entries predate these two fields and are not rewritten.
 
 ---
 
+## 2026-09-17 — Bootstrap order becomes a contract, and a plugin without config stops apologising
+
+**What.** `ResolutionStrategy.injection` now returns the order it resolved in, and
+`resolution` hands that to `initialize` (D-053, superseding D-035).
+`Plugin.resolve_container` separates "no `config:` hint" from "a hint that is not a
+`BaseModel`" (D-054). Two roadmap entries closed.
+
+**Areas.** `src/dependency/core/resolution/strategy.py`,
+`src/dependency/core/agrupation/plugin.py`, `tests/core/test_resolution.py`,
+`tests/core/test_agrupation.py`, `docs/decisions.md`, `docs/roadmap.md`, `stubs/`.
+
+**Why.** Neither needed a decision that was not already implied. `injection` was **already
+computing** a valid topological order, layer by layer, and throwing it away — the roadmap
+entry said so, and the fix was to stop discarding it rather than to build anything. And a
+plugin that needs no configuration is the ordinary case, so the first thing a new user saw
+was a warning about nothing.
+
+**Architecture.** ✅ Complies. `injection` gained a return value, which is additive for any
+caller that ignored it. Passing a `set` to `initialize` still restores the old unspecified
+order, so nothing is forced.
+
+**What went wrong on the way.** The order test passed for the wrong reason on the first
+attempt: it asserted on the `BOOTSTRAPED` list another test in the same file fills, which
+would have made it depend on test execution order — the exact trap `tests/CLAUDE.md`
+already records for `tests/library/test_components.py`. Rewritten as a self-contained
+scenario that resolves its own plugin. Also, `ResolutionStrategy` had to be re-imported in
+that file: `ruff --fix` had removed it as unused earlier in the session, correctly at the
+time.
+
+**What was left undone.** `MonitoringStation.__init__` still sequences the sampler's
+warm-up by hand, which existed as the workaround for exactly this. It may now be
+unnecessary; that is a checkable follow-up in the example, recorded in the roadmap.
+
+**Measured.** 152 tests + 1 xfailed (was 148), 18 audit checks, 2 advisories, gate green.
+The change is visible in the example's own output: `Injectable PressureSensor
+initialization skipped` now prints **before** `probe PressureSensor not fitted`, where it
+used to print after — the same graph, now in dependency order. Boot: 0.0104 s, zero
+warnings.
+
+---
+
 ## 2026-09-17 — The CLI becomes a command, and it can answer the invariant from a shell
 
 **What.** `dependency`, declared in `[project.scripts]`, on `argparse` (D-050).
