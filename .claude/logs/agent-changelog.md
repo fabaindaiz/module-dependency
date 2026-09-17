@@ -36,6 +36,51 @@ Earlier entries predate these two fields and are not rewritten.
 
 ---
 
+## 2026-09-17 — Closing review: what this session left false, and what it learned
+
+**What.** The session's own closing pass. Two stale numbers corrected in
+`docs/roadmap.md`, three learnings routed to the entry that owes them upstream, and one new
+process entry — `mypy` only type-checks `src/dependency` — priced with a real measurement
+rather than left as an unknown.
+
+**Areas.** `docs/roadmap.md`.
+
+**Why.** Step 8 of the loop this session added to the `workflow` skill, run on the session
+that added it. The first part of that step is *re-run what this change invalidated*, and it
+found things, which is the argument for the step existing.
+
+**Architecture.** ✅ Complies. Documents only.
+
+**What went wrong on the way.** Two corrections, and the second is the interesting one.
+
+`docs/roadmap.md` §Where we are claimed **131 tests**; it is 161. That sentence was written
+by this session, earlier the same day, and was false within hours — which is exactly why
+the coverage figure beside it now lives in `COVERAGE_FLOORS` instead. The §Suggested order
+section was still arguing *"`library/` sits at 0–55% coverage and `graph/` has no tests at
+all"* two screens below the paragraph that says `library/` is at 99%. A document
+contradicting itself is worse than a document being out of date.
+
+And I nearly reported a dead branch that is not one. `mypy --strict tests` flagged
+`comparison-overlap` and `unreachable` at `tests/library/test_components.py:208`, which
+reads like a test that cannot fail. It is a **narrowing artefact**: `mypy` narrows
+`state.state` from an earlier `assert`, then does not model `transition()` mutating it.
+Looking at the code before writing it down is the only reason that is not now recorded as a
+bug.
+
+**What was left undone, and routed.** Three learnings went to the roadmap entry that owes
+them upstream, all stated without a noun from this project: *a pre-ship check is only as
+good as the list it enumerates*; *the gate never runs a fixer*; *a measurement can be
+blinded by your own tooling*. Each has this session's incident as its evidence. The
+`mypy`-on-tests gap is now an entry with its real breakdown — 59 errors in 7 of 27 files,
+33 of them one repeated shape and 9 of them narrowing false positives, so it is a handful
+of shapes rather than 59 defects.
+
+**Measured.** 161 tests + 1 xfailed, 18 audit checks, 2 advisories, coverage `core/` 95%,
+`library/` 99%, `cli/` 94%, total 95%. Gate green on 3.12 and 3.14. `CLAUDE.md` at 186
+lines against a 200 budget. Nineteen commits this session before this one.
+
+---
+
 ## 2026-09-17 — 2.0.0 is prepared and verified against a real wheel, and not published
 
 **What.** `docs/migration.md` written and linked from the README and the mkdocs nav;

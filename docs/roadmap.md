@@ -29,8 +29,9 @@ running is worse than no roadmap, because it is believed.
 The resolution refactor (`cdf761c`, unreleased) replaced the global `Registry` and the
 `FallbackPlugin` with `ProviderExpansion` — a four-step BFS that discovers undeclared
 providers, adopts orphans into their importer's container, and cascades required-import
-failures. It is complete and tested: **131 tests, 95% coverage on `core/`** — and that 95%
-is now a floor the gate enforces, not a figure in a document.
+failures. It is complete and tested: **161 tests, 95% coverage on `core/`** — and that 95%
+is now a floor the gate enforces, not a figure in a document, which is the only reason this
+sentence can be trusted.
 
 It was **unreleased and breaking**: `Registry` left `dependency.core.__all__` and
 `ExpansionFailure`/`ExpansionResult` entered. **The version is now `2.0.0`** and
@@ -354,6 +355,30 @@ that currently only says braces are dangerous.
 **Seen in.** The bootstrap session, which wrote the warning; and the gate session, which
 hit it while reading a coverage total.
 
+### `mypy` only type-checks `src/dependency`
+
+`tests/` and `src/example/` are not type-checked at all — `build:typecheck` is
+`mypy --strict src/dependency`. Measured: seven annotations in test files named
+`ProviderInjection` without importing it, and they were invisible because a local variable
+annotation is never evaluated and nothing else was looking. `ruff`'s `F821` found them.
+
+**What it collides with.** `src/example` has its own blocker (see that entry). `tests/`
+has none — it is simply not in the command.
+
+**Cost, measured.** `mypy --strict tests` reports **59 errors in 7 of 27 files**:
+
+| Count | Kind | What it is |
+|---|---|---|
+| 33 | `call-arg` | one shape, repeated — worth one look, not thirty-three |
+| 9 | `unreachable` + `comparison-overlap` | **not bugs.** `mypy` narrows a value from an `assert`, then does not model a method call mutating it, so the next assertion looks impossible. Checked one by hand before believing it |
+| 17 | the rest | `empty-body`, `arg-type`, `unused-ignore`, `misc`, `untyped-decorator`, `type-var` |
+
+So it is not 59 defects; it is a handful of shapes. The decision it needs is whether tests
+are held to `--strict` at all, or to a looser profile that still catches an undefined name.
+
+**What is already in its favour.** The whole test suite is already annotated —
+`-> None` on every test — so the codebase was written as if this were on.
+
 ### First hit — recorded, not promoted
 
 Neither of these has been hit twice yet. They are here so the second hit is recognised as a
@@ -382,6 +407,21 @@ next repository that adopts the method.
 - **A coverage figure can be measuring fewer files than you think.** Check the denominator
   before believing the number. Here: D-029, where two missing package markers hid 127
   statements and turned a real 78% into a reported 91%, quoted in two documents.
+
+- **A pre-ship check is only as good as the list it enumerates.** A checklist that names
+  modules, extras or entry points one by one goes stale the moment one is added, and it
+  goes stale silently — the check still passes, it just checks less. Adding one puts it in
+  that list in the same change, and the check should say so in its own text. Here: a
+  module added in the morning reached a built wheel with an import that could not resolve,
+  because the list still described the package as it was before lunch.
+- **The gate never runs a fixer.** An automatic fixer optimises for the rules it knows, and
+  a repository's load-bearing conventions are not among them. Here, `--fix` deleted every
+  line of six files whose entire purpose was importing modules for their side effect, and
+  left the comment explaining why they existed sitting above nothing.
+- **A measurement can be blinded by your own tooling.** Verify the measurement, not only
+  the number. Here, a plugin the package itself registers was loaded before the coverage
+  tool started, so everything it imported was reported as never executed — a 36-point
+  silent loss on the package's core.
 
 **Also owed upstream, as a defect rather than a learning.** The method defines `digest` as a
 content fingerprint of the set but never says how it is computed, so a copy whose header
@@ -489,11 +529,11 @@ different shapes:
 | Pre-defined components | **Yes** — declared components or base classes? | Large | Real, if declared |
 | Dependency CLI | **Yes** — what does the command do? | Medium | None |
 
-**Pytest integration is the one to do first**, for three reasons: it needs no decision you
-have not already made, it is the one whose groundwork exists (the suite is proven to pass in
-a single process, so a fixture that resets state has a known-good baseline), and it is the
-prerequisite for testing the other two honestly. `library/` sits at 0–55% coverage and
-`graph/` has no tests at all; a test story makes that fixable rather than aspirational.
+**Pytest integration is the one to do first**, and it is under way — paused at step 4 of the
+plan that removes process-global declaration state. Its groundwork existed (the suite is
+proven to pass in a single process, so a baseline exists) and it is the prerequisite for
+testing the other two honestly. The coverage argument this paragraph used to make is spent:
+`library/` was at 0–55% when it was written and is at **99%** now.
 
 **Fourth — the two contract gaps. Done:** the `_Marker` contract test (D-038) and tests for
 `library/`, which went 23% → 99%.
