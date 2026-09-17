@@ -3,6 +3,7 @@
 Concurrency helpers whose failure modes only show under contention, which is why they
 sat at 63% with the interesting half untested.
 """
+
 import threading
 import time
 from typing import Any
@@ -10,6 +11,7 @@ from dependency.library.threading import excluded, handle_exit, threaded
 
 
 # ── excluded ─────────────────────────────────────────────────────────────────
+
 
 def test_excluded_runs_the_function_when_uncontended() -> None:
     @excluded()
@@ -48,6 +50,7 @@ def test_excluded_returns_the_default_when_the_lock_is_held() -> None:
 
 def test_excluded_releases_the_lock_after_an_exception() -> None:
     """A lock that is not released on failure turns one error into a dead service."""
+
     @excluded(default="rejected")
     def work(should_raise: bool) -> str:
         if should_raise:
@@ -83,6 +86,7 @@ def test_excluded_blocking_waits_instead_of_rejecting() -> None:
 
 # ── threaded ─────────────────────────────────────────────────────────────────
 
+
 def test_threaded_runs_off_the_calling_thread() -> None:
     done = threading.Event()
     where: list[int] = []
@@ -100,6 +104,7 @@ def test_threaded_runs_off_the_calling_thread() -> None:
 def test_threaded_returns_none_immediately() -> None:
     """It schedules; it does not hand back a result. Anything needing one wants
     DeferredService.run, not this."""
+
     @threaded()
     def work() -> str:
         return "never reaches the caller"
@@ -123,6 +128,7 @@ def test_threaded_passes_arguments_through() -> None:
 
 # ── handle_exit ──────────────────────────────────────────────────────────────
 
+
 def test_handle_exit_passes_normal_calls_through() -> None:
     calls: list[str] = []
 
@@ -136,6 +142,7 @@ def test_handle_exit_passes_normal_calls_through() -> None:
 
 def test_handle_exit_does_not_swallow_other_exceptions() -> None:
     """Only KeyboardInterrupt is special. A bug must still surface."""
+
     @handle_exit
     def work() -> None:
         raise ValueError("a real failure")

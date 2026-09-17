@@ -11,6 +11,7 @@ from dependency.library.patterns.state import StateHolder
 
 # ── Composite ────────────────────────────────────────────────────────────────
 
+
 def test_composite_preserves_insertion_order() -> None:
     composite: Composite[str] = Composite()
     composite.add("a")
@@ -43,6 +44,7 @@ def test_composite_instances_do_not_share_state() -> None:
 
 # ── StateHolder ──────────────────────────────────────────────────────────────
 
+
 def test_state_holder_starts_at_initial_state() -> None:
     holder: StateHolder[str] = StateHolder("idle")
     assert holder.state == "idle"
@@ -62,6 +64,7 @@ def test_state_holder_instances_are_independent() -> None:
 
 
 # ── EventPublisher ───────────────────────────────────────────────────────────
+
 
 class PatternEventA(EventContext):
     def __init__(self, payload: str) -> None:
@@ -110,6 +113,7 @@ def test_publish_with_no_subscribers_is_a_noop() -> None:
 def test_subscribe_rejects_a_callback_with_no_parameters() -> None:
     publisher = EventPublisher()
     with pytest.raises(TypeError):
+
         @publisher.subscribe(EventSubscriber)
         async def no_params() -> None:  # type: ignore[misc]
             pass
@@ -118,6 +122,7 @@ def test_subscribe_rejects_a_callback_with_no_parameters() -> None:
 def test_subscribe_rejects_a_callback_whose_parameter_is_not_an_event() -> None:
     publisher = EventPublisher()
     with pytest.raises(TypeError):
+
         @publisher.subscribe(EventSubscriber)
         async def wrong_type(context: str) -> None:  # type: ignore[arg-type]
             pass
@@ -126,6 +131,7 @@ def test_subscribe_rejects_a_callback_whose_parameter_is_not_an_event() -> None:
 def test_subscribe_rejects_a_callback_annotated_only_with_return() -> None:
     publisher = EventPublisher()
     with pytest.raises(TypeError):
+
         @publisher.subscribe(EventSubscriber)
         async def only_return() -> None:  # type: ignore[misc]
             pass

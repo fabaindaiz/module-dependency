@@ -10,17 +10,21 @@ from dependency.core.exceptions import ResolutionError
 
 # ── Scenario A: transitive discovery ─────────────────────────────────────────
 
+
 @module()
 class ExpPluginA(Plugin):
     meta = PluginMeta(name="exp_plugin_a", version="0.1.0")
+
 
 @component(module=ExpPluginA, provider=providers.Factory)
 class ExpAService(Component):
     pass
 
+
 @component(provider=providers.Factory)
 class ExpAProduct(Component):
     pass
+
 
 @component(
     module=ExpPluginA,
@@ -47,17 +51,21 @@ def test_expansion_discovers_transitive_imports() -> None:
 
 # ── Scenario B: cascade failure ──────────────────────────────────────────────
 
+
 @module()
 class ExpPluginB(Plugin):
     meta = PluginMeta(name="exp_plugin_b", version="0.1.0")
+
 
 @component(module=ExpPluginB, provider=providers.Factory)
 class ExpBRoot(Component):
     pass
 
+
 @component(module=ExpPluginB)
 class ExpBMissing(Component):
     pass  # no implementation
+
 
 @component(
     module=ExpPluginB,
@@ -66,6 +74,7 @@ class ExpBMissing(Component):
 )
 class ExpBMiddle(Component):
     pass
+
 
 @component(
     module=ExpPluginB,
@@ -111,6 +120,7 @@ def test_expansion_raise_if_failed_includes_chain() -> None:
 
 # ── Scenario C: ExpansionResult structure ────────────────────────────────────
 
+
 def test_expansion_result_has_resolved_and_failures() -> None:
     """ExpansionResult always exposes both .resolved and .failures."""
     result = ProviderExpansion(modules=[], extra=set()).expand()
@@ -126,9 +136,11 @@ def test_expansion_result_no_failures_does_not_raise() -> None:
 
 # ── Scenario D: no-impl providers not in seed ────────────────────────────────
 
+
 @module()
 class ExpPluginD(Plugin):
     meta = PluginMeta(name="exp_plugin_d", version="0.1.0")
+
 
 @component(module=ExpPluginD)
 class ExpDInterface(Component):
@@ -148,17 +160,21 @@ def test_no_impl_provider_not_in_structural_seed() -> None:
 
 # ── Scenario E: orphan adoption ──────────────────────────────────────────────
 
+
 @module()
 class ExpPluginE(Plugin):
     meta = PluginMeta(name="exp_plugin_e", version="0.1.0")
+
 
 @component(module=ExpPluginE, provider=providers.Factory)
 class ExpEHost(Component):
     pass
 
+
 @component(provider=providers.Factory)  # orphan: no module=
 class ExpEOrphan(Component):
     pass
+
 
 @component(
     module=ExpPluginE,
@@ -185,6 +201,7 @@ def test_orphan_adopted_by_importer_context() -> None:
 
 # ── Scenario F: should_resolve never raises DeclarationError ─────────────────
 
+
 def test_should_resolve_returns_false_for_no_impl() -> None:
     """should_resolve() returns False (no DeclarationError) for unimplemented providers."""
     injectable = Injectable(interface_cls=object)
@@ -194,6 +211,7 @@ def test_should_resolve_returns_false_for_no_impl() -> None:
 
 
 # ── Scenario G: import_chain backtracing ─────────────────────────────────────
+
 
 def test_import_chain_single_node() -> None:
     """import_chain() for a root node returns a list with just that node."""

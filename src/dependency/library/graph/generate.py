@@ -8,6 +8,7 @@ from dependency.library.graph.models import Graph, Cluster, Node, Edge
 # for every other caller in the process.
 _DEFAULT_IGNORED: frozenset[str] = frozenset({"BasePlugin"})
 
+
 def generate_graph(
     plugins: Iterable[type[ContainerMixin]],
     output: str = "build/output",
@@ -22,10 +23,13 @@ def generate_graph(
     """
     graph: Graph = Graph(name="Dependency Graph")
     for plugin in plugins:
-        graph.drawable.append(process_container(graph, plugin.injection, ignore_modules))
+        graph.drawable.append(
+            process_container(graph, plugin.injection, ignore_modules)
+        )
 
     digraph = graph.draw()
     digraph.render(filename=output, format="svg")
+
 
 def process_container(
     graph: Graph,
@@ -39,6 +43,7 @@ def process_container(
         elif isinstance(child, ProviderInjection):
             cluster.childs.append(process_provider(graph, child, ignore_modules))
     return cluster
+
 
 def process_provider(
     graph: Graph,

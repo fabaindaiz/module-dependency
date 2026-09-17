@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 
+
 @dataclass(frozen=True)
 class Reading:
     """One measurement from one sensor.
@@ -9,6 +10,7 @@ class Reading:
     store, the telemetry observer, the panel — has any business editing it, and making
     that impossible is cheaper than trusting everyone not to.
     """
+
     sensor: str
     value: float
     taken_at: float
@@ -24,6 +26,7 @@ class SensorReader(ABC):
     station has several sensors. Each probe declares its own component from this
     interface, which is what lets them be resolved, replaced and grouped individually.
     """
+
     @property
     @abstractmethod
     def channel(self) -> str:

@@ -6,6 +6,7 @@ from example.plugin.runtime.state import StationState
 
 _logger = logging.getLogger("station.runtime")
 
+
 @instance(
     provider=providers.Singleton,
 )
@@ -15,6 +16,7 @@ class LoggingStationState(StateMixin[StationMode], StationState):
     This is why the contract has transition() instead of a settable attribute: a move
     between states is worth seeing, and a plain setter gives you nowhere to stand.
     """
+
     def initial_state(self) -> StationMode:
         return StationMode.STARTING
 

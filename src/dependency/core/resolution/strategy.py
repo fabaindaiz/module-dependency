@@ -10,23 +10,25 @@ from dependency.core.exceptions import (
     InitializationError,
     CancelInitialization,
 )
+
 _logger = logging.getLogger("dependency.loader")
 
+
 class ResolutionConfig(BaseModel):
-    """Configuration for the Resolution Strategy.
-    """
+    """Configuration for the Resolution Strategy."""
+
     init_container: bool = True
     legacy_resolution: bool = False
 
+
 class ResolutionStrategy:
-    """Defines the strategy for resolving dependencies.
-    """
-    def __init__(self,
-        config: Optional[ResolutionConfig] = None
-    ) -> None:
+    """Defines the strategy for resolving dependencies."""
+
+    def __init__(self, config: Optional[ResolutionConfig] = None) -> None:
         self.config: ResolutionConfig = config or ResolutionConfig()
 
-    def expand(self,
+    def expand(
+        self,
         providers: set[ProviderInjection],
     ) -> set[ProviderInjection]:
         """Expand a seed set of providers by following imports transitively.
@@ -37,7 +39,8 @@ class ResolutionStrategy:
         result.raise_if_failed()
         return result.resolved
 
-    def resolution(self,
+    def resolution(
+        self,
         providers: set[ProviderInjection],
         container: Container,
     ) -> set[ProviderInjection]:
@@ -47,7 +50,8 @@ class ResolutionStrategy:
         self.initialize(providers=providers)
         return providers
 
-    def injection(self,
+    def injection(
+        self,
         providers: set[ProviderInjection],
     ) -> None:
         """Resolve all providers in dependency order (layer by layer)."""
@@ -74,7 +78,8 @@ class ResolutionStrategy:
             resolved.update(layer_resolved)
             unresolved = layer_unresolved
 
-    def wiring(self,
+    def wiring(
+        self,
         providers: Iterable[ProviderInjection],
         container: Container,
     ) -> None:
@@ -89,7 +94,8 @@ class ResolutionStrategy:
             container.check_dependencies()
             container.init_resources()
 
-    def initialize(self,
+    def initialize(
+        self,
         providers: Iterable[ProviderInjection],
     ) -> None:
         """Execute bootstrap callables for eagerly-instantiated providers."""
@@ -105,6 +111,10 @@ class ResolutionStrategy:
                 try:
                     provider.injectable.bootstrap()
                 except CancelInitialization as e:
-                    _logger.warning(f"Injectable {provider} initialization skipped (cancelled by user): {e}")
+                    _logger.warning(
+                        f"Injectable {provider} initialization skipped (cancelled by user): {e}"
+                    )
                 except Exception as e:
-                    raise InitializationError(f"Injectable {provider} initialization failed") from e
+                    raise InitializationError(
+                        f"Injectable {provider} initialization failed"
+                    ) from e

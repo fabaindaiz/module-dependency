@@ -29,11 +29,13 @@ Copy `components/observer.py` for a new contract. It shows the whole shape:
 ```python
 CONTEXT = TypeVar("CONTEXT", bound=EventContext)
 
-class ObserverComponent(Component, Generic[CONTEXT]):   # no decorator
+
+class ObserverComponent(Component, Generic[CONTEXT]):  # no decorator
     @abstractmethod
     def update(self, context: CONTEXT) -> None: ...
 
-class EventPublisherMixin(Generic[CONTEXT]):            # the body
+
+class EventPublisherMixin(Generic[CONTEXT]):  # the body
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
         self._publisher = EventPublisher()

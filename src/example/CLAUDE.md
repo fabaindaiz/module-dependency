@@ -67,10 +67,11 @@ components over one ABC, a composite, a bootstrapped service, and a cancelled on
 One `config.json`, one section per plugin. Each plugin's `Config` model is a *view*:
 
 ```python
-class SensorsSettings(BaseModel):     # the actual fields
+class SensorsSettings(BaseModel):  # the actual fields
     sample_interval_s: float = 1.0
 
-class SensorsConfig(BaseModel):       # the view onto the root document
+
+class SensorsConfig(BaseModel):  # the view onto the root document
     sensors: SensorsSettings = SensorsSettings()
 ```
 
@@ -110,6 +111,7 @@ rewriting the interface. `telemetry/observer/` is the worked case:
 @component(module=TelemetryPlugin)
 class StationObserver(ObserverComponent[StationEvent]):
     pass
+
 
 @instance(imports=[DeferredService], provider=providers.Singleton)
 class DeferredStationObserver(EventPublisherMixin[StationEvent], StationObserver):

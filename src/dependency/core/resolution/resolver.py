@@ -5,31 +5,36 @@ from dependency.core.resolution.container import Container
 from dependency.core.resolution.expansion import ProviderExpansion
 from dependency.core.resolution.strategy import ResolutionStrategy
 
+
 class InjectionResolver:
-    """Injection Resolver Class
-    """
-    def __init__(self,
+    """Injection Resolver Class"""
+
+    def __init__(
+        self,
         container: Container,
     ) -> None:
         self.container: Container = container
 
-    def resolve_dependencies(self,
+    def resolve_dependencies(
+        self,
         modules: Iterable[type[ContainerMixin]],
-        strategy: Optional[ResolutionStrategy] = None
+        strategy: Optional[ResolutionStrategy] = None,
     ) -> set[ProviderInjection]:
         strategy = strategy or ResolutionStrategy()
         self.resolve_modules(modules=modules)
         providers = self.resolve_injectables(modules=modules)
         return self.resolve_providers(providers=providers, strategy=strategy)
 
-    def resolve_modules(self,
+    def resolve_modules(
+        self,
         modules: Iterable[type[ContainerMixin]],
     ) -> None:
         """Attach each plugin's DynamicContainer to the application container."""
         for module in modules:
             module.inject_container(container=self.container)
 
-    def resolve_injectables(self,
+    def resolve_injectables(
+        self,
         modules: Iterable[type[ContainerMixin]],
         extra: Iterable[ProviderInjection] = (),
     ) -> set[ProviderInjection]:
@@ -47,9 +52,10 @@ class InjectionResolver:
         result.raise_if_failed()
         return result.resolved
 
-    def resolve_providers(self,
+    def resolve_providers(
+        self,
         providers: set[ProviderInjection],
-        strategy: Optional[ResolutionStrategy] = None
+        strategy: Optional[ResolutionStrategy] = None,
     ) -> set[ProviderInjection]:
         strategy = strategy or ResolutionStrategy()
         return strategy.resolution(

@@ -7,9 +7,11 @@ from the same declarations share nothing.
 The declarations themselves are immutable specs on the class objects, so a graph is derived
 data: build it, use it, throw it away, build another.
 """
+
 from typing import Optional
 from dependency.core.injection.injection import ContainerInjection, ProviderInjection
 from dependency.core.exceptions import DeclarationError
+
 
 class ApplicationGraph:
     """The materialised injection tree of one application build.
@@ -17,7 +19,9 @@ class ApplicationGraph:
     Attributes:
         roots: The `ContainerInjection` nodes of the plugins this graph was built from.
     """
-    def __init__(self,
+
+    def __init__(
+        self,
         roots: tuple[ContainerInjection, ...],
         containers: dict[type, ContainerInjection],
         nodes: dict[type, ProviderInjection],

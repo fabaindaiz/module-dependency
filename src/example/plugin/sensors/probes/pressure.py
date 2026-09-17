@@ -1,12 +1,20 @@
-from dependency.core import CancelInitialization, Component, component, instance, providers
+from dependency.core import (
+    CancelInitialization,
+    Component,
+    component,
+    instance,
+    providers,
+)
 from example.plugin.sensors import SensorsPlugin
 from example.plugin.sensors.interfaces import Reading, SensorReader
+
 
 @component(
     module=SensorsPlugin,
 )
 class PressureSensor(SensorReader, Component):
     """The pressure probe — the one that is not fitted on every unit."""
+
 
 @instance(
     provider=providers.Singleton,
@@ -21,6 +29,7 @@ class AbsentPressure(PressureSensor):
     here would become an InitializationError and stop the station, which is the right
     behaviour for a bug and the wrong one for a missing option.
     """
+
     def __init__(self) -> None:
         raise CancelInitialization("no pressure probe fitted on this unit")
 

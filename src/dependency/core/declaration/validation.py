@@ -7,8 +7,9 @@ _PROVIDERS = (
     providers.Resource,
 )
 
-T = TypeVar('T', bound=Any)
+T = TypeVar("T", bound=Any)
 InstanceOrClass = Union[T, type[T]]
+
 
 def standalone_provider(
     provided_cls: type[T],
@@ -27,8 +28,11 @@ def standalone_provider(
         providers.Provider[Any]: Instance of the validated provider.
     """
     if not issubclass(provider, _PROVIDERS):
-        raise TypeError(f"Product {provided_cls.__name__} has an invalid provider {provider.__name__} (allowed: {[p.__name__ for p in _PROVIDERS]})") # pragma: no cover
+        raise TypeError(
+            f"Product {provided_cls.__name__} has an invalid provider {provider.__name__} (allowed: {[p.__name__ for p in _PROVIDERS]})"
+        )  # pragma: no cover
     return provider(provided_cls)
+
 
 # TODO: validate provider for instance, what about other kinds of providers?
 def validate_provider(

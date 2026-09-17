@@ -21,6 +21,7 @@ statement in it is then reported as never run. Measured when this file imported
 ``core/__init__.py`` read 0%. Moving an import back to the top of this file silently
 destroys the coverage number for the whole package.
 """
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
@@ -29,6 +30,7 @@ import pytest
 if TYPE_CHECKING:  # pragma: no cover
     from dependency.core.injection.mixin import ProviderMixin
     from dependency.core.resolution.container import Container
+
 
 @pytest.fixture
 def dependency_container() -> Container:
@@ -40,6 +42,7 @@ def dependency_container() -> Container:
     from dependency.core.resolution.container import Container
 
     return Container.from_dict({})
+
 
 def declaration_state(*declared: type[ProviderMixin]) -> dict[str, Any]:
     """Snapshot the mutable declaration state carried by the given component classes.
@@ -61,7 +64,9 @@ def declaration_state(*declared: type[ProviderMixin]) -> dict[str, Any]:
         node = provided_cls.injection
         key = provided_cls.__qualname__
         snapshot[f"{key}.is_resolved"] = node.is_resolved
-        snapshot[f"{key}.parent"] = node.parent.name if node.parent is not None else None
+        snapshot[f"{key}.parent"] = (
+            node.parent.name if node.parent is not None else None
+        )
         snapshot[f"{key}.implementation"] = provided_cls.injectable.implementation
         try:
             snapshot[f"{key}.provider"] = id(node.provider)

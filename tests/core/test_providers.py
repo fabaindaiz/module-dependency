@@ -4,14 +4,17 @@ from dependency.core.injection import ProviderInjection
 from dependency.core.agrupation import Module, module
 from dependency.core.declaration import Component, component
 
+
 @module()
 class TModule(Module):
     pass
+
 
 class TProduct(Component):
     @abstractmethod
     def method(self) -> str:
         pass
+
 
 @component(
     module=TModule,
@@ -21,6 +24,7 @@ class TProduct1(TProduct):
     def method(self) -> str:
         return "product1"
 
+
 @component(
     module=TModule,
     provider=providers.Factory,
@@ -29,13 +33,15 @@ class TProduct2(TProduct):
     def method(self) -> str:
         return "product2"
 
+
 @component(
     module=TModule,
-    provider=providers.Aggregate({
-        "product1": TProduct1.provider(),
-        "product2": TProduct2.provider(),
-
-    })
+    provider=providers.Aggregate(
+        {
+            "product1": TProduct1.provider(),
+            "product2": TProduct2.provider(),
+        }
+    ),
 )
 class TComponent(TProduct):
     pass

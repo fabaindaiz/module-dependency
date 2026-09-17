@@ -1,5 +1,6 @@
 from enum import Enum
 
+
 class StationMode(Enum):
     """Where the station is in its lifecycle.
 
@@ -7,6 +8,7 @@ class StationMode(Enum):
     would be meaningless, and a state the data cannot express is a state nobody has to
     check for.
     """
+
     STARTING = "starting"
     SAMPLING = "sampling"
     DEGRADED = "degraded"

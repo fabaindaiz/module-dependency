@@ -3,8 +3,7 @@ from typing import Callable, Generic, Iterable, TypeVar
 T = TypeVar('T')
 
 class Cycle(Generic[T]):
-    """Represents a cycle of elements.
-    """
+    """Represents a cycle of elements."""
     elements: tuple[T, ...]
     def __init__(self, elements: Iterable[T]) -> None:
         """Store the cycle in canonical normalized form.

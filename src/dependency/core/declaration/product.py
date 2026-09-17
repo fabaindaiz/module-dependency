@@ -4,6 +4,7 @@ from dependency.core.agrupation.module import Module
 from dependency.core.injection.mixin import ProviderMixin
 from dependency.core.declaration.component import COMPONENT, Component, component
 
+
 class Product(Component):
     """Base class for on-demand dependency units.
 
@@ -17,6 +18,7 @@ class Product(Component):
 
     Products must be decorated with @product to be registered in the injection tree.
     """
+
 
 def product(
     module: Optional[type[Module]] = None,

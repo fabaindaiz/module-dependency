@@ -13,15 +13,21 @@ Two phases, and the split is the example application's documented three-step sta
 own subclass links are the index. A class that was never imported has no subclass entry and
 is correctly invisible — which is exactly what an `imports.py` is for.
 """
+
 from typing import Iterable, Optional
 from dependency.core.injection.graph import ApplicationGraph
 from dependency.core.injection.injectable import Injectable
 from dependency.core.injection.injection import ContainerInjection, ProviderInjection
 from dependency.core.injection.mixin import ContainerMixin, ProviderMixin
 from dependency.core.injection.spec import (
-    ComponentSpec, ImplementationSpec, own_component_spec, own_implementation_spec,
-    own_module_spec)
+    ComponentSpec,
+    ImplementationSpec,
+    own_component_spec,
+    own_implementation_spec,
+    own_module_spec,
+)
 from dependency.core.exceptions import DeclarationError
+
 
 def _descendants(base: type) -> list[type]:
     """Every transitive subclass of `base` that has been imported, depth first."""
@@ -36,6 +42,7 @@ def _descendants(base: type) -> list[type]:
         found.append(candidate)
         pending.extend(candidate.__subclasses__())
     return found
+
 
 class GraphBuilder:
     """Builds one `ApplicationGraph` from whatever has been declared and imported."""
@@ -101,23 +108,33 @@ class GraphBuilder:
         for implementation_cls in _descendants(ProviderMixin):
             implementation = own_implementation_spec(implementation_cls)
             if implementation is not None:
-                implementations.setdefault(implementation.target, []).append(implementation)
+                implementations.setdefault(implementation.target, []).append(
+                    implementation
+                )
 
         reachable = self._reachable(graph, components, implementations)
 
         for component_cls in reachable:
             spec = components[component_cls]
-            graph.add_node(component_cls, ProviderInjection(
-                name=spec.name,
-                injectable=Injectable(interface_cls=component_cls),
-                parent=self._parent_of(graph, component_cls, spec),
-            ))
+            graph.add_node(
+                component_cls,
+                ProviderInjection(
+                    name=spec.name,
+                    injectable=Injectable(interface_cls=component_cls),
+                    parent=self._parent_of(graph, component_cls, spec),
+                ),
+            )
 
         for component_cls in reachable:
-            self._bind_one(graph, component_cls, components[component_cls],
-                           implementations.get(component_cls, []))
+            self._bind_one(
+                graph,
+                component_cls,
+                components[component_cls],
+                implementations.get(component_cls, []),
+            )
 
-    def _reachable(self,
+    def _reachable(
+        self,
         graph: ApplicationGraph,
         components: dict[type, ComponentSpec],
         implementations: dict[type, list[ImplementationSpec]],
@@ -155,7 +172,8 @@ class GraphBuilder:
                 pending.extend(implementation.optional)
         return found
 
-    def _parent_of(self,
+    def _parent_of(
+        self,
         graph: ApplicationGraph,
         component_cls: type,
         spec: ComponentSpec,
@@ -174,7 +192,8 @@ class GraphBuilder:
                 return graph.container_for(module_cls)
         return None
 
-    def _bind_one(self,
+    def _bind_one(
+        self,
         graph: ApplicationGraph,
         component_cls: type,
         spec: ComponentSpec,
@@ -186,7 +205,10 @@ class GraphBuilder:
         total = len(candidates) + (1 if inline else 0)
 
         if total > 1:
-            named = [f"{c.declared_cls.__qualname__} ({c.declared_cls.__module__})" for c in candidates]
+            named = [
+                f"{c.declared_cls.__qualname__} ({c.declared_cls.__module__})"
+                for c in candidates
+            ]
             if inline:
                 named.insert(0, f"{spec.name} itself, via provider= on @component")
             raise DeclarationError(

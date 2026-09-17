@@ -4,6 +4,7 @@ That gap is why a NameError from an unquoted forward reference shipped and broke
 module on every supported Python except 3.14 (D-017). These tests import it, which is
 the part that was missing.
 """
+
 import shutil
 from pathlib import Path
 import pytest
@@ -68,6 +69,7 @@ def resolved_app() -> None:
 
 # ── models ───────────────────────────────────────────────────────────────────
 
+
 def test_node_renders_into_a_digraph() -> None:
     graph = Graph(name="test", drawable=[Node(name="Solo")])
     rendered = graph.draw().source
@@ -110,6 +112,7 @@ def test_cluster_orders_children_by_in_degree() -> None:
 
 # ── walking a real injection tree ────────────────────────────────────────────
 
+
 def test_process_provider_reports_weight_as_in_degree() -> None:
     graph = Graph(name="test")
     node = process_provider(graph, GraphRoot.injection, ignore_modules=set())
@@ -126,7 +129,9 @@ def test_process_provider_records_an_edge_per_dependent() -> None:
 
 def test_process_provider_skips_ignored_modules() -> None:
     graph = Graph(name="test")
-    node = process_provider(graph, GraphRoot.injection, ignore_modules={"GraphChildModule"})
+    node = process_provider(
+        graph, GraphRoot.injection, ignore_modules={"GraphChildModule"}
+    )
     assert node.in_degree == 0
     assert graph.edges == []
 
@@ -150,6 +155,7 @@ def test_process_container_handles_both_node_kinds() -> None:
 
 
 # ── the public entry point ───────────────────────────────────────────────────
+
 
 @pytest.mark.skipif(
     shutil.which("dot") is None,

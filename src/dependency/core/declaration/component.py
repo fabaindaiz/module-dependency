@@ -6,7 +6,8 @@ from dependency.core.injection.spec import COMPONENT_SPEC, ComponentSpec, attach
 from dependency.core.declaration.validation import InstanceOrClass, validate_provider
 from dependency.core.injection.mixin import ProviderMixin
 
-COMPONENT = TypeVar('COMPONENT', bound='Component')
+COMPONENT = TypeVar("COMPONENT", bound="Component")
+
 
 class Component(ProviderMixin):
     """Base class for all interface declarations in the injection framework.
@@ -19,6 +20,7 @@ class Component(ProviderMixin):
     injection tree. The @component decorator initializes the ProviderInjection
     and Injectable, making the class available as a dependency for other providers.
     """
+
 
 def component(
     module: Optional[type[Module]] = None,
@@ -64,6 +66,7 @@ def component(
         Callable[[type[COMPONENT]], type[COMPONENT]]: Decorator that registers the
             component class and returns it unchanged.
     """
+
     def wrap(cls: type[COMPONENT]) -> type[COMPONENT]:
         """Register the component class into the injection tree.
 
@@ -72,14 +75,14 @@ def component(
         the declared imports and resolution flags on the Injectable.
         """
         if not issubclass(cls, Component):
-            raise TypeError(f"Class {cls} has decorator @component but is not a subclass of Component") # pragma: no cover
+            raise TypeError(
+                f"Class {cls} has decorator @component but is not a subclass of Component"
+            )  # pragma: no cover
 
         declared_imports = tuple(imports)
         declared_optional = tuple(optional)
 
-        cls.init_injection(
-            parent=module.injection if module else None
-        )
+        cls.init_injection(parent=module.injection if module else None)
 
         if provider is not None:
             cls.init_implementation(
@@ -94,18 +97,25 @@ def component(
             strict_resolution=strict_resolution,
         )
 
-        attach_spec(cls, ComponentSpec(
-            declared_cls=cls,
-            name=cls.__name__,
-            module=module,
-            imports=declared_imports,
-            optional=declared_optional,
-            strict_resolution=strict_resolution,
-            provider_factory=(
-                partial(validate_provider, provider=provider) if provider is not None else None
+        attach_spec(
+            cls,
+            ComponentSpec(
+                declared_cls=cls,
+                name=cls.__name__,
+                module=module,
+                imports=declared_imports,
+                optional=declared_optional,
+                strict_resolution=strict_resolution,
+                provider_factory=(
+                    partial(validate_provider, provider=provider)
+                    if provider is not None
+                    else None
+                ),
+                bootstrap=bootstrap,
             ),
-            bootstrap=bootstrap,
-        ), COMPONENT_SPEC)
+            COMPONENT_SPEC,
+        )
 
         return cls
+
     return wrap

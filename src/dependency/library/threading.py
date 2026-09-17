@@ -8,11 +8,13 @@ from typing import Any, Callable, Optional, TypeVar
 from dependency.core.utils.threading import handle_exit
 
 logger = logging.getLogger("ThreadHelper")
-WRAP = TypeVar('WRAP', bound=Callable[..., Any])
+WRAP = TypeVar("WRAP", bound=Callable[..., Any])
+
 
 def excluded(blocking: bool = False, default: Any = None) -> Callable[[WRAP], WRAP]:
     def function(func: WRAP) -> WRAP:
         lock = threading.Lock()
+
         @wraps(func)
         def wrapper(*args: Any, **kwargs: Any) -> Any:
             if lock.acquire(blocking=blocking):
@@ -22,8 +24,11 @@ def excluded(blocking: bool = False, default: Any = None) -> Callable[[WRAP], WR
                     lock.release()
             else:
                 return default
-        return wrapper # type: ignore
+
+        return wrapper  # type: ignore
+
     return function
+
 
 def threaded(name: Optional[str] = None, daemon: bool = True) -> Callable[[WRAP], WRAP]:
     def function(func: WRAP) -> WRAP:
@@ -32,8 +37,13 @@ def threaded(name: Optional[str] = None, daemon: bool = True) -> Callable[[WRAP]
             _thread = threading.Thread(target=func, args=args, kwargs=kwargs, name=name)
             _thread.daemon = daemon
             _thread.start()
-            logger.debug(f"Funcion '{func.__module__}.{func.__name__}' running on a thread (daemon={daemon}) ")
-        return wrapper # type: ignore
+            logger.debug(
+                f"Funcion '{func.__module__}.{func.__name__}' running on a thread (daemon={daemon}) "
+            )
+
+        return wrapper  # type: ignore
+
     return function
+
 
 __all__ = ["excluded", "threaded", "handle_exit"]

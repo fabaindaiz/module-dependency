@@ -1,6 +1,7 @@
 from typing import Generic, TypeVar
 
-T = TypeVar('T')
+T = TypeVar("T")
+
 
 class Composite(Generic[T]):
     """Ordered membership of child objects.
@@ -8,6 +9,7 @@ class Composite(Generic[T]):
     A primitive: it knows nothing about the framework. Wrap it with
     `dependency.library.components.CompositeMixin` to expose it as a component.
     """
+
     def __init__(self) -> None:
         self._children: list[T] = []
 

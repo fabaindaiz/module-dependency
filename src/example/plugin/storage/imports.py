@@ -3,4 +3,5 @@
 import example.plugin.storage.store.memory
 
 from example.plugin.storage import StoragePlugin
+
 __all__ = ["StoragePlugin"]

@@ -7,6 +7,7 @@ rather than from CI.
 
 The dependency is pinned `>=4.48.2,<5`, which buys time but detects nothing.
 """
+
 import inspect
 import pytest
 from dependency_injector import providers
@@ -26,6 +27,7 @@ from dependency.core.injection.wiring import LazyWiring
 
 
 # ── shape: the names we build on still exist and are still classes ───────────
+
 
 @pytest.mark.parametrize("marker", [_Marker, Provide, Provider, Closing])
 def test_upstream_marker_names_exist(marker: type) -> None:
@@ -86,6 +88,7 @@ def test_lazywiring_accepts_a_wiringmixin_class() -> None:
 
 
 # ── behaviour: a wired injection actually resolves ───────────────────────────
+
 
 @module()
 class ContractPlugin(Plugin):

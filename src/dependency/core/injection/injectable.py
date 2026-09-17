@@ -1,6 +1,8 @@
 import logging
 from typing import Any, Callable, Iterable, Optional
+
 _logger = logging.getLogger("dependency.loader")
+
 
 class Injectable:
     """Binding between a Component interface and its concrete implementation.
@@ -14,7 +16,9 @@ class Injectable:
         modules_cls: Python modules to include in dependency-injector wiring.
         bootstrap: Callable invoked during initialization if bootstrap=True.
     """
-    def __init__(self,
+
+    def __init__(
+        self,
         interface_cls: type,
         implementation: Optional[type] = None,
     ) -> None:
@@ -23,7 +27,8 @@ class Injectable:
         self.implementation: Optional[type] = implementation
         self.bootstrap: Optional[Callable[[], Any]] = None
 
-    def set_implementation(self,
+    def set_implementation(
+        self,
         implementation: type,
         modules_cls: Iterable[type],
         bootstrap: Optional[Callable[[], Any]] = None,
@@ -34,9 +39,13 @@ class Injectable:
         overwriting — the last @instance decorator applied wins.
         """
         if self.implementation is None:
-            _logger.debug(f"Provider {self.interface_cls.__name__} implementation assigned: {implementation.__name__}")
+            _logger.debug(
+                f"Provider {self.interface_cls.__name__} implementation assigned: {implementation.__name__}"
+            )
         else:
-            _logger.warning(f"Provider {self.interface_cls.__name__} implementation reassigned: {self.implementation.__name__} -> {implementation.__name__}")
+            _logger.warning(
+                f"Provider {self.interface_cls.__name__} implementation reassigned: {self.implementation.__name__} -> {implementation.__name__}"
+            )
 
         self.implementation = implementation
         self.modules_cls.update(modules_cls)

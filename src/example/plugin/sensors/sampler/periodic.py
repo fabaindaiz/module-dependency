@@ -12,6 +12,7 @@ from example.plugin.telemetry.observer import StationObserver
 
 _logger = logging.getLogger("station.sensors")
 
+
 @instance(
     imports=[
         SensorGroup,
@@ -33,6 +34,7 @@ class PeriodicSampler(Sampler):
     sampling from __init__ could publish before the alert sink has subscribed. The
     entrypoint calls warmup() once the graph is fully initialised.
     """
+
     def __init__(self) -> None:
         self.__group: SensorGroup = SensorGroup.provide()
         self.__store: ReadingStore = ReadingStore.provide()
@@ -55,6 +57,5 @@ class PeriodicSampler(Sampler):
 
             limit = self.__thresholds.get(reading.sensor)
             if limit is not None and reading.value > limit:
-                self.__observer.update(
-                    ThresholdExceeded(reading=reading, limit=limit))
+                self.__observer.update(ThresholdExceeded(reading=reading, limit=limit))
         return readings

@@ -1,12 +1,14 @@
 from typing import Any
 from dependency_injector import containers, providers
 
+
 class Container(containers.DynamicContainer):
     """Container Class extending DynamicContainer with additional methods.
 
     Attributes:
         config (providers.Configuration): Configuration provider for the container.
     """
+
     config: providers.Configuration
 
     def __init__(self) -> None:
@@ -21,10 +23,7 @@ class Container(containers.DynamicContainer):
         self.config = providers.Configuration()
 
     @staticmethod
-    def from_dict(
-            config: dict[str, Any],
-            required: bool = False
-        ) -> 'Container':
+    def from_dict(config: dict[str, Any], required: bool = False) -> "Container":
         """Create a Container instance from a dictionary configuration.
 
         Args:
@@ -35,18 +34,13 @@ class Container(containers.DynamicContainer):
             Container: A new Container instance configured with the provided dictionary.
         """
         container: Container = Container()
-        container.config.from_dict(
-            options=config,
-            required=required
-        )
+        container.config.from_dict(options=config, required=required)
         return container
 
     @staticmethod
     def from_json(
-            file: str,
-            required: bool = False,
-            envs_required: bool = False
-        ) -> 'Container':
+        file: str, required: bool = False, envs_required: bool = False
+    ) -> "Container":
         """Create a Container instance from a JSON file configuration.
 
         Args:
@@ -59,8 +53,6 @@ class Container(containers.DynamicContainer):
         """
         container: Container = Container()
         container.config.from_json(
-            filepath=file,
-            required=required,
-            envs_required=envs_required
+            filepath=file, required=required, envs_required=envs_required
         )
         return container

@@ -4,6 +4,7 @@ from dependency.cli.generation.module import ModuleGenerator
 from dependency.cli.generation.component import ComponentGenerator
 from dependency.cli.generation.instance import InstanceGenerator
 
+
 def test_generation():
     plugin = Module(
         path="src.plugin",

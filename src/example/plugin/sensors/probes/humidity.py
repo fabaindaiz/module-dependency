@@ -3,11 +3,13 @@ from example.plugin.runtime.clock import Clock
 from example.plugin.sensors import SensorsPlugin
 from example.plugin.sensors.interfaces import Reading, SensorReader
 
+
 @component(
     module=SensorsPlugin,
 )
 class HumiditySensor(SensorReader, Component):
     """The humidity probe."""
+
 
 @instance(
     imports=[Clock],
@@ -16,6 +18,7 @@ class HumiditySensor(SensorReader, Component):
 class SimulatedHumidity(HumiditySensor):
     """A slow ramp that stays inside its threshold, so the alert path can be seen
     firing for one channel and not the other."""
+
     def __init__(self) -> None:
         self.__clock: Clock = Clock.provide()
         self.__samples: int = 0

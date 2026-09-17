@@ -3,11 +3,13 @@ from dependency.core import Component, component
 from example.plugin.sensors import SensorsPlugin
 from example.plugin.sensors.interfaces import Reading
 
+
 @component(
     module=SensorsPlugin,
 )
 class Sampler(Component):
     """Drives one pass over the sensors and hands the readings on."""
+
     @abstractmethod
     def warmup(self) -> None:
         """Take the configured warm-up samples.

@@ -10,6 +10,7 @@ from example.plugin.telemetry.observer import StationObserver
 
 _logger = logging.getLogger("station.telemetry")
 
+
 @instance(
     imports=[StationObserver],
     optional=[StatusPanel],
@@ -34,6 +35,7 @@ class ConsoleAlertSink(AlertSink):
     bootstrap=True so the subscription is registered at startup, before the sampler's
     warm-up publishes anything.
     """
+
     def __init__(self) -> None:
         self.__prefix = TelemetryPlugin.config.telemetry.alert_prefix
         self.__panel: Optional[StatusPanel] = self.__find_panel()
@@ -59,8 +61,10 @@ class ConsoleAlertSink(AlertSink):
             return None
 
     def raise_alert(self, event: ThresholdExceeded) -> None:
-        line = (f"{self.__prefix} {event.reading.sensor} "
-                f"{event.reading.value:.1f} > {event.limit:.1f}")
+        line = (
+            f"{self.__prefix} {event.reading.sensor} "
+            f"{event.reading.value:.1f} > {event.limit:.1f}"
+        )
         _logger.warning(line)
         if self.__panel is not None:
             self.__panel.show(line)

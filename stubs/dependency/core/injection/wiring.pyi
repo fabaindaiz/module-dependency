@@ -14,8 +14,7 @@ class WiringMixin(ABC, metaclass=abc.ABCMeta):
         """Return the reference name of the Injectable."""
 
 class LazyWiring(_Marker):
-    """Base Lazy Class for deferred provider resolution.
-    """
+    """Base Lazy Class for deferred provider resolution."""
     modifier: Modifier | None
     def __init__(self, provider: type[WiringMixin] | Callable[[], providers.Provider[Any] | containers.Container | str], modifier: Modifier | None = None) -> None:
         """Initialize the lazy wiring marker.

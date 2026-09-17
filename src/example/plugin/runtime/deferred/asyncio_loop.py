@@ -6,7 +6,8 @@ from dependency.library.threading import threaded
 from example.plugin.runtime import RuntimePlugin
 from example.plugin.runtime.deferred import DeferredService
 
-T = TypeVar('T')
+T = TypeVar("T")
+
 
 @instance(
     provider=providers.Singleton,
@@ -20,6 +21,7 @@ class AsyncioDeferredService(DeferredService):
     while the rest of the graph is still being initialised. Without it, the service
     would only start when something first called .provide() — too late.
     """
+
     def __init__(self) -> None:
         workers = RuntimePlugin.config.runtime.thread_pool_workers
         self.__thread_pool = ThreadPoolExecutor(max_workers=workers)
@@ -40,9 +42,12 @@ class AsyncioDeferredService(DeferredService):
     def run(self, coro: Coroutine[None, None, T], timeout: Optional[float] = None) -> T:
         return self.create_task(coro).result(timeout=timeout)
 
-    async def run_in_executor(self, func: Callable[..., T], *args: Any, **kwargs: Any) -> T:
+    async def run_in_executor(
+        self, func: Callable[..., T], *args: Any, **kwargs: Any
+    ) -> T:
         def wrapper() -> T:
             return func(*args, **kwargs)
+
         return await self.__running_loop.run_in_executor(self.__thread_pool, wrapper)
 
     def shutdown(self) -> None:

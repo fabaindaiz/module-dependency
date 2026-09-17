@@ -6,8 +6,7 @@ from dependency.core.resolution.strategy import ResolutionStrategy as Resolution
 from typing import Iterable
 
 class InjectionResolver:
-    """Injection Resolver Class
-    """
+    """Injection Resolver Class"""
     container: Container
     def __init__(self, container: Container) -> None: ...
     def resolve_dependencies(self, modules: Iterable[type[ContainerMixin]], strategy: ResolutionStrategy | None = None) -> set[ProviderInjection]: ...

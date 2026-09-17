@@ -1,6 +1,7 @@
 from typing import Any, Generic, TypeVar
 
-T = TypeVar('T')
+T = TypeVar("T")
+
 
 class StateHolder(Generic[T]):
     def __init__(self, initial_state: T, **kwargs: Any):

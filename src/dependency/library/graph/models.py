@@ -16,6 +16,7 @@ GROUP_SIZE: int = 2
 # before Python 3.14 (PEP 649), so a class may only annotate names already defined above
 # it. Checked by tools/audit_dependency.py::check_forward_refs.
 
+
 class Drawable(BaseModel, ABC):
     name: str
     in_degree: int = 0
@@ -23,6 +24,7 @@ class Drawable(BaseModel, ABC):
     @abstractmethod
     def draw(self, parent: Digraph) -> None:
         pass
+
 
 class Node(Drawable):
     style: dict[str, str] = {
@@ -33,6 +35,7 @@ class Node(Drawable):
 
     def draw(self, parent: Digraph) -> None:
         parent.node(self.name, **self.style)
+
 
 class Cluster(Drawable):
     childs: list[Drawable] = []
@@ -48,7 +51,9 @@ class Cluster(Drawable):
             c.attr(label=self.name, **self.style)
 
             # Agrupar por profundidad y ordenar por in_degree dentro de cada grupo
-            def bucket(x: Drawable) -> int: return x.in_degree // GROUP_SIZE
+            def bucket(x: Drawable) -> int:
+                return x.in_degree // GROUP_SIZE
+
             childs: list[Drawable] = sorted(self.childs, key=lambda c: c.in_degree)
             groups = [list(g) for _, g in groupby(childs, key=bucket)]
 
@@ -58,12 +63,16 @@ class Cluster(Drawable):
 
                 # Arista invisible entre nodos del mismo grupo para mantenerlos juntos
                 for i, (n1, n2) in enumerate(pairwise(group)):
-                    if isinstance(n2, Node) and i % min(2,  max(1, len(group) // GROUP_SIZE)) != 0:
+                    if (
+                        isinstance(n2, Node)
+                        and i % min(2, max(1, len(group) // GROUP_SIZE)) != 0
+                    ):
                         c.edge(n1.name, n2.name, style="invis", weight="1")
 
             # Arista invisible solo entre representantes de grupos consecutivos
-            for (g1, g2) in pairwise(groups):
+            for g1, g2 in pairwise(groups):
                 c.edge(g1[0].name, g2[0].name, style="invis", weight="1")
+
 
 class Edge(BaseModel):
     source: str
@@ -73,6 +82,7 @@ class Edge(BaseModel):
         kwargs: dict[str, str] = {}
         parent.edge(self.source, self.target, weight="5", minlen="1", **kwargs)
 
+
 class Graph(BaseModel):
     name: str = "Dependency Graph"
     drawable: list[Drawable] = []
@@ -80,8 +90,18 @@ class Graph(BaseModel):
 
     def draw(self) -> Digraph:
         graph: Digraph = Digraph(comment=self.name, engine="dot")
-        graph.attr(rankdir="TB", newrank="true", ordering="in", overlap="false", splines="true", nodesep="1.0", ranksep="1.0")
-        graph.attr("node", fontname="Helvetica", fontsize="12", margin="0.2", style="invis")
+        graph.attr(
+            rankdir="TB",
+            newrank="true",
+            ordering="in",
+            overlap="false",
+            splines="true",
+            nodesep="1.0",
+            ranksep="1.0",
+        )
+        graph.attr(
+            "node", fontname="Helvetica", fontsize="12", margin="0.2", style="invis"
+        )
 
         for drawable in self.drawable:
             drawable.draw(graph)

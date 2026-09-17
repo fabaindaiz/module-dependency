@@ -6,15 +6,18 @@ number instead of an opinion. When declaration state stops being process-global 
 becomes an xpass, `strict=True` turns that into a failure, and whoever lands that change is
 forced to delete the marker. That is the definition of done, expressed as a test.
 """
+
 import pytest
 from dependency.core.agrupation import Plugin, PluginMeta, module
 from dependency.core.declaration import Component, component, instance
 from dependency.core.resolution import Container, ResolutionStrategy
 from dependency.testing.plugin import declaration_state
 
+
 @module()
 class PlugPlugin(Plugin):
     meta = PluginMeta(name="plugin_fixture_plugin", version="0.1.0")
+
 
 @component(
     module=PlugPlugin,
@@ -22,13 +25,18 @@ class PlugPlugin(Plugin):
 class PlugService(Component):
     pass
 
+
 @instance()
 class PlugServiceImpl(PlugService):
     pass
 
-def test_dependency_container_is_a_fresh_container(dependency_container: Container) -> None:
+
+def test_dependency_container_is_a_fresh_container(
+    dependency_container: Container,
+) -> None:
     assert isinstance(dependency_container, Container)
     assert dependency_container.config() == {}
+
 
 def test_dependency_container_is_not_shared_between_tests(
     dependency_container: Container,
@@ -36,6 +44,7 @@ def test_dependency_container_is_not_shared_between_tests(
     dependency_container.config.from_dict({"touched": True})
 
     assert Container.from_dict({}).config() == {}
+
 
 def test_declaration_state_reports_what_lives_on_the_class() -> None:
     state = declaration_state(PlugService)
@@ -47,6 +56,7 @@ def test_declaration_state_reports_what_lives_on_the_class() -> None:
         "PlugService.provider",
     }
     assert state["PlugService.implementation"] is PlugServiceImpl
+
 
 @pytest.mark.xfail(
     strict=True,

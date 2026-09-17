@@ -6,13 +6,16 @@ from dependency.core.resolution import Container, ResolutionStrategy
 from dependency.core.declaration import Component, component, instance
 from dependency.core.exceptions import ProvisionError
 
+
 class PluginConfig(BaseModel):
     key: str
+
 
 @module()
 class TPlugin(Plugin):
     config: PluginConfig
     meta = PluginMeta(name="test_plugin", version="0.1.0")
+
 
 @component(
     module=TPlugin,
@@ -20,9 +23,11 @@ class TPlugin(Plugin):
 class TComponent1(Component):
     pass
 
+
 @instance()
 class TInstance1(TComponent1):
     pass
+
 
 @instance()
 class TInstance2(TComponent1):
@@ -46,6 +51,7 @@ def test_validation() -> None:
 
     assert TComponent1.provider() == TInstance2.provider()
     assert TComponent1.provide() == TInstance2.provide()
+
 
 def test_validation_singleton_identity() -> None:
     """provide() sobre un Singleton siempre retorna la misma instancia."""

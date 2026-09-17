@@ -4,7 +4,9 @@ from typing import Any, Generator, Iterable, Optional, override
 from dependency_injector import containers, providers
 from dependency.core.injection.injectable import Injectable
 from dependency.core.exceptions import DeclarationError, ProvisionError
+
 _logger = logging.getLogger("dependency.loader")
+
 
 class BaseInjection(ABC):
     """Base class for all nodes in the injection tree.
@@ -12,16 +14,18 @@ class BaseInjection(ABC):
     Holds the node's name and its optional parent ContainerInjection.
     Subclassed by ContainerInjection (structural) and ProviderInjection (providable).
     """
-    def __init__(self,
+
+    def __init__(
+        self,
         name: str,
-        parent: Optional['ContainerInjection'] = None,
+        parent: Optional["ContainerInjection"] = None,
     ) -> None:
         self.name: str = name
-        self.parent: Optional['ContainerInjection'] = parent
+        self.parent: Optional["ContainerInjection"] = parent
         if self.parent:
             self.parent.childs.add(self)
 
-    def change_parent(self, parent: Optional['ContainerInjection'] = None) -> None:
+    def change_parent(self, parent: Optional["ContainerInjection"] = None) -> None:
         """Move this node to a different parent in the injection tree."""
         if self.parent is not None:
             self.parent.childs.remove(self)
@@ -34,7 +38,7 @@ class BaseInjection(ABC):
         """Attach this node to the dependency-injector container tree."""
 
     @abstractmethod
-    def collect_providers(self) -> Generator['ProviderInjection', None, None]:
+    def collect_providers(self) -> Generator["ProviderInjection", None, None]:
         """Yield all ProviderInjection nodes reachable from this node."""
 
     def __repr__(self) -> str:
@@ -47,9 +51,11 @@ class ContainerInjection(BaseInjection):
     Owns a DynamicContainer and organizes child nodes under a named namespace.
     The dot-separated reference path is built from the parent chain.
     """
-    def __init__(self,
+
+    def __init__(
+        self,
         name: str,
-        parent: Optional['ContainerInjection'] = None,
+        parent: Optional["ContainerInjection"] = None,
     ) -> None:
         super().__init__(name=name, parent=parent)
         self.is_root: bool = False
@@ -77,7 +83,7 @@ class ContainerInjection(BaseInjection):
             child.attach(container=self.container)
 
     @override
-    def collect_providers(self) -> Generator['ProviderInjection', None, None]:
+    def collect_providers(self) -> Generator["ProviderInjection", None, None]:
         """Yield all ProviderInjection nodes in this subtree."""
         for child in self.childs:
             yield from child.collect_providers()
@@ -100,10 +106,12 @@ class ProviderInjection(BaseInjection):
             warning during expansion instead of a failure. It does not affect
             attachment eligibility — see should_resolve().
     """
-    def __init__(self,
+
+    def __init__(
+        self,
         name: str,
         injectable: Injectable,
-        parent: Optional['ContainerInjection'] = None,
+        parent: Optional["ContainerInjection"] = None,
         provider: Optional[providers.Provider[Any]] = None,
     ) -> None:
         super().__init__(name=name, parent=parent)
@@ -111,9 +119,9 @@ class ProviderInjection(BaseInjection):
         self._provider: Optional[providers.Provider[Any]] = provider
         self.is_root: bool = False
 
-        self.imports: set['ProviderInjection'] = set()
-        self.optional_imports: set['ProviderInjection'] = set()
-        self.dependent: set['ProviderInjection'] = set()
+        self.imports: set["ProviderInjection"] = set()
+        self.optional_imports: set["ProviderInjection"] = set()
+        self.dependent: set["ProviderInjection"] = set()
         self._weight: Optional[int] = None
 
         self.is_resolved: bool = False
@@ -123,7 +131,9 @@ class ProviderInjection(BaseInjection):
     def reference(self) -> str:
         """Dot-separated path used by dependency-injector for wiring."""
         if not self.parent:
-            raise ProvisionError(f"Provider {self.name} requires a parent container for reference-based injection")
+            raise ProvisionError(
+                f"Provider {self.name} requires a parent container for reference-based injection"
+            )
         return f"{self.parent.reference}.{self.name}"
 
     @property
@@ -162,7 +172,7 @@ class ProviderInjection(BaseInjection):
             return False
         return True
 
-    def resolve_if_posible(self, providers: set['ProviderInjection']) -> bool:
+    def resolve_if_posible(self, providers: set["ProviderInjection"]) -> bool:
         """Attempt to mark this provider as resolved.
 
         Required imports must be resolved. Optional imports are satisfied if
@@ -183,9 +193,10 @@ class ProviderInjection(BaseInjection):
         self.is_resolved = True
         return True
 
-    def update_dependencies(self,
-        imports: Iterable['ProviderInjection'] = (),
-        optional: Iterable['ProviderInjection'] = (),
+    def update_dependencies(
+        self,
+        imports: Iterable["ProviderInjection"] = (),
+        optional: Iterable["ProviderInjection"] = (),
         strict_resolution: Optional[bool] = None,
     ) -> None:
         """Register required and optional imports, update resolution flags."""
@@ -198,9 +209,10 @@ class ProviderInjection(BaseInjection):
         if strict_resolution is not None:
             self.strict_resolution = strict_resolution
 
-    def discard_dependencies(self,
-        imports: Iterable['ProviderInjection'] = (),
-        optional: Iterable['ProviderInjection'] = (),
+    def discard_dependencies(
+        self,
+        imports: Iterable["ProviderInjection"] = (),
+        optional: Iterable["ProviderInjection"] = (),
     ) -> None:
         """Remove required and optional imports from the dependency graph."""
         self.imports.difference_update(imports)
@@ -217,7 +229,7 @@ class ProviderInjection(BaseInjection):
             setattr(container, self.name, self.provider)
 
     @override
-    def collect_providers(self) -> Generator['ProviderInjection', None, None]:
+    def collect_providers(self) -> Generator["ProviderInjection", None, None]:
         """Yield self if eligible for resolution."""
         if self.should_resolve():
             yield self

@@ -3,6 +3,7 @@
 These tests assert both halves: that a contract carries no declaration of its own, and
 that two applications declaring from the same contract stay independent.
 """
+
 import asyncio
 from enum import Enum
 import pytest
@@ -30,6 +31,7 @@ from dependency.library.patterns.observer import EventContext, EventSubscriber
 
 # ── the contracts declare nothing ────────────────────────────────────────────
 
+
 @pytest.mark.parametrize(
     "contract", [ObserverComponent, CompositeComponent, StateComponent]
 )
@@ -44,6 +46,7 @@ def test_contract_is_not_declared(contract: type[Component]) -> None:
 
 
 # ── Observer ─────────────────────────────────────────────────────────────────
+
 
 class LibEvent(EventContext):
     def __init__(self, payload: str) -> None:
@@ -124,6 +127,7 @@ def test_observers_do_not_share_subscribers() -> None:
 
 # ── Composite ────────────────────────────────────────────────────────────────
 
+
 @module()
 class LibCompositePlugin(Plugin):
     meta = PluginMeta(name="lib_composite", version="0.1.0")
@@ -157,6 +161,7 @@ def test_composite_component_membership() -> None:
 
 
 # ── State ────────────────────────────────────────────────────────────────────
+
 
 class Mode(Enum):
     STARTING = "starting"

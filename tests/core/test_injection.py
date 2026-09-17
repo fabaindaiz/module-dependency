@@ -6,9 +6,11 @@ from dependency.core.exceptions import ProvisionError
 
 TEST_REFERENCE = "container1.container2.provider1"
 
+
 class Instance:
     def test(self) -> str:
         return "Test method called"
+
 
 class Interface:
     @inject
@@ -46,6 +48,7 @@ def test_injection1() -> None:
     container.wire((Interface,))
     assert Interface().test() == "Injected service: Test method called"
 
+
 def test_injection_change_parent() -> None:
     """change_parent actualiza el reference y desvincula del parent anterior."""
     container1 = ContainerInjection(name="root1")
@@ -65,6 +68,7 @@ def test_injection_change_parent() -> None:
     assert provider.reference == "root2.svc"
     assert provider in container2.childs
     assert provider not in container1.childs
+
 
 def test_injection_orphan_reference_raises() -> None:
     """ProviderInjection sin parent lanza ProvisionError al acceder a .reference."""

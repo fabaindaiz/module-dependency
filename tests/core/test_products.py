@@ -5,9 +5,11 @@ from dependency.core.declaration import Component, component, instance
 from dependency.core.resolution import Container, ResolutionStrategy
 from dependency.core.exceptions import ResolutionError
 
+
 @module()
 class TPlugin(Plugin):
     meta = PluginMeta(name="test_plugin", version="0.1.0")
+
 
 @component(
     module=TPlugin,
@@ -15,9 +17,11 @@ class TPlugin(Plugin):
 class TComponent1(Component):
     pass
 
+
 @component()
 class TComponent2(Component):
     pass
+
 
 @component(
     imports=[
@@ -27,6 +31,7 @@ class TComponent2(Component):
 )
 class TProduct1(Component):
     pass
+
 
 @instance(
     imports=[

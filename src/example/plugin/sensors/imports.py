@@ -7,4 +7,5 @@ import example.plugin.sensors.group.fitted
 import example.plugin.sensors.sampler.periodic
 
 from example.plugin.sensors import SensorsPlugin
+
 __all__ = ["SensorsPlugin"]

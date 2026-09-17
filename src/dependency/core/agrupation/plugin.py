@@ -4,7 +4,9 @@ from typing import get_type_hints
 from dependency.core.agrupation.module import Module
 from dependency.core.resolution.container import Container
 from dependency.core.exceptions import ProvisionError
+
 _logger = logging.getLogger("dependency.loader")
+
 
 class PluginMeta(BaseModel):
     """Metadata for the plugin.
@@ -13,11 +15,13 @@ class PluginMeta(BaseModel):
         name (str): Name of the plugin
         version (str): Version of the plugin
     """
+
     name: str
     version: str
 
     def __str__(self) -> str:
         return f"Plugin {self.name} ({self.version})"
+
 
 class Plugin(Module):
     """Plugin class for creating reusable components.
@@ -26,6 +30,7 @@ class Plugin(Module):
         meta (PluginMeta): Metadata for the plugin
         config (BaseModel): Configuration model for the plugin
     """
+
     meta: PluginMeta
 
     @classmethod
@@ -34,9 +39,7 @@ class Plugin(Module):
         cls.injection.is_root = True
 
     @classmethod
-    def on_resolution(cls,
-        container: Container
-    ) -> None:
+    def on_resolution(cls, container: Container) -> None:
         """Resolve plugin configuration against the application container.
 
         Called by ContainerMixin.inject_container when the plugin is attached to
@@ -65,6 +68,10 @@ class Plugin(Module):
                 # not exist on Plugin, so plain assignment does not type-check.
                 setattr(cls, "config", config_cls.model_validate(container.config()))  # noqa: B010
             else:
-                _logger.warning(f"Plugin {cls.meta} configuration class is not a subclass of BaseModel")
+                _logger.warning(
+                    f"Plugin {cls.meta} configuration class is not a subclass of BaseModel"
+                )
         except ValidationError as e:
-            raise ProvisionError(f"Plugin {cls.meta} configuration validation failed") from e
+            raise ProvisionError(
+                f"Plugin {cls.meta} configuration validation failed"
+            ) from e

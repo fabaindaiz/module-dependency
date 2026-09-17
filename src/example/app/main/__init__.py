@@ -21,6 +21,7 @@ async def _drain() -> None:
     """Yield to the loop so already-scheduled event deliveries can finish."""
     await asyncio.sleep(0)
 
+
 # Resolved against the package, not the working directory: a unit started by systemd
 # from / must find its config, and a test must not depend on where pytest was invoked.
 DEFAULT_CONFIG = Path(__file__).resolve().parents[2] / "config.json"
@@ -42,7 +43,8 @@ class MonitoringStation(Entrypoint):
 
     def __init__(self, config_file: Optional[str] = None) -> None:
         container = Container.from_json(
-            config_file or str(DEFAULT_CONFIG), required=True)
+            config_file or str(DEFAULT_CONFIG), required=True
+        )
         super().__init__(container, PLUGINS)
 
         import example.app.main.imports  # noqa: F401 - registers implementations
@@ -100,6 +102,7 @@ class MonitoringStation(Entrypoint):
         # Events are published with create_task, so anything raised by the last sample
         # may still be in flight. Give it a moment before the loop goes away.
         from example.plugin.runtime.deferred import DeferredService
+
         deferred: DeferredService = DeferredService.provide()
         deferred.run(_drain(), timeout=1.0)
 

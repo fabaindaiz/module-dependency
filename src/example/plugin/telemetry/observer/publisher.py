@@ -4,6 +4,7 @@ from example.plugin.runtime.deferred import DeferredService
 from example.plugin.telemetry.events import StationEvent
 from example.plugin.telemetry.observer import StationObserver
 
+
 @instance(
     imports=[DeferredService],
     provider=providers.Singleton,
@@ -15,6 +16,7 @@ class DeferredStationObserver(EventPublisherMixin[StationEvent], StationObserver
     written here. Delivery is a coroutine, and the sampling loop is the thing with a
     deadline, so it is scheduled on the deferred service rather than awaited inline.
     """
+
     def __init__(self) -> None:
         super().__init__()
         self.__deferred: DeferredService = DeferredService.provide()

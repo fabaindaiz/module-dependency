@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from dependency.library.patterns.observer import EventContext
 from example.plugin.sensors.interfaces import Reading
 
+
 class StationEvent(EventContext):
     """Base for everything the station publishes.
 
@@ -9,9 +10,11 @@ class StationEvent(EventContext):
     ThresholdExceeded never sees a plain ReadingTaken.
     """
 
+
 @dataclass
 class ReadingTaken(StationEvent):
     reading: Reading
+
 
 @dataclass
 class ThresholdExceeded(StationEvent):

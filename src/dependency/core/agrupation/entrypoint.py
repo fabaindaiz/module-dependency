@@ -8,7 +8,9 @@ from dependency.core.resolution.container import Container
 from dependency.core.resolution.resolver import InjectionResolver
 from dependency.core.resolution.strategy import ResolutionStrategy
 from dependency.core.utils.threading import handle_exit
+
 _logger = logging.getLogger("dependency.loader")
+
 
 class Entrypoint:
     """Entrypoint for the application.
@@ -16,7 +18,9 @@ class Entrypoint:
     Attributes:
         init_time (float): Time when the entrypoint was initialized.
     """
-    def __init__(self,
+
+    def __init__(
+        self,
         container: Container,
         plugins: Iterable[type[Plugin]],
         strategy: Optional[ResolutionStrategy] = None,
@@ -37,7 +41,8 @@ class Entrypoint:
         else:
             self.resolver.resolve_modules(modules=self.modules)
 
-    def initialize(self,
+    def initialize(
+        self,
         extra: Iterable[ProviderInjection] = (),
     ) -> None:
         """Initialize the application."""
@@ -49,9 +54,11 @@ class Entrypoint:
             providers=providers,
             strategy=self.strategy,
         )
-        _logger.info(f"Application initialized in {time.time() - self.init_time} seconds")
+        _logger.info(
+            f"Application initialized in {time.time() - self.init_time} seconds"
+        )
 
     @handle_exit
     def main_loop(self) -> None:
         """Main loop for the application. Waits indefinitely."""
-        Event().wait() # pragma: no cover
+        Event().wait()  # pragma: no cover

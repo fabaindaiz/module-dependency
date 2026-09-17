@@ -3,9 +3,10 @@ from typing import Callable, Generic, Iterable, TypeVar
 
 T = TypeVar("T")
 
+
 class Cycle(Generic[T]):
-    """Represents a cycle of elements.
-    """
+    """Represents a cycle of elements."""
+
     def __init__(self, elements: Iterable[T]) -> None:
         """Store the cycle in canonical normalized form.
 
@@ -34,11 +35,11 @@ class Cycle(Generic[T]):
         return self.elements == other.elements
 
     def __repr__(self) -> str:
-        return ' -> '.join(str(p) for p in self.elements)
+        return " -> ".join(str(p) for p in self.elements)
+
 
 def find_cycles(
-    function: Callable[[T], Iterable[T]],
-    elements: Iterable[T], /
+    function: Callable[[T], Iterable[T]], elements: Iterable[T], /
 ) -> set[Cycle[T]]:
     """Find cycles in a graph defined by the given function.
 

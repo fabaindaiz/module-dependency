@@ -21,7 +21,11 @@ import re
 import sys
 import tomllib
 from dataclasses import dataclass, field
-from importlib.metadata import PackageNotFoundError, entry_points, packages_distributions
+from importlib.metadata import (
+    PackageNotFoundError,
+    entry_points,
+    packages_distributions,
+)
 from importlib.metadata import version as installed_version
 from pathlib import Path
 
@@ -56,6 +60,7 @@ def source_files() -> list[Path]:
 
 # ---------------------------------------------------------------- version floor
 
+
 def check_version_floor(report: Report) -> None:
     """requires-python, the mypy python_version and CI must name the same floor.
 
@@ -80,7 +85,9 @@ def check_version_floor(report: Report) -> None:
             )
 
     for workflow in sorted((ROOT / ".github" / "workflows").glob("*.y*ml")):
-        for version in re.findall(r"python-version:\s*['\"]?([\d.]+)", workflow.read_text()):
+        for version in re.findall(
+            r"python-version:\s*['\"]?([\d.]+)", workflow.read_text()
+        ):
             if tuple(map(int, version.split("."))) < tuple(map(int, floor.split("."))):
                 report.fail(
                     "version_floor",
@@ -89,6 +96,7 @@ def check_version_floor(report: Report) -> None:
 
 
 # ------------------------------------------------------------- forward refs
+
 
 def check_forward_refs(report: Report) -> None:
     """Unquoted class-body annotations must not name something defined later.
@@ -136,6 +144,7 @@ def check_forward_refs(report: Report) -> None:
 
 # --------------------------------------------------------- declared imports
 
+
 def check_declared_imports(report: Report) -> None:
     """Every third-party import must be a declared dependency or a declared extra.
 
@@ -145,7 +154,12 @@ def check_declared_imports(report: Report) -> None:
     data = pyproject()
 
     def normalise(spec: str) -> str:
-        return re.split(r"[<>=!\[;\s]", spec, maxsplit=1)[0].strip().replace("_", "-").lower()
+        return (
+            re.split(r"[<>=!\[;\s]", spec, maxsplit=1)[0]
+            .strip()
+            .replace("_", "-")
+            .lower()
+        )
 
     declared = {normalise(d) for d in data["project"].get("dependencies", [])}
     for extra_deps in data["project"].get("optional-dependencies", {}).values():
@@ -184,6 +198,7 @@ def check_declared_imports(report: Report) -> None:
 
 # --------------------------------------------------------------- stub parity
 
+
 def check_stub_parity(report: Report) -> None:
     """Every published module needs a stub: the stubs are the only type surface.
 
@@ -197,12 +212,18 @@ def check_stub_parity(report: Report) -> None:
         if "__pycache__" not in p.parts
     }
     for missing in sorted(expected - actual):
-        report.fail("stub_parity", f"no stub for dependency/{missing}.py — run `hatch run build:stubs`")
+        report.fail(
+            "stub_parity",
+            f"no stub for dependency/{missing}.py — run `hatch run build:stubs`",
+        )
     for orphan in sorted(actual - expected):
-        report.fail("stub_parity", f"stub dependency-stubs/{orphan}.pyi has no source module")
+        report.fail(
+            "stub_parity", f"stub dependency-stubs/{orphan}.pyi has no source module"
+        )
 
 
 # ----------------------------------------------------------- docs references
+
 
 def check_docs_references(report: Report) -> None:
     """Every `::: dotted.path` in docs/reference/ must resolve to a real module.
@@ -219,7 +240,10 @@ def check_docs_references(report: Report) -> None:
             if not dotted.startswith("dependency."):
                 continue
             relative = Path(*dotted.split(".")[1:])
-            if not ((SRC / relative).with_suffix(".py").exists() or (SRC / relative).is_dir()):
+            if not (
+                (SRC / relative).with_suffix(".py").exists()
+                or (SRC / relative).is_dir()
+            ):
                 report.fail(
                     "docs_references",
                     f"{page.relative_to(ROOT)} points at {dotted}, which does not exist",
@@ -227,6 +251,7 @@ def check_docs_references(report: Report) -> None:
 
 
 # -------------------------------------------------------------- document map
+
 
 def check_document_map(report: Report) -> None:
     """Every document named in a CLAUDE.md must exist. A dead pointer is worse than none."""
@@ -243,6 +268,7 @@ def check_document_map(report: Report) -> None:
 
 
 # ------------------------------------------------------------- cli templates
+
 
 def check_cli_templates(report: Report) -> None:
     """A template may only emit decorator keywords that exist in the live signature.
@@ -263,17 +289,32 @@ def check_cli_templates(report: Report) -> None:
         report.advise("cli_templates", f"cannot import the CLI package: {exc}")
         return
 
-    decorators = {"component": component, "instance": instance, "module": module, "product": product}
+    decorators = {
+        "component": component,
+        "instance": instance,
+        "module": module,
+        "product": product,
+    }
 
     sample_module = Module(path="pkg.plugin", name="SamplePlugin")
-    sample_component = Component(path="pkg.plugin.svc", name="SampleComponent", interface="SampleInterface")
-    sample_instance = Instance(path="pkg.plugin.svc.impl", name="SampleImpl", imports=["SampleComponent"])
+    sample_component = Component(
+        path="pkg.plugin.svc", name="SampleComponent", interface="SampleInterface"
+    )
+    sample_instance = Instance(
+        path="pkg.plugin.svc.impl", name="SampleImpl", imports=["SampleComponent"]
+    )
 
     rendered = {
         "plugin.py.j2": PluginGenerator.generate(module=sample_module),
-        "module.py.j2": ModuleGenerator.generate(parent=sample_module, module=sample_module),
-        "component.py.j2": ComponentGenerator.generate(component=sample_component, module=sample_module),
-        "instance.py.j2": InstanceGenerator.generate(component=sample_component, instance=sample_instance),
+        "module.py.j2": ModuleGenerator.generate(
+            parent=sample_module, module=sample_module
+        ),
+        "component.py.j2": ComponentGenerator.generate(
+            component=sample_component, module=sample_module
+        ),
+        "instance.py.j2": InstanceGenerator.generate(
+            component=sample_component, instance=sample_instance
+        ),
     }
 
     for name, source in rendered.items():
@@ -286,7 +327,10 @@ def check_cli_templates(report: Report) -> None:
             if not isinstance(node, ast.ClassDef):
                 continue
             for decorator in node.decorator_list:
-                if not (isinstance(decorator, ast.Call) and isinstance(decorator.func, ast.Name)):
+                if not (
+                    isinstance(decorator, ast.Call)
+                    and isinstance(decorator.func, ast.Name)
+                ):
                     continue
                 target = decorators.get(decorator.func.id)
                 if target is None:
@@ -302,6 +346,7 @@ def check_cli_templates(report: Report) -> None:
 
 
 # ---------------------------------------------------------------- changelog
+
 
 def check_changelog_version(report: Report) -> None:
     """The version in pyproject.toml must have a CHANGELOG entry.
@@ -340,7 +385,10 @@ def check_decision_citations(report: Report) -> None:
     decisions = (DOCS / "decisions.md").read_text()
     known = set(CITATION.findall(decisions))
     if not known:  # pragma: no cover
-        report.fail("citations", "docs/decisions.md declares no decisions -- is it the right file?")
+        report.fail(
+            "citations",
+            "docs/decisions.md declares no decisions -- is it the right file?",
+        )
         return
 
     candidates: list[Path] = []
@@ -354,7 +402,10 @@ def check_decision_citations(report: Report) -> None:
 
     for path in sorted(set(candidates)):
         relative = path.relative_to(ROOT).as_posix()
-        if any(part in relative for part in CITATION_SKIP) or path.name == "decisions.md":
+        if (
+            any(part in relative for part in CITATION_SKIP)
+            or path.name == "decisions.md"
+        ):
             continue
         for number in sorted(set(CITATION.findall(path.read_text()))):
             if number not in known:
@@ -402,7 +453,9 @@ def check_coverage_floors(report: Report) -> None:
         return
 
     data = json.loads(data_file.read_text())
-    groups: dict[str, list[int]] = {name: [0, 0] for name in COVERAGE_FLOORS if name != "TOTAL"}
+    groups: dict[str, list[int]] = {
+        name: [0, 0] for name in COVERAGE_FLOORS if name != "TOTAL"
+    }
     for path, info in data["files"].items():
         parts = path.replace("\\", "/").split("src/dependency/")[-1].split("/")
         group = parts[0]
@@ -410,12 +463,18 @@ def check_coverage_floors(report: Report) -> None:
             groups[group][0] += info["summary"]["covered_lines"]
             groups[group][1] += info["summary"]["num_statements"]
 
-    groups["TOTAL"] = [data["totals"]["covered_lines"], data["totals"]["num_statements"]]
+    groups["TOTAL"] = [
+        data["totals"]["covered_lines"],
+        data["totals"]["num_statements"],
+    ]
 
     for name, floor in sorted(COVERAGE_FLOORS.items()):
         covered, statements = groups.get(name, [0, 0])
         if statements == 0:
-            report.fail("coverage", f"{name} reports 0 statements -- the denominator is wrong, not the code")
+            report.fail(
+                "coverage",
+                f"{name} reports 0 statements -- the denominator is wrong, not the code",
+            )
             continue
         percent = covered / statements * 100
         if percent < floor:
@@ -428,6 +487,7 @@ def check_coverage_floors(report: Report) -> None:
 
 
 # ------------------------------------------------------- the environment itself
+
 
 def check_installed_version(report: Report) -> None:
     """The installed distribution must match the source tree being tested against.
@@ -444,7 +504,10 @@ def check_installed_version(report: Report) -> None:
     try:
         present = installed_version("module-dependency")
     except PackageNotFoundError:  # pragma: no cover
-        report.advise("installed_version", "module-dependency is not installed in this environment")
+        report.advise(
+            "installed_version",
+            "module-dependency is not installed in this environment",
+        )
         return
     if present != declared:
         report.fail(
@@ -477,10 +540,14 @@ def check_entry_points(report: Report) -> None:
             try:
                 found[0].load()
             except Exception as exc:  # noqa: BLE001 - loading third-party code; report, never crash
-                report.fail("entry_points", f"{group}:{name} -> {target} failed to import: {exc}")
+                report.fail(
+                    "entry_points",
+                    f"{group}:{name} -> {target} failed to import: {exc}",
+                )
 
 
 # ------------------------------------------------------------- hatch scripts
+
 
 def check_hatch_scripts(report: Report) -> None:
     """A `python <file>` script must point at a file that exists and calls real arity.
@@ -501,15 +568,24 @@ def check_hatch_scripts(report: Report) -> None:
                 continue
             script = ROOT / match.group(1)
             if not script.exists():
-                report.fail("hatch_scripts", f"{env_name}:{script_name} runs {match.group(1)}, which does not exist")
+                report.fail(
+                    "hatch_scripts",
+                    f"{env_name}:{script_name} runs {match.group(1)}, which does not exist",
+                )
                 continue
 
             tree = ast.parse(script.read_text(), filename=str(script))
             imported: dict[str, str] = {}
             for node in ast.walk(tree):
-                if isinstance(node, ast.ImportFrom) and node.module and node.module.startswith("dependency"):
+                if (
+                    isinstance(node, ast.ImportFrom)
+                    and node.module
+                    and node.module.startswith("dependency")
+                ):
                     for alias in node.names:
-                        imported[alias.asname or alias.name] = f"{node.module}.{alias.name}"
+                        imported[alias.asname or alias.name] = (
+                            f"{node.module}.{alias.name}"
+                        )
 
             for node in ast.walk(tree):
                 if not (isinstance(node, ast.Call) and isinstance(node.func, ast.Name)):
@@ -521,7 +597,10 @@ def check_hatch_scripts(report: Report) -> None:
                 try:
                     target = getattr(importlib.import_module(module_name), attribute)
                     signature = inspect.signature(target)
-                    signature.bind(*[None] * len(node.args), **{k.arg: None for k in node.keywords if k.arg})
+                    signature.bind(
+                        *[None] * len(node.args),
+                        **{k.arg: None for k in node.keywords if k.arg},
+                    )
                 except TypeError as exc:
                     report.fail(
                         "hatch_scripts",
@@ -533,6 +612,7 @@ def check_hatch_scripts(report: Report) -> None:
 
 # ------------------------------------------------------------ package markers
 
+
 def check_package_markers(report: Report) -> None:
     """Every directory holding modules must be a regular package, not a namespace one.
 
@@ -543,7 +623,9 @@ def check_package_markers(report: Report) -> None:
     """
     example = ROOT / "src" / "example"
     directories = {p.parent for p in source_files()}
-    directories |= {p.parent for p in example.rglob("*.py") if "__pycache__" not in p.parts}
+    directories |= {
+        p.parent for p in example.rglob("*.py") if "__pycache__" not in p.parts
+    }
     for directory in sorted(directories):
         if not (directory / "__init__.py").exists():
             report.fail(
@@ -577,7 +659,9 @@ def check_library_undecorated(report: Report) -> None:
             if not isinstance(node, (ast.ClassDef, ast.FunctionDef)):
                 continue
             for decorator in node.decorator_list:
-                target = decorator.func if isinstance(decorator, ast.Call) else decorator
+                target = (
+                    decorator.func if isinstance(decorator, ast.Call) else decorator
+                )
                 name = target.id if isinstance(target, ast.Name) else None
                 if name in FRAMEWORK_DECORATORS:
                     report.fail(
@@ -592,7 +676,12 @@ def check_library_undecorated(report: Report) -> None:
 
 LAYER_ALLOWED = {
     "core.declaration": {"core.agrupation", "core.injection", "core.exceptions"},
-    "core.agrupation": {"core.injection", "core.resolution", "core.exceptions", "core.utils"},
+    "core.agrupation": {
+        "core.injection",
+        "core.resolution",
+        "core.exceptions",
+        "core.utils",
+    },
     "core.injection": {"core.resolution", "core.exceptions"},
     "core.resolution": {"core.injection", "core.utils", "core.exceptions"},
     "core.utils": set(),
@@ -600,9 +689,21 @@ LAYER_ALLOWED = {
     "library": {"core", "core.injection", "core.utils"},
     "cli": set(),
     # testing imports core freely; nothing in core may import testing, so no new cycle
-    "testing": {"core", "core.agrupation", "core.declaration", "core.injection",
-                "core.resolution", "core.exceptions"},
-    "core": {"core.agrupation", "core.declaration", "core.injection", "core.resolution", "core.exceptions"},
+    "testing": {
+        "core",
+        "core.agrupation",
+        "core.declaration",
+        "core.injection",
+        "core.resolution",
+        "core.exceptions",
+    },
+    "core": {
+        "core.agrupation",
+        "core.declaration",
+        "core.injection",
+        "core.resolution",
+        "core.exceptions",
+    },
 }
 KNOWN_CYCLES = {("core.injection", "core.resolution")}
 
@@ -623,11 +724,17 @@ def check_layering(report: Report) -> None:
     """
     edges: set[tuple[str, str]] = set()
     for path in source_files():
-        source_layer = _layer(".".join(path.relative_to(SRC.parent).with_suffix("").parts))
+        source_layer = _layer(
+            ".".join(path.relative_to(SRC.parent).with_suffix("").parts)
+        )
         tree = ast.parse(path.read_text(), filename=str(path))
         for node in ast.walk(tree):
             target = None
-            if isinstance(node, ast.ImportFrom) and node.module and node.module.startswith("dependency."):
+            if (
+                isinstance(node, ast.ImportFrom)
+                and node.module
+                and node.module.startswith("dependency.")
+            ):
                 target = _layer(node.module)
             elif isinstance(node, ast.Import):
                 for alias in node.names:
@@ -639,7 +746,9 @@ def check_layering(report: Report) -> None:
     cycles = {tuple(sorted(pair)) for pair in edges if (pair[1], pair[0]) in edges}
     for cycle in sorted(cycles):
         if cycle in KNOWN_CYCLES or tuple(reversed(cycle)) in KNOWN_CYCLES:
-            report.advise("layering", f"accepted cycle {cycle[0]} <-> {cycle[1]} (D-018)")
+            report.advise(
+                "layering", f"accepted cycle {cycle[0]} <-> {cycle[1]} (D-018)"
+            )
         else:
             report.fail("layering", f"new dependency cycle {cycle[0]} <-> {cycle[1]}")
 
@@ -650,6 +759,7 @@ def check_layering(report: Report) -> None:
 
 
 # --------------------------------------------------- name collisions (advisory)
+
 
 def check_name_collisions(report: Report) -> None:
     """Two providers with the same class name under one container overwrite silently.
@@ -676,6 +786,7 @@ def check_name_collisions(report: Report) -> None:
 
 # ------------------------------------------------------------- api snapshot
 
+
 def check_api_snapshot(report: Report) -> None:
     """The public API only changes with the version number.
 
@@ -691,11 +802,23 @@ def check_api_snapshot(report: Report) -> None:
     current = sorted(core.__all__)
     missing_exports = [name for name in current if not hasattr(core, name)]
     for name in missing_exports:
-        report.fail("api_snapshot", f"__all__ lists {name!r} but dependency.core has no such attribute")
+        report.fail(
+            "api_snapshot",
+            f"__all__ lists {name!r} but dependency.core has no such attribute",
+        )
 
     if not SNAPSHOT.exists():
-        SNAPSHOT.write_text(json.dumps({"version": pyproject()["project"]["version"], "core": current}, indent=2) + "\n")
-        report.advise("api_snapshot", f"created {SNAPSHOT.relative_to(ROOT)} with {len(current)} names")
+        SNAPSHOT.write_text(
+            json.dumps(
+                {"version": pyproject()["project"]["version"], "core": current},
+                indent=2,
+            )
+            + "\n"
+        )
+        report.advise(
+            "api_snapshot",
+            f"created {SNAPSHOT.relative_to(ROOT)} with {len(current)} names",
+        )
         return
 
     recorded = json.loads(SNAPSHOT.read_text())
@@ -721,7 +844,10 @@ def check_api_snapshot(report: Report) -> None:
             f"major bump to {this_version}: {', '.join(removed)}",
         )
     if added:
-        report.advise("api_snapshot", f"new public names since {recorded['version']}: {', '.join(added)}")
+        report.advise(
+            "api_snapshot",
+            f"new public names since {recorded['version']}: {', '.join(added)}",
+        )
 
 
 CHECKS = [
@@ -761,10 +887,14 @@ def main() -> int:
         print(f"\n  FAILURES ({len(report.failures)})\n")
         for line in report.failures:
             print(f"    ✗ {line}")
-        print(f"\n  {len(report.failures)} failure(s) across {report.checks_run} checks.\n")
+        print(
+            f"\n  {len(report.failures)} failure(s) across {report.checks_run} checks.\n"
+        )
         return 1
 
-    print(f"\n  {report.checks_run} checks passed, {len(report.advisories)} advisories.\n")
+    print(
+        f"\n  {report.checks_run} checks passed, {len(report.advisories)} advisories.\n"
+    )
     return 0
 
 

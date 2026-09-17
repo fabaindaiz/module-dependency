@@ -2,7 +2,8 @@ from typing import Callable, Iterable, Optional, TypeVar
 from dependency.core.injection.spec import MODULE_SPEC, ModuleSpec, attach_spec
 from dependency.core.injection.mixin import ContainerMixin, ProviderMixin
 
-MODULE = TypeVar('MODULE', bound='Module')
+MODULE = TypeVar("MODULE", bound="Module")
+
 
 class Module(ContainerMixin):
     """Base class for all structural grouping units in the framework.
@@ -13,6 +14,7 @@ class Module(ContainerMixin):
 
     Modules must be decorated with @module to be registered in the injection tree.
     """
+
 
 def module(
     module: Optional[type[Module]] = None,
@@ -40,26 +42,32 @@ def module(
         Callable[[type[MODULE]], type[MODULE]]: Decorator that registers the
             module class and returns it unchanged.
     """
+
     def wrap(cls: type[MODULE]) -> type[MODULE]:
         if not issubclass(cls, Module):
-            raise TypeError(f"Class {cls} has decorator @module but is not a subclass of Module") # pragma: no cover
+            raise TypeError(
+                f"Class {cls} has decorator @module but is not a subclass of Module"
+            )  # pragma: no cover
 
         declared_provides = tuple(provides)
 
-        cls.init_injection(
-            parent=module.injection if module else None
-        )
+        cls.init_injection(parent=module.injection if module else None)
 
         for provider in declared_provides:
             provider.change_parent(cls)
 
-        attach_spec(cls, ModuleSpec(
-            declared_cls=cls,
-            name=cls.__name__,
-            parent=module,
-            provides=declared_provides,
-            is_root=cls.injection.is_root,
-        ), MODULE_SPEC)
+        attach_spec(
+            cls,
+            ModuleSpec(
+                declared_cls=cls,
+                name=cls.__name__,
+                parent=module,
+                provides=declared_provides,
+                is_root=cls.injection.is_root,
+            ),
+            MODULE_SPEC,
+        )
 
         return cls
+
     return wrap

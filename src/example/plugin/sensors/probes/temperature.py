@@ -4,11 +4,13 @@ from example.plugin.runtime.clock import Clock
 from example.plugin.sensors import SensorsPlugin
 from example.plugin.sensors.interfaces import Reading, SensorReader
 
+
 @component(
     module=SensorsPlugin,
 )
 class TemperatureSensor(SensorReader, Component):
     """The temperature probe. One component, so one active implementation."""
+
 
 @instance(
     imports=[Clock],
@@ -16,6 +18,7 @@ class TemperatureSensor(SensorReader, Component):
 )
 class SimulatedTemperature(TemperatureSensor):
     """Stands in for hardware: a slow sine that crosses the alert threshold."""
+
     def __init__(self) -> None:
         self.__clock: Clock = Clock.provide()
 

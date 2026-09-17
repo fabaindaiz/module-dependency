@@ -4,6 +4,7 @@ This is what `optional=` buys, and it is the example's central claim. Declaratio
 process-global side effect, so a station without the display plugin cannot be built in
 the same interpreter as one with it — the honest test is a subprocess.
 """
+
 import subprocess
 import sys
 import textwrap
@@ -54,7 +55,9 @@ def test_statuspanel_is_declared_optional_not_required() -> None:
 def test_station_boots_and_samples_without_the_display_plugin() -> None:
     result = subprocess.run(
         [sys.executable, "-c", HEADLESS],
-        capture_output=True, text=True, cwd="src",
+        capture_output=True,
+        text=True,
+        cwd="src",
     )
     assert result.returncode == 0, result.stderr
     assert "HEADLESS-OK" in result.stdout

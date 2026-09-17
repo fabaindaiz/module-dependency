@@ -1,10 +1,12 @@
 from dependency.core.utils.cycle import find_cycles
 
+
 class FakeInjectable:
     """Injectable mínimo para testear find_cycles sin dependencias del framework."""
+
     def __init__(self, name: str) -> None:
         self.name = name
-        self.imports: list['FakeInjectable'] = []
+        self.imports: list["FakeInjectable"] = []
 
     def __repr__(self) -> str:
         return self.name
@@ -26,6 +28,7 @@ def test_cycle_simple() -> None:
     cycles = find_cycles(lambda i: i.imports, [a])
     assert len(cycles) == 1
 
+
 def test_no_cycles() -> None:
     """Grafo sin ciclos no reporta nada."""
     a = FakeInjectable("a")
@@ -35,6 +38,7 @@ def test_no_cycles() -> None:
 
     cycles = find_cycles(lambda i: i.imports, [a])
     assert len(cycles) == 0
+
 
 def test_cycle_two_paths_same_root() -> None:
     """Dos caminos desde la misma raíz hacia el mismo ciclo.
@@ -59,7 +63,9 @@ def test_cycle_two_paths_same_root() -> None:
     cycles = find_cycles(lambda i: i.imports, [a])
 
     cycle_nodes = {node for cycle in cycles for node in cycle.elements}
-    assert len(cycles) == 2, f"Se esperaban 2 ciclos (a->b->a y a->c->b->a), se encontraron: {cycles}"
+    assert len(cycles) == 2, (
+        f"Se esperaban 2 ciclos (a->b->a y a->c->b->a), se encontraron: {cycles}"
+    )
     assert a in cycle_nodes
     assert b in cycle_nodes
     assert c in cycle_nodes

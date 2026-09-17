@@ -6,9 +6,11 @@ from dependency.core.declaration import Component, component
 from dependency.core.injection import ProviderInjection, LazyProvide
 from dependency.core.resolution import Container
 
+
 @module()
 class TModule(Module):
     pass
+
 
 @component(
     module=TModule,
@@ -18,10 +20,12 @@ class TStandalone(Component):
     def method(self) -> str:
         return "Hello, World!"
 
+
 class TProduct(Component):
     @abstractmethod
     def method(self) -> str:
         pass
+
 
 @component(
     module=TModule,
@@ -29,11 +33,14 @@ class TProduct(Component):
 )
 class TProduct1(TProduct):
     @inject
-    def get_standalone(self, standalone: TStandalone = LazyProvide[TStandalone.reference]) -> str:
+    def get_standalone(
+        self, standalone: TStandalone = LazyProvide[TStandalone.reference]
+    ) -> str:
         return standalone.method()
 
     def method(self) -> str:
         return self.get_standalone()
+
 
 @component(
     module=TModule,

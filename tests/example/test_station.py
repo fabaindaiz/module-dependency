@@ -3,6 +3,7 @@
 These tests are also the example's own regression guard: if a core API changes,
 src/example breaks here before it breaks for a reader.
 """
+
 import pytest
 from dataclasses import FrozenInstanceError
 from dependency.core.exceptions import CancelInitialization
@@ -30,13 +31,20 @@ def test_station_starts(station: MonitoringStation) -> None:
 
 def test_every_declared_component_resolved(station: MonitoringStation) -> None:
     for component in (
-        SensorGroup, ReadingStore, StationObserver, AlertSink,
-        TemperatureSensor, HumiditySensor, StatusPanel,
+        SensorGroup,
+        ReadingStore,
+        StationObserver,
+        AlertSink,
+        TemperatureSensor,
+        HumiditySensor,
+        StatusPanel,
     ):
         assert component.injection.is_resolved, f"{component.__name__} unresolved"
 
 
-def test_absent_probe_cancels_without_failing_the_graph(station: MonitoringStation) -> None:
+def test_absent_probe_cancels_without_failing_the_graph(
+    station: MonitoringStation,
+) -> None:
     """CancelInitialization is how a missing option declines to start.
 
     The component still resolves — it was declared and implemented — but providing it
@@ -58,7 +66,9 @@ def test_missing_probe_puts_the_station_in_degraded(station: MonitoringStation) 
     assert station.state is StationMode.DEGRADED
 
 
-def test_sampling_stores_one_reading_per_fitted_probe(station: MonitoringStation) -> None:
+def test_sampling_stores_one_reading_per_fitted_probe(
+    station: MonitoringStation,
+) -> None:
     before = len(ReadingStore.provide().recent(limit=1000))
     station.run(cycles=2)
     after = ReadingStore.provide().recent(limit=1000)
@@ -72,5 +82,7 @@ def test_readings_are_immutable(station: MonitoringStation) -> None:
         reading.value = 0.0  # type: ignore[misc]
 
 
-def test_panel_is_wired_when_the_display_plugin_is_loaded(station: MonitoringStation) -> None:
+def test_panel_is_wired_when_the_display_plugin_is_loaded(
+    station: MonitoringStation,
+) -> None:
     assert isinstance(StatusPanel.provide(), StatusPanel)

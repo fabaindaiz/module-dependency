@@ -5,6 +5,7 @@ from typing import Iterable, Optional
 from dependency.core.injection.injection import ContainerInjection, ProviderInjection
 from dependency.core.injection.mixin import ContainerMixin
 from dependency.core.exceptions import ResolutionError
+
 _logger = logging.getLogger("dependency.loader")
 
 
@@ -17,9 +18,10 @@ class ResolutionNode:
         context: The nearest parent ContainerInjection (from the importer).
         imported_by: Backpointer to the node that first imported this one.
     """
+
     provider: ProviderInjection
     context: Optional[ContainerInjection]
-    imported_by: Optional['ResolutionNode'] = field(default=None, repr=False)
+    imported_by: Optional["ResolutionNode"] = field(default=None, repr=False)
 
     def import_chain(self) -> list[ProviderInjection]:
         """Return the import path from the root seed down to this node."""
@@ -40,6 +42,7 @@ class ExpansionFailure:
         node: The resolution node, with import_chain() for backtracing.
         reason: Human-readable explanation of why this provider failed.
     """
+
     node: ResolutionNode
     reason: str
 
@@ -52,6 +55,7 @@ class ExpansionResult:
         resolved: Providers that successfully entered the injection process.
         failures: Providers that could not enter, with reasons and import chains.
     """
+
     resolved: set[ProviderInjection]
     failures: list[ExpansionFailure]
 
@@ -94,7 +98,8 @@ class ProviderExpansion:
     Call result.raise_if_failed() to raise ResolutionError on hard failures.
     """
 
-    def __init__(self,
+    def __init__(
+        self,
         modules: Iterable[type[ContainerMixin]],
         extra: Iterable[ProviderInjection] = (),
     ) -> None:
@@ -125,7 +130,8 @@ class ProviderExpansion:
 
         return ExpansionResult(resolved=set(nodes.keys()), failures=failures)
 
-    def _seed(self,
+    def _seed(
+        self,
         queue: deque[ResolutionNode],
         nodes: dict[ProviderInjection, ResolutionNode],
     ) -> None:
@@ -142,7 +148,8 @@ class ProviderExpansion:
                 nodes[provider] = node
                 queue.append(node)
 
-    def _adopt_if_orphan(self,
+    def _adopt_if_orphan(
+        self,
         provider: ProviderInjection,
         context: Optional[ContainerInjection],
     ) -> None:
@@ -158,7 +165,8 @@ class ProviderExpansion:
         provider.change_parent(context)
         provider.attach(container=context.container)
 
-    def _enqueue_imports(self,
+    def _enqueue_imports(
+        self,
         node: ResolutionNode,
         queue: deque[ResolutionNode],
         nodes: dict[ProviderInjection, ResolutionNode],
@@ -170,16 +178,20 @@ class ProviderExpansion:
                 continue
             if imported.injectable.implementation is None:
                 if imported.strict_resolution:
-                    failures.append(ExpansionFailure(
-                        node=ResolutionNode(
-                            provider=imported,
-                            context=node.context,
-                            imported_by=node,
-                        ),
-                        reason=f"Provider {imported} has no implementation",
-                    ))
+                    failures.append(
+                        ExpansionFailure(
+                            node=ResolutionNode(
+                                provider=imported,
+                                context=node.context,
+                                imported_by=node,
+                            ),
+                            reason=f"Provider {imported} has no implementation",
+                        )
+                    )
                 else:
-                    _logger.warning(f"Provider {imported} has no implementation, skipping")
+                    _logger.warning(
+                        f"Provider {imported} has no implementation, skipping"
+                    )
                 continue
             child = ResolutionNode(
                 provider=imported,
@@ -193,7 +205,9 @@ class ProviderExpansion:
             if imported in nodes:
                 continue
             if imported.injectable.implementation is None:
-                _logger.debug(f"Optional provider {imported} has no implementation, skipping")
+                _logger.debug(
+                    f"Optional provider {imported} has no implementation, skipping"
+                )
                 continue
             child = ResolutionNode(
                 provider=imported,
@@ -203,7 +217,8 @@ class ProviderExpansion:
             nodes[imported] = child
             queue.append(child)
 
-    def _cascade_failures(self,
+    def _cascade_failures(
+        self,
         nodes: dict[ProviderInjection, ResolutionNode],
         failures: list[ExpansionFailure],
     ) -> None:
@@ -218,7 +233,9 @@ class ProviderExpansion:
         changed = True
         while changed:
             changed = False
-            to_fail: list[tuple[ProviderInjection, ResolutionNode, ProviderInjection]] = []
+            to_fail: list[
+                tuple[ProviderInjection, ResolutionNode, ProviderInjection]
+            ] = []
 
             for provider, node in nodes.items():
                 for imported in provider.imports:  # only required imports cascade
@@ -229,8 +246,10 @@ class ProviderExpansion:
             for provider, node, cause in to_fail:
                 nodes.pop(provider)
                 failed_set.add(provider)
-                failures.append(ExpansionFailure(
-                    node=node,
-                    reason=f"Provider {provider} has unresolvable dependency: {cause}",
-                ))
+                failures.append(
+                    ExpansionFailure(
+                        node=node,
+                        reason=f"Provider {provider} has unresolvable dependency: {cause}",
+                    )
+                )
                 changed = True

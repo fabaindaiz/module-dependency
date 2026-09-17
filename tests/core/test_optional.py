@@ -8,17 +8,21 @@ from dependency.core.exceptions import ResolutionError
 
 # ── Scenario A: optional dep WITH implementation ──────────────────────────────
 
+
 @module()
 class PluginA(Plugin):
     meta = PluginMeta(name="opt_plugin_a", version="0.1.0")
+
 
 @component(module=PluginA, provider=providers.Factory)
 class AInterface(Component):
     pass
 
+
 @component(module=PluginA, provider=providers.Factory)
 class AOptDep(Component):
     pass
+
 
 @component(
     module=PluginA,
@@ -47,17 +51,21 @@ def test_optional_with_impl_both_resolve() -> None:
 
 # ── Scenario B: optional dep WITHOUT implementation ───────────────────────────
 
+
 @module()
 class PluginB(Plugin):
     meta = PluginMeta(name="opt_plugin_b", version="0.1.0")
+
 
 @component(module=PluginB, provider=providers.Factory)
 class BInterface(Component):
     pass
 
+
 @component(module=PluginB)
 class BMissingDep(Component):
     pass  # no provider/instance → no implementation
+
 
 @component(
     module=PluginB,
@@ -131,17 +139,21 @@ def test_optional_missing_impl_injection_succeeds() -> None:
 
 # ── Scenario C: required dep WITHOUT implementation raises error ───────────────
 
+
 @module()
 class PluginC(Plugin):
     meta = PluginMeta(name="opt_plugin_c", version="0.1.0")
+
 
 @component(module=PluginC, provider=providers.Factory)
 class CInterface(Component):
     pass
 
+
 @component(module=PluginC)
 class CMissingDep(Component):
     pass  # no implementation
+
 
 @component(
     module=PluginC,
@@ -168,17 +180,21 @@ def test_required_missing_impl_raises() -> None:
 
 # ── Scenario D: move required → optional at runtime ──────────────────────────
 
+
 @module()
 class PluginD(Plugin):
     meta = PluginMeta(name="opt_plugin_d", version="0.1.0")
+
 
 @component(module=PluginD, provider=providers.Factory)
 class DInterface(Component):
     pass
 
+
 @component(module=PluginD)
 class DMissingDep(Component):
     pass  # no implementation
+
 
 @component(
     module=PluginD,
@@ -211,6 +227,7 @@ def test_move_required_to_optional_resolves() -> None:
 
 
 # ── Scenario E: decorator sets optional_imports, not imports ──────────────────
+
 
 def test_optional_decorator_sets_optional_imports() -> None:
     """@component(optional=[X]) adds X to optional_imports, not imports."""

@@ -3,6 +3,7 @@ from dependency.library.components import ObserverComponent
 from example.plugin.telemetry import TelemetryPlugin
 from example.plugin.telemetry.events import StationEvent
 
+
 @component(
     module=TelemetryPlugin,
 )

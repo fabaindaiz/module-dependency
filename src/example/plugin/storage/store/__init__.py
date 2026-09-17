@@ -3,6 +3,7 @@ from dependency.core import Component, component
 from example.plugin.sensors.interfaces import Reading
 from example.plugin.storage import StoragePlugin
 
+
 @component(
     module=StoragePlugin,
 )
@@ -12,6 +13,7 @@ class ReadingStore(Component):
     The sampler depends on this interface and not on a file, which is what lets the
     same station run against memory in a test and against the disk on the unit.
     """
+
     @abstractmethod
     def append(self, reading: Reading) -> None:
         """Record one reading."""

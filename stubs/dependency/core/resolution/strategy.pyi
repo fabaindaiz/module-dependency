@@ -7,14 +7,12 @@ from pydantic import BaseModel
 from typing import Iterable
 
 class ResolutionConfig(BaseModel):
-    """Configuration for the Resolution Strategy.
-    """
+    """Configuration for the Resolution Strategy."""
     init_container: bool
     legacy_resolution: bool
 
 class ResolutionStrategy:
-    """Defines the strategy for resolving dependencies.
-    """
+    """Defines the strategy for resolving dependencies."""
     config: ResolutionConfig
     def __init__(self, config: ResolutionConfig | None = None) -> None: ...
     def expand(self, providers: set[ProviderInjection]) -> set[ProviderInjection]:

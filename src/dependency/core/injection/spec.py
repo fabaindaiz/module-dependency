@@ -14,6 +14,7 @@ which is a failure rather than an advisory.
 implementation inherits `__implementation_spec__` through the MRO and would otherwise look
 like a second declaration of the same thing.
 """
+
 from dataclasses import dataclass
 from typing import Any, Callable, Optional, cast
 from dependency_injector import providers
@@ -23,6 +24,7 @@ ProviderFactory = Callable[[type], providers.Provider[Any]]
 MODULE_SPEC = "__module_spec__"
 COMPONENT_SPEC = "__component_spec__"
 IMPLEMENTATION_SPEC = "__implementation_spec__"
+
 
 @dataclass(frozen=True, slots=True)
 class ModuleSpec:
@@ -35,11 +37,13 @@ class ModuleSpec:
         provides: Component classes this module claims in the reverse direction.
         is_root: True when the decorated class is a `Plugin`.
     """
+
     declared_cls: type
     name: str
     parent: Optional[type]
     provides: tuple[type, ...]
     is_root: bool
+
 
 @dataclass(frozen=True, slots=True)
 class ComponentSpec:
@@ -55,6 +59,7 @@ class ComponentSpec:
         provider_factory: Set when the component provides itself inline.
         bootstrap: Whether this component is initialised at startup.
     """
+
     declared_cls: type
     name: str
     module: Optional[type]
@@ -63,6 +68,7 @@ class ComponentSpec:
     strict_resolution: bool
     provider_factory: Optional[ProviderFactory]
     bootstrap: bool
+
 
 @dataclass(frozen=True, slots=True)
 class ImplementationSpec:
@@ -77,6 +83,7 @@ class ImplementationSpec:
         provider_factory: How to build this implementation's provider, per build.
         bootstrap: Whether this implementation is initialised at startup.
     """
+
     declared_cls: type
     target: type
     imports: tuple[type, ...]
@@ -84,6 +91,7 @@ class ImplementationSpec:
     strict_resolution: bool
     provider_factory: ProviderFactory
     bootstrap: bool
+
 
 def attach_spec(declared_cls: type, spec: object, attribute: str) -> None:
     """Attach a spec to the class that declared it.
@@ -95,13 +103,16 @@ def attach_spec(declared_cls: type, spec: object, attribute: str) -> None:
     """
     setattr(declared_cls, attribute, spec)
 
+
 def own_module_spec(declared_cls: type) -> Optional[ModuleSpec]:
     """The `ModuleSpec` this class declared itself, ignoring inherited ones."""
     return cast(Optional[ModuleSpec], declared_cls.__dict__.get(MODULE_SPEC))
 
+
 def own_component_spec(declared_cls: type) -> Optional[ComponentSpec]:
     """The `ComponentSpec` this class declared itself, ignoring inherited ones."""
     return cast(Optional[ComponentSpec], declared_cls.__dict__.get(COMPONENT_SPEC))
+
 
 def own_implementation_spec(declared_cls: type) -> Optional[ImplementationSpec]:
     """The `ImplementationSpec` this class declared itself, ignoring inherited ones.
@@ -109,7 +120,10 @@ def own_implementation_spec(declared_cls: type) -> Optional[ImplementationSpec]:
     A subclass of an implementation inherits the attribute; only the class that carries it
     in its own `__dict__` declared it.
     """
-    return cast(Optional[ImplementationSpec], declared_cls.__dict__.get(IMPLEMENTATION_SPEC))
+    return cast(
+        Optional[ImplementationSpec], declared_cls.__dict__.get(IMPLEMENTATION_SPEC)
+    )
+
 
 def target_component(declared_cls: type) -> Optional[type]:
     """The component an implementation implements: the nearest base that declared one.

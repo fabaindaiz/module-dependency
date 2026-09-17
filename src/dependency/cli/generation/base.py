@@ -5,7 +5,5 @@ JENV: Environment = Environment(
         package_name="dependency.cli",
         package_path="templates",
     ),
-    autoescape=select_autoescape(
-        enabled_extensions=["j2"]
-    )
+    autoescape=select_autoescape(enabled_extensions=["j2"]),
 )

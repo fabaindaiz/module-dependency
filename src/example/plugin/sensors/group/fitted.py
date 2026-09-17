@@ -13,6 +13,7 @@ _logger = logging.getLogger("station.sensors")
 
 CANDIDATES = (TemperatureSensor, HumiditySensor, PressureSensor)
 
+
 @instance(
     imports=[
         StationState,
@@ -32,6 +33,7 @@ class FittedSensors(CompositeMixin[SensorReader], SensorGroup):
     than refusing to run. That distinction is the whole reason CancelInitialization
     exists.
     """
+
     def __init__(self) -> None:
         super().__init__()
         self.__state: StationState = StationState.provide()

@@ -1,6 +1,7 @@
 from dependency.core import instance, providers
 from example.plugin.runtime.clock import Clock
 
+
 @instance(
     provider=providers.Singleton,
 )
@@ -11,6 +12,7 @@ class ManualClock(Clock):
     the station run at full speed under test: no declaration changes, only which
     module the active imports.py pulls in.
     """
+
     def __init__(self) -> None:
         self._now: float = 0.0
 

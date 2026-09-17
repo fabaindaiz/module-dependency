@@ -5,7 +5,8 @@ from typing import Any, Callable, Coroutine, Optional, TypeVar
 from dependency.core import Component, component
 from example.plugin.runtime import RuntimePlugin
 
-T = TypeVar('T')
+T = TypeVar("T")
+
 
 @component(
     module=RuntimePlugin,
@@ -16,6 +17,7 @@ class DeferredService(Component):
     The sampling loop is synchronous and must stay that way — it is the thing with a
     deadline. Anything that can wait goes through here.
     """
+
     @property
     @abstractmethod
     def event_loop(self) -> asyncio.AbstractEventLoop:
@@ -35,7 +37,9 @@ class DeferredService(Component):
         """Schedule a coroutine and wait for its result."""
 
     @abstractmethod
-    async def run_in_executor(self, func: Callable[..., T], *args: Any, **kwargs: Any) -> T:
+    async def run_in_executor(
+        self, func: Callable[..., T], *args: Any, **kwargs: Any
+    ) -> T:
         """Run a blocking function off the event loop."""
 
     @abstractmethod

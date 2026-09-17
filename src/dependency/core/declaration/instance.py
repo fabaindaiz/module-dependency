@@ -3,9 +3,14 @@ from dependency_injector import providers
 from dependency.core.declaration.component import COMPONENT, Component
 from functools import partial
 from dependency.core.injection.spec import (
-    IMPLEMENTATION_SPEC, ImplementationSpec, attach_spec, target_component)
+    IMPLEMENTATION_SPEC,
+    ImplementationSpec,
+    attach_spec,
+    target_component,
+)
 from dependency.core.declaration.validation import standalone_provider
 from dependency.core.injection.mixin import ProviderMixin
+
 
 def instance(
     imports: Iterable[type[ProviderMixin]] = (),
@@ -45,6 +50,7 @@ def instance(
         Callable[[type[COMPONENT]], type[COMPONENT]]: Decorator that registers the
             instance class and returns it unchanged.
     """
+
     def wrap(cls: type[COMPONENT]) -> type[COMPONENT]:
         """Register the instance class as the implementation of its parent Component.
 
@@ -54,7 +60,9 @@ def instance(
         any previously assigned implementation (with a warning if one existed).
         """
         if not issubclass(cls, Component):
-            raise TypeError(f"Class {cls} has decorator @instance but is not a subclass of Component") # pragma: no cover
+            raise TypeError(
+                f"Class {cls} has decorator @instance but is not a subclass of Component"
+            )  # pragma: no cover
 
         declared_imports = tuple(imports)
         declared_optional = tuple(optional)
@@ -73,15 +81,20 @@ def instance(
 
         target = target_component(cls)
         if target is not None:
-            attach_spec(cls, ImplementationSpec(
-                declared_cls=cls,
-                target=target,
-                imports=declared_imports,
-                optional=declared_optional,
-                strict_resolution=strict_resolution,
-                provider_factory=partial(standalone_provider, provider=provider),
-                bootstrap=bootstrap,
-            ), IMPLEMENTATION_SPEC)
+            attach_spec(
+                cls,
+                ImplementationSpec(
+                    declared_cls=cls,
+                    target=target,
+                    imports=declared_imports,
+                    optional=declared_optional,
+                    strict_resolution=strict_resolution,
+                    provider_factory=partial(standalone_provider, provider=provider),
+                    bootstrap=bootstrap,
+                ),
+                IMPLEMENTATION_SPEC,
+            )
 
         return cls
+
     return wrap

@@ -3,6 +3,7 @@ from dependency.library.components import StateComponent
 from example.plugin.runtime import RuntimePlugin
 from example.plugin.runtime.modes import StationMode
 
+
 @component(
     module=RuntimePlugin,
 )
