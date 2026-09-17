@@ -89,6 +89,10 @@ classifiers = [
 
 [project.optional-dependencies]
 graph = ["graphviz"]
+testing = ["pytest>=8.0"]
+
+[project.entry-points.pytest11]
+dependency = "dependency.testing.plugin"
 
 [project.urls]
 Homepage = "https://github.com/fabaindaiz/module-injection"

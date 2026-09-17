@@ -435,6 +435,9 @@ LAYER_ALLOWED = {
     # library depends on core, never the other way round (D-019, now one-directional)
     "library": {"core", "core.injection", "core.utils"},
     "cli": set(),
+    # testing imports core freely; nothing in core may import testing, so no new cycle
+    "testing": {"core", "core.agrupation", "core.declaration", "core.injection",
+                "core.resolution", "core.exceptions"},
     "core": {"core.agrupation", "core.declaration", "core.injection", "core.resolution", "core.exceptions"},
 }
 KNOWN_CYCLES = {("core.injection", "core.resolution")}

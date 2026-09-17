@@ -36,6 +36,52 @@ Earlier entries predate these two fields and are not rewritten.
 
 ---
 
+## 2026-09-17 — A pytest plugin that measures what it cannot yet isolate
+
+**What.** New `src/dependency/testing/` subpackage, shipped deliberately incomplete:
+a `dependency_container` fixture, a `declaration_state()` snapshot helper, the `testing`
+extra, the `pytest11` entry point, a `testing` line in `LAYER_ALLOWED`, and
+`tests/conftest.py` — the repository's first.
+
+The load-bearing piece is `test_resolving_leaves_no_trace_on_the_declared_classes`, an
+`xfail(strict=True)`. It asserts that resolving an application leaves the declared classes
+untouched, which is **false today**. When declaration state stops being process-global it
+becomes an xpass, `strict=True` turns that into a build failure, and whoever lands the
+change is forced to delete the marker. The definition of done is a test rather than a
+sentence.
+
+**Areas.** `src/dependency/testing/`, `tests/testing/`, `tests/conftest.py`,
+`pyproject.toml`, `tools/audit_dependency.py`, `stubs/dependency/testing/`.
+
+**Why.** Step 2 of removing process-global declaration state.
+`docs/roadmap.md` asks, as the question that decides whether the work is a fixture or a
+redesign, *"is the declaration registry resettable at all?"* This answers it with a
+measurement instead of an opinion: it is not.
+
+**Architecture.** ✅ Complies. `testing` imports `core` and nothing in `core` imports
+`testing`, so `KNOWN_CYCLES` still holds exactly one pair. No fixture is `autouse` — the
+entry point loads this module in every environment where the package is installed, so a
+plugin that changed behaviour on install would break somebody's suite on upgrade.
+
+**What went wrong on the way.** The fixture was not found on first run. The `pytest11`
+entry point lives in the metadata of an **installed** distribution, and this suite runs
+against `PYTHONPATH=src`. Fixed by naming the plugin in `tests/conftest.py`, which is the
+honest split: the conftest proves the fixtures work, and the `release` skill proves the
+entry point registers, by installing the wheel into a clean venv.
+
+**What was left undone.** **The entry point is unverified.** `importlib.metadata` in the
+build env reports no `pytest11` entry for this package, and the installed distribution
+there still says **version 1.1.7** while `pyproject.toml` says 2.0.0 — the dev environment
+lags the source tree, which is this repository's named blind spot. Nothing here is proven
+to work from a wheel until the `release` skill runs. Also: `dependency_app` does not exist
+yet; it arrives with the graph in step 6.
+
+**Measured.** 114 passed + 1 xfailed (was 111), `mypy --strict` clean on **50** source
+files (was 48), 14 checks passed with 2 advisories — no new layering advisory, so the
+`testing` layer is declared correctly.
+
+---
+
 ## 2026-09-17 — The layering doc claimed a cycle that had been closed
 
 **What.** Seven decision citations were wrong across four files. `core/CLAUDE.md` said
